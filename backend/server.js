@@ -39,4 +39,9 @@ app.post('/api/registerData', (req, res) => {
   });
 });
 
+app.post('/api/setFactors', (req, res) => {
+    const newData = req.body;
+    res.status(200).json({ message: 'Données enregistrées avec succès' });
+  });
+
 app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));
