@@ -1,1 +1,10 @@
-[]
+[
+  {},
+  {
+    "participant": "1",
+    "mentalDemand": "2",
+    "physicalDemand": "",
+    "effort": "2"
+  },
+  {}
+]

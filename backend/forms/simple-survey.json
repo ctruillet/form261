@@ -1,0 +1,9 @@
+[
+    {
+      "label": "Participant",
+      "name": "participant",
+      "type": "range",
+      "required": true
+    }
+  ]
+  

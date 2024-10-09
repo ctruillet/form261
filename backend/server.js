@@ -45,3 +45,30 @@ app.post('/api/setFactors', (req, res) => {
   });
 
 app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));
+
+
+app.get('/api/forms', (req, res) => {
+  // Liste des formulaires prédéfinis
+  const forms = [
+    { name: 'NASA TLX Form', file: 'nasa-tlx.json' },
+    { name: 'Simple Survey Form', file: 'simple-survey.json' },
+  ];
+  res.json(forms);
+});
+
+// Route pour récupérer le contenu d'un formulaire JSON
+app.get('/api/form/:formName', (req, res) => {
+  const formName = req.params.formName;
+  const filePath = path.join(__dirname, 'forms', formName); // Chemin vers le dossier contenant les fichiers JSON
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).send('Erreur lors de la lecture du fichier JSON');
+    }
+    try {
+      res.json(JSON.parse(data)); // Renvoie le contenu du fichier JSON
+    } catch (parseError) {
+      return res.status(500).send('Erreur lors de l\'analyse du fichier JSON');
+    }
+  });
+});
