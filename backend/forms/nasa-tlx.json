@@ -1,27 +1,30 @@
-[
-    {
+{
+  "name": "NASA TLX",
+  "fields": [
+  {
       "label": "Participant",
       "name": "participant",
       "type": "text",
       "required": true
     },
     {
-      "label": "Demande mentale (Mental Demand)",
+      "label": "Demande mentale",
       "name": "mentalDemand",
       "type": "number",
       "required": true
     },
     {
-      "label": "Demande physique (Physical Demand)",
+      "label": "Demande physique",
       "name": "physicalDemand",
       "type": "range",
       "required": true
     },
     {
-      "label": "Effort (Effort)",
+      "label": "Effort",
       "name": "effort",
       "type": "number",
       "required": false
     }
   ]
+}
   

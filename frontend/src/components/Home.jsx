@@ -1,4 +1,3 @@
-// Home.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -13,8 +12,8 @@ const Home = () => {
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        const response = await axios.get('/api/forms');
-        setPredefinedForms(response.data);
+        const response = await axios.get('/api/forms'); // Appel au backend pour récupérer les formulaires
+        setPredefinedForms(response.data); // Stockage des formulaires dans le state
       } catch (error) {
         console.error('Erreur lors de la récupération des formulaires :', error);
       }
@@ -26,10 +25,11 @@ const Home = () => {
   // Gestion de la sélection d'un formulaire prédéfini
   const handleSelectPredefinedForm = async (formName) => {
     try {
-      const response = await axios.get(`/api/form/${formName}`);
-      navigate('/form', { state: { formDescription: response.data } });
+      const response = await axios.get(`/api/forms/${formName}`); // Appel pour récupérer le contenu du formulaire sélectionné
+      navigate('/form', { state: { formDescription: response.data } }); // Navigation avec le formulaire chargé
     } catch (error) {
       console.error('Erreur lors de la récupération du formulaire sélectionné :', error);
+      console.error(formName);
     }
   };
 
@@ -41,7 +41,7 @@ const Home = () => {
       const formDescription = JSON.parse(e.target.result);
       navigate('/form', { state: { formDescription } });
     };
-    reader.readAsText(file);
+    reader.readAsText(file); // Lecture du fichier JSON
   };
 
   // Gestion du drag & drop
@@ -62,16 +62,14 @@ const Home = () => {
   // Gestion de l'entrée dans la zone de drag
   const handleDragOver = (event) => {
     event.preventDefault();
-    if (!dragging) {
-      setDragging(true);
-    }
+    setDragging(true); // Activer l'état de drag quand le fichier est au-dessus de la zone
   };
 
   // Gestion de la sortie de la zone de drag
   const handleDragLeave = (event) => {
     // Assurez-vous que l'événement est bien pour le conteneur
     if (event.clientX === 0 && event.clientY === 0) {
-      setDragging(false);
+      setDragging(false); // Désactiver l'état de drag quand le fichier quitte la zone
     }
   };
 
@@ -81,7 +79,7 @@ const Home = () => {
       onDragOver={handleDragOver} 
       onDrop={handleDrop} 
       onDragLeave={handleDragLeave}
-      style={{ height: '100vh', width: '100vw', position: 'relative' }} // Pour s'assurer que le div prend toute la page
+      style={{ height: '100vh', width: '100vw', position: 'relative' }} // S'assurer que la zone prend toute la page
     >
       <h1>Bienvenue sur Form261</h1>
       
