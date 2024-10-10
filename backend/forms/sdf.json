@@ -1,0 +1,9 @@
+{
+  "name": "sdf",
+  "fields": [
+    {
+      "type": "radio",
+      "label": "sdf"
+    }
+  ]
+}

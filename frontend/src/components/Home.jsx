@@ -1,10 +1,12 @@
 // Home.jsx
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './Home.css'; // Importer le CSS
 
 const Home = () => {
   const [predefinedForms, setPredefinedForms] = useState([]);
+  const [dragging, setDragging] = useState(false);
   const navigate = useNavigate();
 
   // Récupérer les formulaires prédéfinis lors du chargement du composant
@@ -31,7 +33,7 @@ const Home = () => {
     }
   };
 
-  // Gestion du chargement d'un fichier JSON
+  // Gestion du chargement d'un fichier JSON via le bouton d'import
   const handleUploadForm = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -42,22 +44,61 @@ const Home = () => {
     reader.readAsText(file);
   };
 
-  return (
-    <div>
-      <h1>Bienvenue sur la page d'accueil</h1>
-      <h2>Formulaires prédéfinis</h2>
-      <ul>
-        {predefinedForms.map((form, index) => (
-          <li key={index}>
-            <button onClick={() => handleSelectPredefinedForm(form.file)}>
-              {form.name}
-            </button>
-          </li>
-        ))}
-      </ul>
+  // Gestion du drag & drop
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setDragging(false);
+    const file = event.dataTransfer.files[0];
+    if (file && file.type === "application/json") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const formDescription = JSON.parse(e.target.result);
+        navigate('/form', { state: { formDescription } });
+      };
+      reader.readAsText(file);
+    }
+  };
 
-      <h2>Ou importer un fichier JSON</h2>
-      <input type="file" accept=".json" onChange={handleUploadForm} />
+  // Gestion de l'entrée dans la zone de drag
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    if (!dragging) {
+      setDragging(true);
+    }
+  };
+
+  // Gestion de la sortie de la zone de drag
+  const handleDragLeave = (event) => {
+    // Assurez-vous que l'événement est bien pour le conteneur
+    if (event.clientX === 0 && event.clientY === 0) {
+      setDragging(false);
+    }
+  };
+
+  return (
+    <div 
+      className={`drag-zone ${dragging ? 'dragging' : ''}`} 
+      onDragOver={handleDragOver} 
+      onDrop={handleDrop} 
+      onDragLeave={handleDragLeave}
+      style={{ height: '100vh', width: '100vw', position: 'relative' }} // Pour s'assurer que le div prend toute la page
+    >
+      <h1>Bienvenue sur Form261</h1>
+      
+      <div className="form-buttons">
+        {predefinedForms.map((form, index) => (
+          <button key={index} onClick={() => handleSelectPredefinedForm(form.file)}>
+            {form.name}
+          </button>
+        ))}
+
+        <label className="import-button">
+          Import JSON
+          <input type="file" accept=".json" onChange={handleUploadForm} hidden />
+        </label>
+      </div>
+
+      {dragging && <div className="drag-overlay">Déposez votre fichier JSON ici</div>}
     </div>
   );
 };

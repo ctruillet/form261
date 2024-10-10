@@ -1,0 +1,13 @@
+{
+  "name": "Test",
+  "fields": [
+    {
+      "type": "text",
+      "label": "Le super texte"
+    },
+    {
+      "type": "textarea",
+      "label": "You hou"
+    }
+  ]
+}

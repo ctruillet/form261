@@ -1,4 +1,7 @@
 const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const formRoutes = require('./routes/formRoutes');
 const fs = require('fs');
 const path = require('path');
 const app = express();
@@ -6,6 +9,16 @@ const PORT = 5000;
 
 // Middleware pour analyser le JSON du corps des requêtes
 app.use(express.json());
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// Utiliser les routes
+app.use('/api', formRoutes);
+
+
+
 
 // Chemin vers le fichier JSON
 const filePath = path.join(__dirname, 'data.json');
@@ -50,8 +63,8 @@ app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));
 app.get('/api/forms', (req, res) => {
   // Liste des formulaires prédéfinis
   const forms = [
-    { name: 'NASA TLX Form', file: 'nasa-tlx.json' },
-    { name: 'Simple Survey Form', file: 'simple-survey.json' },
+    { name: 'NASA TLX', file: 'nasa-tlx.json' },
+    { name: 'Simple Survey', file: 'simple-survey.json' },
   ];
   res.json(forms);
 });
