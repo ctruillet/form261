@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Home.css'; // Importer le CSS
+import '../styles//Home.css'; // Importer le CSS
 
 const Home = () => {
   const [predefinedForms, setPredefinedForms] = useState([]);

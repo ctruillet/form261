@@ -1,10 +1,10 @@
 // App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Admin from './components/Admin';
-import Form from './components/Form'; 
-import Home from './components/Home'; 
-import CreateForm from './components/CreateForm';
+import Admin from './pages/Admin';
+import Form from './pages/Form'; 
+import Home from './pages/Home'; 
+import CreateForm from './pages/CreateForm';
 
 import './App.css'; // Import du fichier CSS
 
