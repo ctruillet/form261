@@ -5,11 +5,15 @@ const ChoiceField = ({ label, options = [], onChange }) => {
     <div>
       <label>{label}</label>
       <select onChange={(e) => onChange({ label, value: e.target.value })}>
-        {options.map((option, index) => (
-          <option key={index} value={option}>
-            {option}
-          </option>
-        ))}
+        {options.length > 0 ? (
+          options.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))
+        ) : (
+          <option value="">Aucune option disponible</option>
+        )}
       </select>
     </div>
   );

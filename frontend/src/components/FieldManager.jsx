@@ -7,6 +7,17 @@ import RangeField from './fields/RangeField';
 import '../styles/FieldManager.css'; // Importation du style
 
 const FieldManager = ({ fields, addField, removeField, updateField }) => {
+  const handleTypeChange = (index, newType) => {
+    const updatedField = { ...fields[index], type: newType };
+    
+    // Ajouter des options par défaut si le type change vers choix ou multiple
+    if (newType === 'choice' || newType === 'multiple') {
+      updatedField.options = updatedField.options || ['Option 1', 'Option 2']; // Par défaut
+    }
+    
+    updateField(index, updatedField);
+  };
+
   return (
     <div className="field-manager">
       {fields.map((field, index) => (
@@ -14,11 +25,7 @@ const FieldManager = ({ fields, addField, removeField, updateField }) => {
           <div className="field-header">
             <select
               value={field.type}
-              onChange={(e) => {
-                const newType = e.target.value;
-                const updatedField = { ...field, type: newType }; // Mise à jour du type
-                updateField(index, updatedField);
-              }}
+              onChange={(e) => handleTypeChange(index, e.target.value)}
             >
               <option value="text">Champ de texte</option>
               <option value="choice">Choix unique</option>
@@ -31,29 +38,45 @@ const FieldManager = ({ fields, addField, removeField, updateField }) => {
 
           {/* Affichage dynamique en fonction du type de champ */}
           {field.type === 'likert' && (
-            <LikertScaleField {...field} onChange={(updatedField) => updateField(index, updatedField)} />
+            <LikertScaleField
+            {...field}
+            onChange={(updatedField) => updateField(index, { ...field, ...updatedField })} />
           )}
           {field.type === 'choice' && (
-            <ChoiceField {...field} onChange={(updatedField) => updateField(index, updatedField)} />
+            <ChoiceField
+              label={field.label}
+              options={field.options || []} // Options par défaut
+              onChange={(updatedField) => updateField(index, { ...field, ...updatedField })}
+            />
           )}
           {field.type === 'multiple' && (
-            <MultipleChoiceField {...field} onChange={(updatedField) => updateField(index, updatedField)} />
+            <MultipleChoiceField
+              label={field.label}
+              options={field.options || []} // Options par défaut
+              onChange={(updatedField) => updateField(index, { ...field, ...updatedField })}
+            />
           )}
           {field.type === 'text' && (
-            <TextField {...field} onChange={(updatedField) => updateField(index, updatedField)} />
+            <TextField
+            {...field}
+            onChange={(updatedField) => updateField(index, { ...field, ...updatedField })}
+          />
+          
           )}
           {field.type === 'range' && (
-            <RangeField {...field} onChange={(updatedField) => updateField(index, updatedField)} />
+            <RangeField
+            {...field} 
+            onChange={(updatedField) => updateField(index, { ...field, ...updatedField })} />
           )}
         </div>
       ))}
 
-      {/* Afficher le bouton Ajouter si aucun champ n'existe */}
+      {/* Ajouter un champ si aucun n'existe */}
       {fields.length === 0 && (
         <button className="add-button" onClick={addField}>+ Ajouter un champ</button>
       )}
-      
-      {/* Option d'ajout de nouveau champ lorsque des champs existent */}
+
+      {/* Option d'ajout de nouveau champ */}
       {fields.length > 0 && (
         <button className="add-button" onClick={addField}>+ Ajouter un champ</button>
       )}

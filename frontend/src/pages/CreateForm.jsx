@@ -15,11 +15,17 @@ const CreateForm = () => {
   };
 
   const updateField = (index, updatedField) => {
-    console.log("Updating field:", updatedField); // Debug
-    setFields((prevFields) => 
-      prevFields.map((field, i) => (i === index ? updatedField : field))
-    );
+    setFields(prevFields => {
+      // Copie du tableau actuel pour éviter la mutation
+      const newFields = [...prevFields];
+      
+      // Mise à jour du champ spécifique
+      newFields[index] = updatedField;
+      
+      return newFields;
+    });
   };
+  
   
 
   return (
