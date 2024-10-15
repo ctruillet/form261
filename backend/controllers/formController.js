@@ -1,33 +1,25 @@
 const fs = require('fs');
 const path = require('path');
-const fileService = require('../services/fileService');
 
-// Chemin vers le dossier contenant les formulaires
+// Chemin vers le dossier contenant les formulaires et les paramètres
 const formsPath = path.join(__dirname, '../forms');
 
-// Obtenir la liste des formulaires (dynamique)
+// Méthode pour obtenir la liste des formulaires
 exports.getForms = (req, res) => {
-  // console.log('get forms');
-  fileService.getAllForms(formsPath)
-    .then(forms => res.json(forms))
-    .catch(err => res.status(500).json({ message: 'Erreur lors de la récupération des formulaires' }));
+  fs.readdir(formsPath, (err, files) => {
+    if (err) return res.status(500).send(err);
+    const forms = files.map(file => require(path.join(formsPath, file)));
+    res.json(forms);
+  });
 };
 
-// Obtenir un formulaire spécifique par son nom
+// Méthode pour obtenir un formulaire spécifique
 exports.getFormByName = (req, res) => {
-  // console.log(`get form by name: ${req.params.formName}`);
   const formName = req.params.formName;
-  const formPath = path.join(formsPath, formName);
-
+  const formPath = path.join(formsPath, `${formName}.json`);
 
   fs.readFile(formPath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).send('Erreur lors de la lecture du fichier JSON');
-    }
-    try {
-      res.json(JSON.parse(data)); // Renvoie le contenu du fichier JSON
-    } catch (parseError) {
-      return res.status(500).send('Erreur lors de l\'analyse du fichier JSON');
-    }
+    if (err) return res.status(404).send('Form not found');
+    res.json(JSON.parse(data));
   });
 };

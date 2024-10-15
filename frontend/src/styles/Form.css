@@ -22,25 +22,19 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%; /* Assure que le conteneur utilise toute la largeur */
-  max-width: 1200px; /* Optionnel : pour limiter la largeur sur les écrans larges */
-  margin: 0 auto; /* Centrer le formulaire */
 }
 
 /* Barre de navigation pour les paramètres */
 .navbar {
-  background-color: #f4f4f4;
+  background-color: #f5f5f5; /* Couleur de fond de la nav-bar */
   padding: 10px;
   display: flex;
-  justify-content: flex-end; /* Place les éléments à droite */
-  border-bottom: 2px solid #ddd;
+  justify-content: space-between; /* Aligne le contenu à gauche et à droite */
+  align-items: center; /* Centre verticalement les éléments */
+  border-bottom: 1px solid #ccc; /* Bordure inférieure pour séparer */
   position: sticky;
   top: 0;
   z-index: 1000;
-}
-
-.navbar .parameter-block {
-  margin-right: 20px;
 }
 
 .navbar label {
@@ -48,16 +42,10 @@ p {
   font-weight: bold;
 }
 
-.navbar input {
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
 /* Champs spécifiques au formulaire */
 .field-block {
   margin: 15px 0;
-  width: 100%; /* Chaque champ utilise toute la largeur */
+  width: 100%;
 }
 
 .field-label {
@@ -73,7 +61,7 @@ p {
 }
 
 .field-input {
-  width: 100%; /* Assure que le champ d'entrée utilise toute la largeur */
+  width: 100%;
   padding: 10px;
   margin-top: 5px;
   border-radius: 4px;
@@ -88,8 +76,14 @@ p {
   color: #666;
 }
 
+/* Styles pour les champs d'erreur */
+.field-input.error {
+  border-color: red; /* Bordure rouge pour indiquer une erreur */
+  background-color: #ffe6e6; /* Fond légèrement rouge pour un meilleur contraste */
+}
+
 button {
-  background-color: #4CAF50;
+  background-color: #4caf50; /* Couleur de fond du bouton */
   color: white;
   padding: 10px 20px;
   border: none;
@@ -98,11 +92,85 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #45a049; /* Couleur au survol */
 }
 
-/* Styles pour les champs d'erreur */
+.parameter-fields {
+  display: flex;
+  align-items: center; /* Centre verticalement les champs */
+}
+
+.parameter-fields .field-block {
+  margin-left: 10px; /* Espacement entre les champs de paramètres */
+}
+
+.parameter-selector {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.parameter-selector select {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Styles pour les boutons de paramètres */
+.parameter-buttons {
+  display: flex;
+  gap: 10px; /* Espacement entre les boutons */
+  margin-bottom: 20px; /* Espacement sous la barre de navigation */
+}
+
+.parameter-button {
+  background-color: #4caf50; /* Couleur de fond des boutons */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.parameter-button:hover {
+  background-color: #45a049; /* Couleur au survol */
+}
+
+.parameter-button.selected {
+  background-color: #3e8e41; /* Couleur pour le bouton sélectionné */
+}
+
+.parameter-fields {
+  display: flex;
+  align-items: center; /* Centre verticalement les champs */
+  flex-wrap: wrap; /* Permet aux éléments de passer à la ligne si nécessaire */
+  margin-left: 20px; /* Espacement à gauche */
+}
+
+.parameter-fields .field-block {
+  margin-left: 15px; /* Augmentation de l'espacement entre les champs de paramètres */
+  margin-right: 15px; /* Ajout d'espacement à droite pour chaque champ */
+  flex: 1; /* Permet aux champs de s'étendre */
+  max-width: 150px; /* Limite la largeur maximale de chaque champ */
+}
+
+.parameter-fields .field-input {
+  width: 100%; /* Assure que l'input prend toute la largeur du bloc */
+  padding: 5px; /* Ajustez le remplissage selon vos besoins */
+}
+
 .field-input.error {
   border-color: red; /* Bordure rouge pour indiquer une erreur */
   background-color: #ffe6e6; /* Fond légèrement rouge pour un meilleur contraste */
+  accent-color: red;
+}
+
+.error-message {
+  color: red; /* Couleur des messages d'erreur */
+  font-size: 0.85rem; /* Taille de la police pour les messages d'erreur */
+  margin-top: 5px; /* Espacement au-dessus du message d'erreur */
+}
+
+.field-input::placeholder {
+  color: red; /* Change la couleur du placeholder d'erreur */
+  opacity: 0.8; /* Légèrement plus transparent */
 }

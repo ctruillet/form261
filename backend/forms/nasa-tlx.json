@@ -3,22 +3,6 @@
   "description": "Évaluez la charge de travail perçue en fonction des six dimensions ci-dessous.",
   "fields": [
     {
-      "label": "UserID",
-      "sublabel": "UserID",
-      "type": "text",
-      "placeholder": "UserID",
-      "required": true,
-      "category": "parameter" 
-    },
-    {
-      "label": "Technique",
-      "sublabel": "TI",
-      "type": "text",
-      "placeholder": "TI",
-      "required": true,
-      "category": "parameter" 
-    },
-    {
       "label": "Demande Mentale",
       "sublabel": "Dans quelle mesure la tâche était-elle exigeante sur le plan mental ?",
       "type": "range",

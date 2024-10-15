@@ -1,0 +1,22 @@
+{
+  "title": "Expé 1",
+  "description": "Occultation",
+  "fields": [
+    {
+      "label": "UserID",
+      "sublabel": "UserID",
+      "type": "text",
+      "placeholder": "UserID",
+      "required": true,
+      "category": "parameter" 
+    },
+    {
+      "label": "Technique",
+      "sublabel": "TI",
+      "type": "text",
+      "placeholder": "TI",
+      "required": true,
+      "category": "parameter" 
+    }
+  ]
+}
