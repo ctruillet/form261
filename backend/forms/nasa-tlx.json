@@ -1,30 +1,82 @@
 {
-  "name": "NASA TLX",
+  "title": "NASA-TLX",
+  "description": "Évaluez la charge de travail perçue en fonction des six dimensions ci-dessous.",
   "fields": [
-  {
-      "label": "Participant",
-      "name": "participant",
+    {
+      "label": "UserID",
+      "sublabel": "UserID",
       "type": "text",
-      "required": true
+      "placeholder": "UserID",
+      "required": true,
+      "category": "parameter" 
     },
     {
-      "label": "Demande mentale",
-      "name": "mentalDemand",
-      "type": "number",
-      "required": true
+      "label": "Technique",
+      "sublabel": "TI",
+      "type": "text",
+      "placeholder": "TI",
+      "required": true,
+      "category": "parameter" 
     },
     {
-      "label": "Demande physique",
-      "name": "physicalDemand",
+      "label": "Demande Mentale",
+      "sublabel": "Dans quelle mesure la tâche était-elle exigeante sur le plan mental ?",
       "type": "range",
-      "required": true
+      "min": "Bas",
+      "max": "Haut",
+      "step": 5,
+      "required": true,
+      "category": "form"
+    },
+    {
+      "label": "Demande Physique",
+      "sublabel": "Dans quelle mesure la tâche était-elle physiquement exigeante ?",
+      "type": "range",
+      "min": "Bas",
+      "max": "Haut",
+      "step": 5,
+      "required": true,
+      "category": "form"
+    },
+    {
+      "label": "Demande Temporelle",
+      "sublabel": "Dans quelle mesure le rythme de la tâche était-il pressé ou précipité ?",
+      "type": "range",
+      "min": "Faible",
+      "max": "Elevée",
+      "step": 5,
+      "required": true,
+      "category": "form"
+    },
+    {
+      "label": "Performance",
+      "sublabel": "Dans quelle mesure avez-vous réussi à accomplir ce qui vous était demandé ?",
+      "type": "range",
+      "min": "Bonne",
+      "max": "Faible",
+      "step": 5,
+      "required": true,
+      "category": "form"
     },
     {
       "label": "Effort",
-      "name": "effort",
-      "type": "number",
-      "required": false
+      "sublabel": "Quels efforts avez-vous dû fournir pour atteindre votre niveau de performance ?",
+      "type": "range",
+      "min": "Bas",
+      "max": "Haut",
+      "step": 5,
+      "required": true,
+      "category": "form"
+    },
+    {
+      "label": "Frustration",
+      "sublabel": "Dans quelle mesure étiez-vous inquiet, découragé, irrité, stressé et ennuyé ?",
+      "type": "range",
+      "min": "Bas",
+      "max": "Haut",
+      "step": 5,
+      "required": true,
+      "category": "form"
     }
   ]
 }
-  

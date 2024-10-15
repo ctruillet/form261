@@ -34,32 +34,7 @@ const Admin = () => {
   return (
     <div>
       <h2>Page Admin</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Facteur 1 :</label>
-          <input
-            type="text"
-            name="factor1"
-            value={factors.factor1}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Facteur 2 :</label>
-          <input
-            type="text"
-            name="factor2"
-            value={factors.factor2}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* Ajoute d'autres champs de formulaire pour les facteurs */}
-        
-        <button type="submit">Enregistrer les facteurs</button>
-      </form>
+      <p>Affichage des réponses et possibilité de les supprimer ou de les modifier</p>
     </div>
   );
 };

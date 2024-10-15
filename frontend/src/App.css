@@ -7,7 +7,7 @@ body {
 
 .app-container {
   display: flex;
-  height: 100vh; /* Prendre toute la hauteur de la vue */
+  /* height: 100vh; Prendre toute la hauteur de la vue */
 
   flex-direction: row;
   /* align-items: flex-start; */
@@ -18,7 +18,7 @@ body {
 
 .sidebar {
   /* flex: 0; */
-  width: 20%; /* Largeur de la barre latérale */
+  /* width: 20%; Largeur de la barre latérale */
   background-color: #2c3e50; /* Couleur de fond de la barre latérale */
   color: white; /* Couleur du texte */
   padding: 20px; /* Espacement interne */

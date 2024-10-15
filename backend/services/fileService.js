@@ -14,7 +14,7 @@ exports.getAllForms = (formsPath) => {
         .map(file => {
           const content = fs.readFileSync(path.join(formsPath, file), 'utf8');
           const parsedContent = JSON.parse(content);
-          return { name: parsedContent.name, file };
+          return { name: parsedContent.title, file };
         });
 
       resolve(forms);

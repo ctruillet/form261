@@ -22,5 +22,15 @@
     "Demande mentale": "21",
     "Demande physique": "59",
     "Effort": "1"
+  },
+  {
+    "UserID": "10",
+    "Technique": "BalloonProbe",
+    "Demande Mentale": "45",
+    "Demande Physique": "",
+    "Demande Temporelle": "",
+    "Performance": "",
+    "Effort": "",
+    "Frustration": ""
   }
 ]
