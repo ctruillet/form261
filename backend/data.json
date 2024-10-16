@@ -1,52 +1,172 @@
 [
-  {},
   {
-    "participant": "1",
-    "mentalDemand": "2",
-    "physicalDemand": "",
-    "effort": "2"
-  },
-  {},
-  {
-    "participant": ""
-  },
-  {
-    "sdf": ""
-  },
-  {
-    "Le super texte": "sfssgs",
-    "You hou": "dg"
-  },
-  {
-    "Participant": "2",
-    "Demande mentale": "21",
-    "Demande physique": "59",
-    "Effort": "1"
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "1",
+      "Technique": "ARPortal"
+    },
+    "formFields": {
+      "Demande Mentale": "90",
+      "Demande Physique": "85",
+      "Demande Temporelle": "90",
+      "Performance": "90",
+      "Effort": "90",
+      "Frustration": "90"
+    },
+    "id": "ac341863-d33c-4933-a1c6-9e6935f14383"
   },
   {
-    "UserID": "10",
-    "Technique": "BalloonProbe",
-    "Demande Mentale": "45",
-    "Demande Physique": "",
-    "Demande Temporelle": "",
-    "Performance": "",
-    "Effort": "",
-    "Frustration": ""
+    "form": "NASA-TLX.json",
+    "param": "expe2.json",
+    "parameters": {
+      "UserID": "2",
+      "Technique": "VRQuest"
+    },
+    "formFields": {
+      "Demande Mentale": "75",
+      "Demande Physique": "70",
+      "Demande Temporelle": "60",
+      "Performance": "80",
+      "Effort": "85",
+      "Frustration": "40"
+    },
+    "id": "b4a3b174-e37e-4a5b-a9f4-0beaf3c2d0e2"
   },
   {
-    "Demande Mentale": "",
-    "Demande Physique": "",
-    "Demande Temporelle": "",
-    "Performance": "",
-    "Effort": "",
-    "Frustration": ""
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "3",
+      "Technique": "SimulVision"
+    },
+    "formFields": {
+      "Demande Mentale": "60",
+      "Demande Physique": "50",
+      "Demande Temporelle": "70",
+      "Performance": "65",
+      "Effort": "60",
+      "Frustration": "30"
+    },
+    "id": "e317ed69-4eec-4a9f-89d5-7c6f2b4c68e3"
   },
   {
-    "Demande Mentale": "75",
-    "Demande Physique": "",
-    "Demande Temporelle": "",
-    "Performance": "",
-    "Effort": "",
-    "Frustration": ""
+    "form": "NASA-TLX.json",
+    "param": "expe2.json",
+    "parameters": {
+      "UserID": "4",
+      "Technique": "HoloMaze"
+    },
+    "formFields": {
+      "Demande Mentale": "80",
+      "Demande Physique": "90",
+      "Demande Temporelle": "80",
+      "Performance": "70",
+      "Effort": "75",
+      "Frustration": "50"
+    },
+    "id": "f1b5e3da-57de-4c83-bc8d-8c3c64be1b34"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "5",
+      "Technique": "CognitiveSphere"
+    },
+    "formFields": {
+      "Demande Mentale": "50",
+      "Demande Physique": "40",
+      "Demande Temporelle": "55",
+      "Performance": "60",
+      "Effort": "70",
+      "Frustration": "20"
+    },
+    "id": "d5c8b4a6-ec16-4c1f-8b4f-183dc8880fd4"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe2.json",
+    "parameters": {
+      "UserID": "6",
+      "Technique": "VisionForge"
+    },
+    "formFields": {
+      "Demande Mentale": "85",
+      "Demande Physique": "65",
+      "Demande Temporelle": "75",
+      "Performance": "90",
+      "Effort": "65",
+      "Frustration": "45"
+    },
+    "id": "c4a11b6c-9e03-4e4e-a491-d7d2c3b739b1"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "7",
+      "Technique": "EchoFlow"
+    },
+    "formFields": {
+      "Demande Mentale": "70",
+      "Demande Physique": "55",
+      "Demande Temporelle": "80",
+      "Performance": "75",
+      "Effort": "70",
+      "Frustration": "35"
+    },
+    "id": "e8d53a7e-e728-4e69-93eb-4291e3fbb6c5"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe2.json",
+    "parameters": {
+      "UserID": "8",
+      "Technique": "MindTrek"
+    },
+    "formFields": {
+      "Demande Mentale": "45",
+      "Demande Physique": "60",
+      "Demande Temporelle": "65",
+      "Performance": "55",
+      "Effort": "50",
+      "Frustration": "15"
+    },
+    "id": "e7c8a354-cac3-4b1d-9324-fb5d92dc3a94"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "9",
+      "Technique": "SpatialNexus"
+    },
+    "formFields": {
+      "Demande Mentale": "95",
+      "Demande Physique": "80",
+      "Demande Temporelle": "85",
+      "Performance": "95",
+      "Effort": "90",
+      "Frustration": "70"
+    },
+    "id": "d9a1c0ea-453b-43d1-bcc7-8f571e74665c"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe2.json",
+    "parameters": {
+      "UserID": "10",
+      "Technique": "NeuroSphere"
+    },
+    "formFields": {
+      "Demande Mentale": "65",
+      "Demande Physique": "75",
+      "Demande Temporelle": "50",
+      "Performance": "85",
+      "Effort": "60",
+      "Frustration": "25"
+    },
+    "id": "f2c8c3b6-e9a4-4c09-bf3e-8a9c6b91f2c4"
   }
 ]

@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 // Utiliser les routes
 app.use('/api/forms', formRoutes); // Routes liées aux formulaires
 app.use('/api/parameters', parametersRoutes); // Routes liées aux formulaires
-app.use('/api', dataRoutes); // Routes liées à la gestion des données
+app.use('/api/data', dataRoutes); // Routes liées à la gestion des données
 
 // Démarrer le serveur
 app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));

@@ -8,4 +8,9 @@ router.post('/registerData', dataController.registerData);
 // Route pour enregistrer les facteurs
 router.post('/setFactors', dataController.setFactors);
 
+// Routes pour la gestion des réponses
+router.get('/responses', dataController.getAllResponses); // Récupérer toutes les réponses
+router.delete('/responses/:id', dataController.deleteResponse); // Supprimer une réponse
+router.put('/responses/:id', dataController.updateResponse); // Mettre à jour une réponse
+
 module.exports = router;
