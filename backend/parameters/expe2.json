@@ -1,6 +1,6 @@
 {
-  "title": "Expé 1",
-  "name": "expe1",
+  "title": "Expé 2",
+  "name": "expe2",
   "description": "Occultation",
   "fields": [
     {
@@ -16,6 +16,14 @@
       "sublabel": "TI",
       "type": "text",
       "placeholder": "TI",
+      "required": true,
+      "category": "parameter" 
+    },
+    {
+      "label": "Surface",
+      "sublabel": "Surface",
+      "type": "text",
+      "placeholder": "Surface",
       "required": true,
       "category": "parameter" 
     }

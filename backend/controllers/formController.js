@@ -9,14 +9,19 @@ exports.getForms = (req, res) => {
   fs.readdir(formsPath, (err, files) => {
     if (err) return res.status(500).send(err);
     const forms = files.map(file => require(path.join(formsPath, file)));
-    res.json(forms);
+    
+    res.json(forms.map((forms, index) => {
+      return { ...forms, file: files[index] };
+    }));
   });
 };
 
 // Méthode pour obtenir un formulaire spécifique
 exports.getFormByName = (req, res) => {
   const formName = req.params.formName;
-  const formPath = path.join(formsPath, `${formName}.json`);
+  const formPath = path.join(formsPath, `${formName}`);
+
+  console.log(formName);
 
   fs.readFile(formPath, 'utf8', (err, data) => {
     if (err) return res.status(404).send('Form not found');

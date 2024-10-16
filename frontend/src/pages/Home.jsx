@@ -35,7 +35,7 @@ const Home = () => {
       <ul>
         {forms.map((form, index) => (
           <li key={index}>
-            <button onClick={() => handleFormSelect(form.title)}>
+            <button onClick={() => handleFormSelect(form.file)}>
               {form.title}
             </button>
           </li>

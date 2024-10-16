@@ -102,7 +102,7 @@ const Form = () => {
         <select onChange={handleParameterSelect} value={selectedParameter || ''}>
           <option value="">-- Choisissez un fichier de paramètre --</option>
           {parameters.map((param, index) => (
-            <option key={index} value={param.title}>
+            <option key={index} value={param.file}>
               {param.title}
             </option>
           ))}
