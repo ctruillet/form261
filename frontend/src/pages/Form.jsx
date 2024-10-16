@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Form.css';
 
 const Form = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({});
   const [formFields, setFormFields] = useState([]);
   const [parameters, setParameters] = useState([]);
@@ -12,12 +13,13 @@ const Form = () => {
   const [parameterFields, setParameterFields] = useState([]);
   const [errors, setErrors] = useState({});
   const [formTitle, setFormTitle] = useState(''); // Ajout pour le titre
-  const [formDescription, setFormDescription] = useState(''); // Ajout pour le titre
+  const [formDescription, setFormDescription] = useState(''); // Ajout pour la description
 
   useEffect(() => {
     // Récupérer le nom du formulaire à partir des paramètres de l'URL
     const queryParams = new URLSearchParams(location.search);
     const formName = queryParams.get('form');
+    const param = queryParams.get('param');
 
     if (formName) {
       const fetchForm = async () => {
@@ -25,12 +27,12 @@ const Form = () => {
           const response = await axios.get(`/api/forms/${formName}`);
           setFormFields(response.data.fields || []);
           setFormTitle(response.data.title || ''); // Récupérer le titre à partir du champ name
-          setFormDescription(response.data.description || '')
-          
+          setFormDescription(response.data.description || '');
+
           // Remplir le formData initialement, si besoin
           const initialFormData = {};
           response.data.fields.forEach(field => {
-            initialFormData[field.label] = '';
+            initialFormData[field.label] = ''; // Initialisation avec une chaîne vide
           });
           setFormData(initialFormData);
         } catch (error) {
@@ -40,12 +42,37 @@ const Form = () => {
 
       fetchForm();
     }
+
+    if (param) {
+      setSelectedParameter(param);
+      fetchParameterFields(param); // Charger les champs de paramètres sélectionnés
+    }
   }, [location.search]);
+
+  const fetchParameterFields = async (param) => {
+    try {
+      const response = await axios.get(`/api/parameters/${param}`);
+      setParameterFields(response.data.fields || []);
+      
+      // Conserver les valeurs existantes du formulaire
+      const initialFormData = {};
+      response.data.fields.forEach(field => {
+        initialFormData[field.label] = formData[field.label] || ''; // Conservez les valeurs existantes
+      });
+      setFormData(prevData => ({
+        ...prevData,
+        ...initialFormData,
+      }));
+      
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données du paramètre :', error);
+    }
+  };
 
   useEffect(() => {
     const fetchParameters = async () => {
       try {
-        const response = await axios.get('/api/parameters'); 
+        const response = await axios.get('/api/parameters');
         setParameters(response.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des paramètres :', error);
@@ -66,15 +93,18 @@ const Form = () => {
     });
   };
 
-  const handleParameterSelect = async (event) => {
+  const handleParameterSelect = (event) => {
     const param = event.target.value;
     setSelectedParameter(param);
     
-    try {
-      const response = await axios.get(`/api/parameters/${param}`);
-      setParameterFields(response.data.fields || []);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des données du paramètre :', error);
+    // Mettez à jour l'URL avec le nouveau paramètre
+    navigate(`?form=${new URLSearchParams(location.search).get('form')}&param=${param}`);
+
+    // Si un paramètre est sélectionné, récupérez ses champs
+    if (param) {
+      fetchParameterFields(param);
+    } else {
+      setParameterFields([]); // Réinitialiser les champs si aucun paramètre n'est sélectionné
     }
   };
 
@@ -135,7 +165,7 @@ const Form = () => {
                         type="range"
                         className={`field-input ${errors[field.label] ? 'error' : ''}`} 
                         name={field.label}
-                        value={formData[field.label]}
+                        value={formData[field.label] !== undefined ? formData[field.label] : ''} // Utilisation d'une chaîne vide comme valeur par défaut
                         onChange={handleChange}
                         min={field.min}
                         max={field.max}
@@ -143,7 +173,7 @@ const Form = () => {
                         required={field.required}
                       />
                       <span className="range-labels">
-                        {field.min} <strong>{formData[field.label]}</strong> {field.max}
+                        {field.min} <strong>{formData[field.label] !== undefined ? formData[field.label] : ''}</strong> {field.max}
                       </span>
                     </div>
                   ) : (
@@ -152,7 +182,7 @@ const Form = () => {
                         type={field.type}
                         className={`field-input ${errors[field.label] ? 'error' : ''}`}
                         name={field.label}
-                        value={formData[field.label]}
+                        value={formData[field.label] !== undefined ? formData[field.label] : ''} // Utilisation d'une chaîne vide comme valeur par défaut
                         onChange={handleChange}
                         placeholder={errors[field.label] || ''} // Affiche l'erreur dans le placeholder
                         required={field.required}
@@ -167,7 +197,7 @@ const Form = () => {
       </div>
 
       <h1>{formTitle}</h1> {/* Affiche le titre du formulaire */}
-      <p> {formDescription}</p>
+      <p>{formDescription}</p>
 
       <div className="form-container">
         <form onSubmit={handleSubmit}>
@@ -181,7 +211,7 @@ const Form = () => {
                     type="range"
                     className={`field-input ${errors[field.label] ? 'error' : ''}`}
                     name={field.label}
-                    value={formData[field.label]}
+                    value={formData[field.label] !== undefined ? formData[field.label] : ''} // Utilisation d'une chaîne vide comme valeur par défaut
                     onChange={handleChange}
                     min={field.min}
                     max={field.max}
@@ -189,7 +219,7 @@ const Form = () => {
                     required={field.required}
                   />
                   <span className="range-labels">
-                    <strong>{field.min}</strong> <strong>{formData[field.label]}</strong> <strong>{field.max}</strong>
+                    <strong>{field.min}</strong> <strong>{formData[field.label] !== undefined ? formData[field.label] : ''}</strong> <strong>{field.max}</strong>
                   </span>
                 </div>
               ) : (
@@ -198,7 +228,7 @@ const Form = () => {
                     type={field.type}
                     className={`field-input ${errors[field.label] ? 'error' : ''}`}
                     name={field.label}
-                    value={formData[field.label]}
+                    value={formData[field.label] !== undefined ? formData[field.label] : ''} // Utilisation d'une chaîne vide comme valeur par défaut
                     onChange={handleChange}
                     placeholder={errors[field.label] || ''} // Affiche l'erreur dans le placeholder
                     required={field.required}
@@ -207,7 +237,7 @@ const Form = () => {
               )}
             </div>
           ))}
-          <button type="submit">Envoyer</button>
+          <button type="submit">Soumettre</button>
         </form>
       </div>
     </div>
