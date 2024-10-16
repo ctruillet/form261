@@ -11,6 +11,36 @@ const Form = () => {
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [parameterFields, setParameterFields] = useState([]);
   const [errors, setErrors] = useState({});
+  const [formTitle, setFormTitle] = useState(''); // Ajout pour le titre
+  const [formDescription, setFormDescription] = useState(''); // Ajout pour le titre
+
+  useEffect(() => {
+    // Récupérer le nom du formulaire à partir des paramètres de l'URL
+    const queryParams = new URLSearchParams(location.search);
+    const formName = queryParams.get('form');
+
+    if (formName) {
+      const fetchForm = async () => {
+        try {
+          const response = await axios.get(`/api/forms/${formName}`);
+          setFormFields(response.data.fields || []);
+          setFormTitle(response.data.title || ''); // Récupérer le titre à partir du champ name
+          setFormDescription(response.data.description || '')
+          
+          // Remplir le formData initialement, si besoin
+          const initialFormData = {};
+          response.data.fields.forEach(field => {
+            initialFormData[field.label] = '';
+          });
+          setFormData(initialFormData);
+        } catch (error) {
+          console.error('Erreur lors de la récupération du formulaire :', error);
+        }
+      };
+
+      fetchForm();
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchParameters = async () => {
@@ -24,22 +54,6 @@ const Form = () => {
 
     fetchParameters();
   }, []);
-
-  useEffect(() => {
-    if (location.state && location.state.formDescription) {
-      const fields = location.state.formDescription.fields || [];
-      const formSpecificFields = fields.filter(field => field.category === 'form');
-      setFormFields(formSpecificFields);
-
-      const initialFormData = {};
-      fields.forEach(field => {
-        initialFormData[field.label] = '';
-      });
-      setFormData(initialFormData);
-    } else {
-      console.error('Aucune description de formulaire reçue.');
-    }
-  }, [location.state]);
 
   const handleChange = (e) => {
     setFormData({
@@ -152,8 +166,8 @@ const Form = () => {
         </div>
       </div>
 
-      <h1>{location.state.formDescription.title}</h1>
-      <p>{location.state.formDescription.description}</p>
+      <h1>{formTitle}</h1> {/* Affiche le titre du formulaire */}
+      <p> {formDescription}</p>
 
       <div className="form-container">
         <form onSubmit={handleSubmit}>

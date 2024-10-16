@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Home.css'; // Importer le CSS
+
 const Home = () => {
   const [forms, setForms] = useState([]);
-  const [selectedForm, setSelectedForm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,13 +20,9 @@ const Home = () => {
     fetchForms();
   }, []);
 
-  const handleFormSelect = async (formName) => {
-    try {
-      const response = await axios.get(`/api/forms/${formName}`);
-      navigate('/form', { state: { formDescription: response.data } });
-    } catch (error) {
-      console.error('Erreur lors de la récupération du formulaire :', error);
-    }
+  const handleFormSelect = (formName) => {
+    // Naviguer vers la page de formulaire avec le nom du fichier de formulaire dans l'URL
+    navigate(`/form?form=${formName}`);
   };
 
   return (
