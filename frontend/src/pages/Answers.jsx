@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../styles/Admin.css"; // Assurez-vous de styliser les blocs via ce fichier CSS
+import "../styles/Answers.css"; // Assurez-vous de styliser les blocs via ce fichier CSS
 
-const Admin = () => {
+const Answers = () => {
   const [responses, setResponses] = useState([]);
   const [editingResponse, setEditingResponse] = useState(null);
   const [editedData, setEditedData] = useState({});
@@ -66,15 +66,14 @@ const Admin = () => {
   };
 
   return (
-    <div className="admin-container">
-      <h2>Page Admin</h2>
-      <p>Affichage des réponses et possibilité de les supprimer ou de les modifier</p>
+    <div className="answers-container">
+      <h2>Réponses</h2>
       <div className="responses-list">
         {responses.map((response) => (
           <div key={response.id} className="response-item">
             <div className="response-header">
               <h3>{response.form}</h3>
-              <h4>Paramètres : {response.param}</h4>
+              <h4>Paramètre : {response.param}</h4>
             </div>
             <div className="response-details">
               {editingResponse === response.id ? (
@@ -133,4 +132,4 @@ const Admin = () => {
   );
 };
 
-export default Admin;
+export default Answers;

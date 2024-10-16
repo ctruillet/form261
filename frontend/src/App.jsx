@@ -1,7 +1,7 @@
 // App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Admin from './pages/Admin';
+import Answers from './pages/Answers';
 import Form from './pages/Form'; 
 import Home from './pages/Home'; 
 import CreateForm from './pages/CreateForm';
@@ -18,11 +18,14 @@ function App() {
               <Link to="/">Formulaire</Link>
             </li>
             <li>
-              <Link to="/admin">Admin</Link>
+              <Link to="/answers">Réponses</Link>
             </li>
             <li>
-              <Link to="/create">Créer un formulaire</Link> {/* Lien vers la nouvelle page */}
+              <Link to="/">Data</Link>
             </li>
+            {/* <li>
+              <Link to="/create">Créer un formulaire</Link>
+            </li> */}
           </ul>
         </nav>
 
@@ -30,7 +33,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/form" element={<Form />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/answers" element={<Answers />} />
             <Route path="/create" element={<CreateForm />} />
           </Routes>
         </div>
