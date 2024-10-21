@@ -3,40 +3,6 @@
     "form": "NASA-TLX.json",
     "param": "expe1.json",
     "parameters": {
-      "UserID": "1",
-      "Technique": "ARPortal"
-    },
-    "formFields": {
-      "Demande Mentale": "90",
-      "Demande Physique": "85",
-      "Demande Temporelle": "90",
-      "Performance": "90",
-      "Effort": "90",
-      "Frustration": "90"
-    },
-    "id": "ac341863-d33c-4933-a1c6-9e6935f14383"
-  },
-  {
-    "form": "NASA-TLX.json",
-    "param": "expe2.json",
-    "parameters": {
-      "UserID": "2",
-      "Technique": "VRQuest"
-    },
-    "formFields": {
-      "Demande Mentale": "75",
-      "Demande Physique": "70",
-      "Demande Temporelle": "60",
-      "Performance": "80",
-      "Effort": "85",
-      "Frustration": "40"
-    },
-    "id": "b4a3b174-e37e-4a5b-a9f4-0beaf3c2d0e2"
-  },
-  {
-    "form": "NASA-TLX.json",
-    "param": "expe1.json",
-    "parameters": {
       "UserID": "3",
       "Technique": "SimulVision"
     },
@@ -55,7 +21,8 @@
     "param": "expe2.json",
     "parameters": {
       "UserID": "4",
-      "Technique": "HoloMaze"
+      "Technique": "HoloMaze",
+      "Surface": "Horizontal"
     },
     "formFields": {
       "Demande Mentale": "80",
@@ -89,7 +56,8 @@
     "param": "expe2.json",
     "parameters": {
       "UserID": "6",
-      "Technique": "VisionForge"
+      "Technique": "VisionForge",
+      "Surface": "Vertical"
     },
     "formFields": {
       "Demande Mentale": "85",
@@ -123,7 +91,8 @@
     "param": "expe2.json",
     "parameters": {
       "UserID": "8",
-      "Technique": "MindTrek"
+      "Technique": "MindTrek",
+      "Surface": "Vertical"
     },
     "formFields": {
       "Demande Mentale": "45",
@@ -157,7 +126,8 @@
     "param": "expe2.json",
     "parameters": {
       "UserID": "10",
-      "Technique": "NeuroSphere"
+      "Technique": "NeuroSphere",
+      "Surface": "Vertical"
     },
     "formFields": {
       "Demande Mentale": "65",
@@ -168,5 +138,39 @@
       "Frustration": "25"
     },
     "id": "f2c8c3b6-e9a4-4c09-bf3e-8a9c6b91f2c4"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "1",
+      "Technique": "Balloon"
+    },
+    "formFields": {
+      "Demande Mentale": "75",
+      "Demande Physique": "20",
+      "Demande Temporelle": "70",
+      "Performance": "60",
+      "Effort": "60",
+      "Frustration": "15"
+    },
+    "id": "183d2c0a-f021-4f64-952c-9fbd56667d9f"
+  },
+  {
+    "form": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "4",
+      "Technique": "Balloon"
+    },
+    "formFields": {
+      "Demande Mentale": "20",
+      "Demande Physique": "25",
+      "Demande Temporelle": "60",
+      "Performance": "60",
+      "Effort": "40",
+      "Frustration": "65"
+    },
+    "id": "675bbfab-1980-4b6d-b0e5-42e6359da8e4"
   }
 ]

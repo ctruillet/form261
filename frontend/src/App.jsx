@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Answers from './pages/Answers';
 import Form from './pages/Form'; 
 import Home from './pages/Home'; 
-import CreateForm from './pages/CreateForm';
+import Data from './pages/Data';
 
 import './App.css'; // Import du fichier CSS
 
@@ -21,7 +21,7 @@ function App() {
               <Link to="/answers">Réponses</Link>
             </li>
             <li>
-              <Link to="/">Data</Link>
+              <Link to="/data">Data</Link>
             </li>
             {/* <li>
               <Link to="/create">Créer un formulaire</Link>
@@ -34,7 +34,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/form" element={<Form />} />
             <Route path="/answers" element={<Answers />} />
-            <Route path="/create" element={<CreateForm />} />
+            <Route path="/data" element={<Data />} />
           </Routes>
         </div>
       </div>

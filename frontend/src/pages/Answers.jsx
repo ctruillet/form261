@@ -35,23 +35,36 @@ const Answers = () => {
   // Gérer l'édition d'une réponse
   const handleEdit = (response) => {
     setEditingResponse(response.id);
-    setEditedData(response); // Copier la réponse à modifier
+    setEditedData({
+      formFields: { ...response.formFields },
+      parameters: { ...response.parameters },
+    }); // Copier les champs du formulaire et les paramètres
   };
 
   // Gérer la modification des champs dans une réponse
-  const handleChange = (e) => {
+  const handleChange = (e, category, key) => {
     setEditedData({
       ...editedData,
-      [e.target.name]: e.target.value,
+      [category]: {
+        ...editedData[category],
+        [key]: e.target.value,
+      },
     });
   };
 
   // Sauvegarder les modifications
   const handleSave = async () => {
     try {
-      await axios.put(`/api/data/responses/${editingResponse}`, editedData);
+      const updatedResponse = {
+        formFields: editedData.formFields,
+        parameters: editedData.parameters,
+      };
+
+      await axios.put(`/api/data/responses/${editingResponse}`, updatedResponse);
       setResponses(
-        responses.map((r) => (r.id === editingResponse ? editedData : r))
+        responses.map((r) =>
+          r.id === editingResponse ? { ...r, ...updatedResponse } : r
+        )
       );
       setEditingResponse(null);
     } catch (error) {
@@ -78,38 +91,55 @@ const Answers = () => {
             <div className="response-details">
               {editingResponse === response.id ? (
                 <div className="edit-block">
-                  <label>
-                    Formulaire :
-                    <input
-                      type="text"
-                      name="form"
-                      value={editedData.form}
-                      onChange={handleChange}
-                      className="input-field"
-                    />
-                  </label>
-                  <label>
-                    Paramètre :
-                    <input
-                      type="text"
-                      name="param"
-                      value={editedData.param}
-                      onChange={handleChange}
-                      className="input-field"
-                    />
-                  </label>
+                  {/* Modifier les paramètres */}
+                  <div className="parameters-block">
+                    {Object.entries(editedData.parameters).map(([key, value]) => (
+                      <label key={key}>
+                        <strong>{key}</strong>
+                        <input
+                          type="text"
+                          value={value}
+                          onChange={(e) => handleChange(e, "parameters", key)}
+                          className="input-field"
+                        />
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Modifier les champs du formulaire */}
+                  <table className="form-fields-table">
+                    <tbody>
+                      {Object.entries(editedData.formFields).map(([field, value]) => (
+                        <tr key={field}>
+                          <td><strong>{field}</strong></td>
+                          <td>
+                            <input
+                              type="text"
+                              value={value}
+                              onChange={(e) => handleChange(e, "formFields", field)}
+                              className="input-field"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
                   <button onClick={handleSave} className="save-button">Sauvegarder</button>
                   <button onClick={handleCancel} className="cancel-button">Annuler</button>
                 </div>
               ) : (
                 <div className="view-block">
+                  {/* Affichage des paramètres */}
                   <div className="parameters-block">
                     {Object.entries(response.parameters).map(([key, value]) => (
                       <p key={key}>
-                        <strong>{key}</strong> {value}
+                        <strong>{key}:</strong> {value}
                       </p>
                     ))}
                   </div>
+
+                  {/* Affichage des champs du formulaire */}
                   <table className="form-fields-table">
                     <tbody>
                       {Object.entries(response.formFields).map(([field, value]) => (
@@ -120,6 +150,7 @@ const Answers = () => {
                       ))}
                     </tbody>
                   </table>
+
                   <button onClick={() => handleEdit(response)} className="edit-button">Modifier</button>
                   <button onClick={() => handleDelete(response.id)} className="delete-button">Supprimer</button>
                 </div>
