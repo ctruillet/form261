@@ -9,31 +9,31 @@ import TextField from "../components/fields/TextField";
 const Form = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({});
-  const [formFields, setFormFields] = useState([]);
+  const [fieldsData, setFormData] = useState({});
+  const [fieldsFields, setFormFields] = useState([]);
   const [parameters, setParameters] = useState([]);
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [parameterFields, setParameterFields] = useState([]);
   const [errors, setErrors] = useState({});
-  const [formTitle, setFormTitle] = useState("");
-  const [formDescription, setFormDescription] = useState("");
+  const [fieldsTitle, setFormTitle] = useState("");
+  const [fieldsDescription, setFormDescription] = useState("");
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const formName = queryParams.get("form");
+    const fieldsName = queryParams.get("fields");
     const param = queryParams.get("param");
 
     const urlValues = {};
     queryParams.forEach((value, key) => {
-      if (key !== "form" && key !== "param") {
+      if (key !== "fields" && key !== "param") {
         urlValues[key] = value;
       }
     });
 
-    if (formName) {
+    if (fieldsName) {
       const fetchForm = async () => {
         try {
-          const response = await axios.get(`/api/forms/${formName}`);
+          const response = await axios.get(`/api/fields/${fieldsName}`);
           setFormFields(response.data.fields || []);
           setFormTitle(response.data.title || "");
           setFormDescription(response.data.description || "");
@@ -44,7 +44,7 @@ const Form = () => {
           });
           setFormData(initialFormData);
         } catch (error) {
-          console.error("Erreur lors de la récupération du formulaire :", error);
+          console.error("Erreur lors de la récupération du fieldsulaire :", error);
         }
       };
 
@@ -64,7 +64,7 @@ const Form = () => {
 
       const initialFormData = {};
       response.data.fields.forEach((field) => {
-        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || "";
+        initialFormData[field.label] = urlValues[field.label] || fieldsData[field.label] || "";
       });
       setFormData((prevData) => ({
         ...prevData,
@@ -90,7 +90,7 @@ const Form = () => {
 
   const handleChange = (e) => {
     setFormData({
-      ...formData,
+      ...fieldsData,
       [e.target.name]: e.target.value,
     });
     setErrors({
@@ -101,8 +101,8 @@ const Form = () => {
 
   const handleRankingChange = ({ label, rankings }) => {
     setFormData({
-      ...formData,
-      [label]: rankings, // Classement sous forme de dictionnaire {option: ranking}
+      ...fieldsData,
+      [label]: rankings, // Classement sous fieldse de dictionnaire {option: ranking}
     });
     setErrors({
       ...errors,
@@ -113,7 +113,7 @@ const Form = () => {
   const handleParameterSelect = (event) => {
     const param = event.target.value;
     setSelectedParameter(param);
-    navigate(`?form=${new URLSearchParams(location.search).get("form")}&param=${param}`);
+    navigate(`?fields=${new URLSearchParams(location.search).get("fields")}&param=${param}`);
 
     if (param) {
       fetchParameterFields(param);
@@ -125,13 +125,13 @@ const Form = () => {
   const validateForm = () => {
     const newErrors = {};
     parameterFields.forEach((field) => {
-      if (field.required && !formData[field.label]) {
+      if (field.required && !fieldsData[field.label]) {
         newErrors[field.label] = `${field.label} est requis`;
       }
     });
 
-    formFields.forEach((field) => {
-      if (field.required && !formData[field.label]) {
+    fieldsFields.forEach((field) => {
+      if (field.required && !fieldsData[field.label]) {
         newErrors[field.label] = `${field.label} est requis`;
       }
     });
@@ -144,22 +144,22 @@ const Form = () => {
     e.preventDefault();
 
     const queryParams = new URLSearchParams(location.search);
-    const formName = queryParams.get("form");
+    const fieldsName = queryParams.get("fields");
     const param = queryParams.get("param");
 
     const completeFormData = {
-      form: formName,
+      fields: fieldsName,
       param: param,
       parameters: {},
-      formFields: {},
+      fieldsFields: {},
     };
 
-    formFields.forEach((field) => {
-      completeFormData.formFields[field.label] = formData[field.label];
+    fieldsFields.forEach((field) => {
+      completeFormData.fieldsFields[field.label] = fieldsData[field.label];
     });
 
     parameterFields.forEach((field) => {
-      completeFormData.parameters[field.label] = formData[field.label];
+      completeFormData.parameters[field.label] = fieldsData[field.label];
     });
 
     if (!validateForm()) {
@@ -187,7 +187,7 @@ const Form = () => {
           <RangeField
             label={field.label}
             errors={errors}
-            value={formData[field.label] !== undefined ? formData[field.label] : ""}
+            value={fieldsData[field.label] !== undefined ? fieldsData[field.label] : ""}
             min={field.min}
             max={field.max}
             step={field.step}
@@ -205,7 +205,7 @@ const Form = () => {
           <TextField
             label={field.label}
             errors={errors}
-            value={formData[field.label] !== undefined ? formData[field.label] : ""}
+            value={fieldsData[field.label] !== undefined ? fieldsData[field.label] : ""}
             onChange={handleChange}
             placeholder={errors[field.label] || ""}
             required={field.required}
@@ -217,7 +217,7 @@ const Form = () => {
               type={field.type}
               className={`field-input ${errors[field.label] ? "error" : ""}`}
               name={field.label}
-              value={formData[field.label] !== undefined ? formData[field.label] : ""}
+              value={fieldsData[field.label] !== undefined ? fieldsData[field.label] : ""}
               onChange={handleChange}
               placeholder={errors[field.label] || ""}
               required={field.required}
@@ -230,7 +230,7 @@ const Form = () => {
   };
 
   return (
-    <div className="form-page">
+    <div className="fields-page">
       <div className="navbar">
         <select onChange={handleParameterSelect} value={selectedParameter || ""}>
           <option value="">-- Choisissez un fichier de paramètre --</option>
@@ -245,13 +245,13 @@ const Form = () => {
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
         </div>
       </div>
-      <h1>{formTitle}</h1>
-      <p>{formDescription}</p>
-      <div className="form-container">
-        <form onSubmit={handleSubmit}>
-          {formFields.map(renderField)}
+      <h1>{fieldsTitle}</h1>
+      <p>{fieldsDescription}</p>
+      <div className="fields-container">
+        <fields onSubmit={handleSubmit}>
+          {fieldsFields.map(renderField)}
           <button type="submit">Soumettre</button>
-        </form>
+        </fields>
       </div>
     </div>
   );

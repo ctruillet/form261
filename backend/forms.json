@@ -1,0 +1,12 @@
+[
+    {
+        "fields": "NASA-TLX.json",
+        "param": "expe1.json",
+        "name": "NASA-TLX expé 1"
+    },
+    {
+        "fields": "Ranking.json",
+        "param": "UserID.json",
+        "name": "Ranking Expé 1"
+      }
+]
