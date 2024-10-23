@@ -4,6 +4,7 @@ import ChoiceField from './fields/ChoiceField';
 import MultipleChoiceField from './fields/MultipleChoiceField';
 import TextField from './fields/TextField';
 import RangeField from './fields/RangeField';
+import RankingField from './fields/RankingField';
 import '../styles/FieldManager.css'; // Importation du style
 
 const FieldManager = ({ fields, addField, removeField, updateField }) => {

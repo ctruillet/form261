@@ -1,17 +1,21 @@
-import React from 'react';
+// components/fields/TextField.jsx
+import React from "react";
 
-const TextField = ({ label, onChange }) => {
-  return (
-    <div className="text-field">
-      <input
-        type="text"
-        placeholder="Label du champ"
-        value={label}
-        onChange={(e) => onChange({ label: e.target.value })}
-      />
-      <textarea placeholder="Prévisualisation du champ texte" readOnly></textarea>
-    </div>
-  );
+const TextField = ({ label, errors, value, onChange, placeholder, required, isDisabled}) => {
+	return (
+		<div>
+			<input
+				type="text"
+				className={`field-input ${errors[label] ? "error" : ""}`}
+				name={label}
+				value={value}
+				onChange={onChange}
+				placeholder={placeholder}
+				required={required}
+				disabled={isDisabled}
+			/>
+		</div>
+	);
 };
 
 export default TextField;

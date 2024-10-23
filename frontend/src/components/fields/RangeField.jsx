@@ -1,34 +1,28 @@
-import React from 'react';
+// components/fields/RangeField.jsx
+import React from "react";
 
-const RangeField = ({ label, min, max, onChange }) => {
-  const handleRangeChange = (e, key) => {
-    onChange({ [key]: e.target.value });
-  };
-
+const RangeField = ({ label, errors, value, min, max, step, onChange, required, isDisabled }) => {
   return (
-    <div className="range-field">
+    <div>
       <input
-        type="text"
-        placeholder="Label du champ"
-        value={label}
-        onChange={(e) => onChange({ label: e.target.value })}
+        type="range"
+        className={`field-input ${errors[label] ? "error" : ""}`}
+        name={label}
+        value={value}
+        onChange={onChange}
+        min={min}
+        max={max}
+        step={step}
+        required={required}
+        disabled={isDisabled}
       />
-      <div>
-        <input
-          type="number"
-          placeholder="Min"
-          value={min}
-          onChange={(e) => handleRangeChange(e, 'min')}
-        />
-        <input
-          type="number"
-          placeholder="Max"
-          value={max}
-          onChange={(e) => handleRangeChange(e, 'max')}
-        />
-      </div>
-      <input type="range" min={min} max={max} readOnly />
+      <span className="range-labels">
+        {min}
+        <strong>{value}</strong>
+        {max}
+      </span>
     </div>
+    
   );
 };
 

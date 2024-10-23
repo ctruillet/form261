@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/Form.css";
+import RankingField from "../components/fields/RankingField";
+import RangeField from "../components/fields/RangeField";
+import TextField from "../components/fields/TextField";
 
 const Form = () => {
   const location = useLocation();
@@ -37,7 +40,7 @@ const Form = () => {
 
           const initialFormData = {};
           response.data.fields.forEach((field) => {
-            initialFormData[field.label] = urlValues[field.label] || ""; 
+            initialFormData[field.label] = urlValues[field.label] || "";
           });
           setFormData(initialFormData);
         } catch (error) {
@@ -61,7 +64,7 @@ const Form = () => {
 
       const initialFormData = {};
       response.data.fields.forEach((field) => {
-        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || ""; 
+        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || "";
       });
       setFormData((prevData) => ({
         ...prevData,
@@ -93,6 +96,17 @@ const Form = () => {
     setErrors({
       ...errors,
       [e.target.name]: "",
+    });
+  };
+
+  const handleRankingChange = ({ label, rankings }) => {
+    setFormData({
+      ...formData,
+      [label]: rankings, // Classement sous forme de dictionnaire {option: ranking}
+    });
+    setErrors({
+      ...errors,
+      [label]: "",
     });
   };
 
@@ -128,41 +142,38 @@ const Form = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Ajouter form et param au formData avant soumission
+
     const queryParams = new URLSearchParams(location.search);
     const formName = queryParams.get("form");
     const param = queryParams.get("param");
-  
+
     const completeFormData = {
-      form: formName, // Ajoute le nom du formulaire
-      param: param, // Ajoute le paramètre sélectionné
-      parameters: {}, // Dossier pour les paramètres
-      formFields: {}, // Dossier pour les champs du formulaire
+      form: formName,
+      param: param,
+      parameters: {},
+      formFields: {},
     };
-  
-    // Remplir les champs de formulaire et les paramètres
+
     formFields.forEach((field) => {
       completeFormData.formFields[field.label] = formData[field.label];
     });
-  
+
     parameterFields.forEach((field) => {
       completeFormData.parameters[field.label] = formData[field.label];
     });
-  
+
     if (!validateForm()) {
       alert("Veuillez remplir tous les champs requis.");
       return;
     }
-  
+
     try {
-      const response = await axios.post("/api/data/registerData", completeFormData); // Envoyer les réponses
+      const response = await axios.post("/api/data/registerData", completeFormData);
       alert("Données envoyées avec succès");
     } catch (error) {
       console.error("Erreur lors de l'envoi des données :", error);
     }
   };
-  
 
   const renderField = (field) => {
     const isParameterField = parameterFields.some((paramField) => paramField.label === field.label);
@@ -173,25 +184,33 @@ const Form = () => {
         <label className="field-label">{field.label}</label>
         <span className="field-sublabel">{field.sublabel}</span>
         {field.type === "range" ? (
-          <div>
-            <input
-              type="range"
-              className={`field-input ${errors[field.label] ? "error" : ""}`}
-              name={field.label}
-              value={formData[field.label] !== undefined ? formData[field.label] : ""}
-              onChange={handleChange}
-              min={field.min}
-              max={field.max}
-              step={field.step}
-              required={field.required}
-              disabled={isDisabled} 
-            />
-            <span className="range-labels">
-              {field.min}
-              <strong>{formData[field.label]}</strong>{" "}
-              {field.max}
-            </span>
-          </div>
+          <RangeField
+            label={field.label}
+            errors={errors}
+            value={formData[field.label] !== undefined ? formData[field.label] : ""}
+            min={field.min}
+            max={field.max}
+            step={field.step}
+            onChange={handleChange}
+            required={field.required}
+            isDisabled={isDisabled}
+          />
+        ) : field.type === "ranking" ? (
+          <RankingField
+            label={field.label}
+            options={field.options || []}
+            onChange={handleRankingChange}
+          />
+        ) : field.type === "text" ? (
+          <TextField
+            label={field.label}
+            errors={errors}
+            value={formData[field.label] !== undefined ? formData[field.label] : ""}
+            onChange={handleChange}
+            placeholder={errors[field.label] || ""}
+            required={field.required}
+            isDisabled={isDisabled}
+          />
         ) : (
           <div>
             <input
@@ -202,7 +221,7 @@ const Form = () => {
               onChange={handleChange}
               placeholder={errors[field.label] || ""}
               required={field.required}
-              disabled={isDisabled} 
+              disabled={isDisabled}
             />
           </div>
         )}

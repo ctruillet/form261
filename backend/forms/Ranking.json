@@ -1,0 +1,16 @@
+{
+  "title": "Ranking",
+  "description": "Classez les techniques de gestion d'Occultation en fonction de votre préférence.",
+  "fields": [
+    {
+      "label": "Classement",
+      "sublabel": "Dans quelle mesure la tâche était-elle exigeante sur le plan mental ?",
+      "type": "ranking",
+      "options": ["NeuroSphere", "Balloon", "Vertical"],
+      "max": "Haut",
+      "step": 5,
+      "required": true,
+      "category": "form"
+    }
+  ]
+}
