@@ -15,7 +15,8 @@ const Form = () => {
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [parameterFields, setParameterFields] = useState([]);
   const [errors, setErrors] = useState({});
-  const [fieldsTitle, setFormTitle] = useState("");
+  const [formTitle, setFormTitle] = useState("");
+  const [formID, setFormID] = useState();
   const [fieldsDescription, setFormDescription] = useState("");
 
   useEffect(() => {
@@ -35,7 +36,6 @@ const Form = () => {
         try {
           const response = await axios.get(`/api/fields/${fieldsName}`);
           setFormFields(response.data.fields || []);
-          setFormTitle(response.data.title || "");
           setFormDescription(response.data.description || "");
 
           const initialFormData = {};
@@ -45,6 +45,16 @@ const Form = () => {
           setFormData(initialFormData);
         } catch (error) {
           console.error("Erreur lors de la récupération du field :", error);
+        }
+
+        try {
+          const response = await axios.get(`/api/forms/fields=${fieldsName}&param=${param}`);
+          console.log(response.data)
+          console.log(response.data.id)
+          setFormTitle(response.data.name || "");
+          setFormID(response.data.id);
+        } catch (error) {
+          console.error("Erreur lors de la récupération du form :", error);
         }
       };
 
@@ -148,6 +158,8 @@ const Form = () => {
     const param = queryParams.get("param");
 
     const completeFormData = {
+      name: formTitle,
+      formID : formID,
       fields: fieldsName,
       param: param,
       parameters: {},
@@ -247,7 +259,7 @@ const Form = () => {
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
         </div>
       </div>
-      <h1>{fieldsTitle}</h1>
+      <h1>{formTitle}</h1>
       <p>{fieldsDescription}</p>
       <div className="fields-container">
         <form onSubmit={handleSubmit}>

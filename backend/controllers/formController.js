@@ -13,7 +13,7 @@ exports.getForms = (req, res) => {
 };
 
 // Méthode pour obtenir un formulaire spécifique
-exports.getFormsDetails = (req, res) => {
+exports.getFormByName = (req, res) => {
 	const formName = req.params.formName;
 
 	fs.readFile(formsData, "utf8", (err, data) => {
@@ -38,7 +38,7 @@ exports.getFormsDetails = (req, res) => {
 };
 
 // Méthode pour obtenir le nom d'un formulaire à partir de son field et param
-exports.getFormName = (req, res) => {
+exports.getFormByFieldsAndParam = (req, res) => {
   const fieldsName = req.params.fieldsName;
   const paramName = req.params.paramName;
   // return res.status(404).send(`Formulaire (${fieldsName} ${paramName}) non trouvé`);
@@ -54,6 +54,29 @@ exports.getFormName = (req, res) => {
 
 			if (!formDetails) {
 				return res.status(404).send(`Formulaire (${fieldsName} ${paramName}) non trouvé`);
+			}
+
+			res.json(formDetails);
+		} catch (err) {
+			return res.status(500).send("Erreur lors de l'analyse des données");
+		}
+	});
+};
+
+// Méthode pour obtenir le nom d'un formulaire à partir de son id
+exports.getFormByID = (req, res) => {
+  const formID = req.params.formID;
+
+	fs.readFile(formsData, "utf8", (err, data) => {
+		if (err)
+			return res.status(500).send("Erreur lors de la lecture du fichier de formulaires");
+
+		try {
+			const formData = JSON.parse(data);
+			const formDetails = formData.find((form) => form.id === formID);
+
+			if (!formDetails) {
+				return res.status(404).send(`Formulaire ${formID} non trouvé`);
 			}
 
 			res.json(formDetails);

@@ -1,0 +1,21 @@
+[
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 0,
+    "fields": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "0",
+      "Technique": "ARPortal"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "15",
+      "Demande Physique": "70",
+      "Demande Temporelle": "55",
+      "Performance": "40",
+      "Effort": "70",
+      "Frustration": "40"
+    },
+    "id": "8fedbf3a-c5d8-4d0b-9114-2d664e373237"
+  }
+]
