@@ -44,7 +44,7 @@ const Form = () => {
           });
           setFormData(initialFormData);
         } catch (error) {
-          console.error("Erreur lors de la récupération du fieldsulaire :", error);
+          console.error("Erreur lors de la récupération du field :", error);
         }
       };
 
@@ -154,6 +154,8 @@ const Form = () => {
       fieldsFields: {},
     };
 
+    console.log(completeFormData)
+
     fieldsFields.forEach((field) => {
       completeFormData.fieldsFields[field.label] = fieldsData[field.label];
     });
@@ -232,14 +234,14 @@ const Form = () => {
   return (
     <div className="fields-page">
       <div className="navbar">
-        <select onChange={handleParameterSelect} value={selectedParameter || ""}>
+        {/* <select onChange={handleParameterSelect} value={selectedParameter || ""}>
           <option value="">-- Choisissez un fichier de paramètre --</option>
           {parameters.map((param, index) => (
             <option key={index} value={param.file}>
               {param.title}
             </option>
           ))}
-        </select>
+        </select> */}
 
         <div className="parameter-fields">
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
@@ -248,10 +250,10 @@ const Form = () => {
       <h1>{fieldsTitle}</h1>
       <p>{fieldsDescription}</p>
       <div className="fields-container">
-        <fields onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           {fieldsFields.map(renderField)}
           <button type="submit">Soumettre</button>
-        </fields>
+        </form>
       </div>
     </div>
   );

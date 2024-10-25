@@ -276,5 +276,22 @@
       "Frustration": "15"
     },
     "id": "e1dfc45d-ef62-409a-85b0-b7a79a8546d6"
+  },
+  {
+    "fields": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parameters": {
+      "UserID": "1",
+      "Technique": "VMirror"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "65",
+      "Demande Physique": "30",
+      "Demande Temporelle": "60",
+      "Performance": "35",
+      "Effort": "60",
+      "Frustration": "35"
+    },
+    "id": "1fd8ddf0-0235-47ae-bb64-dd6fe166055f"
   }
 ]
