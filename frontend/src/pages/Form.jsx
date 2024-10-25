@@ -162,8 +162,8 @@ const Form = () => {
       formID : formID,
       fieldsFile: fieldsName,
       paramFile: param,
-      parameters: {},
-      fields: {},
+      parametersFields: {},
+      fieldsFields: {},
     };
 
     console.log(completeFormData)
@@ -173,7 +173,7 @@ const Form = () => {
     });
 
     parameterFields.forEach((field) => {
-      completeFormData.parameters[field.label] = fieldsData[field.label];
+      completeFormData.parametersFields[field.label] = fieldsData[field.label];
     });
 
     if (!validateForm()) {
@@ -259,7 +259,7 @@ const Form = () => {
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
         </div>
       </div>
-      <h1>{formTitle}</h1>
+      <h1>{formTitle} (id : {formID})</h1>
       <p>{fieldsDescription}</p>
       <div className="fields-container">
         <form onSubmit={handleSubmit}>

@@ -4,11 +4,11 @@
     "formID": 0,
     "fieldsFile": "NASA-TLX.json",
     "paramFile": "expe1.json",
-    "parameters": {
+    "parametersFields": {
       "UserID": "0",
       "Technique": "ARPortal"
     },
-    "fields": {
+    "fieldsFields": {
       "Demande Mentale": "15",
       "Demande Physique": "70",
       "Demande Temporelle": "55",
@@ -17,5 +17,43 @@
       "Frustration": "40"
     },
     "id": "8fedbf3a-c5d8-4d0b-9114-2d664e373237"
+  },
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 0,
+    "fields": "NASA-TLX.json",
+    "param": "expe1.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "ARPortal"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "55",
+      "Demande Physique": "60",
+      "Demande Temporelle": "40",
+      "Performance": "45",
+      "Effort": "75",
+      "Frustration": "40"
+    },
+    "id": "5139c7d8-e82e-4fff-8b96-910072266260"
+  },
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 0,
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "expe1.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "ARPortal"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "60",
+      "Demande Physique": "35",
+      "Demande Temporelle": "60",
+      "Performance": "60",
+      "Effort": "40",
+      "Frustration": "40"
+    },
+    "id": "7f3f8ced-2657-49ba-986f-8b48f7effd23"
   }
 ]
