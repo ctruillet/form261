@@ -76,11 +76,34 @@ exports.getAllResponses = (req, res) => {
   });
 };
 
+// Récuperer les réponses d'un formulaire spécifique
+exports.getResponsesByFormID = (req, res) => {
+  const formID = req.params.formID;
+  const answersFilePath = path.join(answersFolderPath, `${formID}.json`);
+
+  fs.readFile(answersFilePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(`Erreur de lecture du fichier ${answersFilePath}:`, err);
+      return res.status(500).json({ message: `Erreur de lecture du fichier ${formID}.json de réponses` });
+    }
+
+    try {
+      const jsonData = JSON.parse(data || '[]');
+      return res.status(200).json(jsonData);
+    } catch (parseError) {
+      console.error('Erreur de parsing du fichier:', parseError);
+      return res.status(500).json({ message: 'Erreur de parsing du fichier de réponses' });
+    }
+  });
+};
+
 // Supprimer une réponse
 exports.deleteResponse = (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id;
+  const formID = req.params.formID;
+  const answersFilePath = path.join(answersFolderPath, `${formID}.json`);
 
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
+  fs.readFile(answersFilePath, 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Erreur de lecture des réponses' });
@@ -89,7 +112,7 @@ exports.deleteResponse = (req, res) => {
     let jsonData = JSON.parse(data || '[]');
     jsonData = jsonData.filter((response) => response.id !== id);
 
-    fs.writeFile(dataFilePath, JSON.stringify(jsonData, null, 2), (err) => {
+    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Erreur lors de la suppression de la réponse' });
@@ -101,10 +124,13 @@ exports.deleteResponse = (req, res) => {
 
 // Mettre à jour une réponse
 exports.updateResponse = (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id;
+  const formID = req.params.formID;
+  const answersFilePath = path.join(answersFolderPath, `${formID}.json`);
+
   const updatedData = req.body;
 
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
+  fs.readFile(answersFilePath, 'utf8', (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ message: 'Erreur de lecture des réponses' });
@@ -119,7 +145,7 @@ exports.updateResponse = (req, res) => {
 
     jsonData[responseIndex] = { ...jsonData[responseIndex], ...updatedData };
 
-    fs.writeFile(dataFilePath, JSON.stringify(jsonData, null, 2), (err) => {
+    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (err) => {
       if (err) {
         console.error(err);
         return res.status(500).json({ message: 'Erreur lors de la mise à jour de la réponse' });

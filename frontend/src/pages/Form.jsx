@@ -160,10 +160,10 @@ const Form = () => {
     const completeFormData = {
       name: formTitle,
       formID : formID,
-      fields: fieldsName,
-      param: param,
+      fieldsFile: fieldsName,
+      paramFile: param,
       parameters: {},
-      fieldsFields: {},
+      fields: {},
     };
 
     console.log(completeFormData)
