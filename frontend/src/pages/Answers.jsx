@@ -10,14 +10,14 @@ const Answers = () => {
 
   // Charger les réponses au montage du composant
   useEffect(() => {
-    // const fetchResponses = async () => {
-    //   try {
-    //     const response = await axios.get("/api/data/responses");
-    //     setResponses(response.data);
-    //   } catch (error) {
-    //     console.error("Erreur lors de la récupération des réponses :", error);
-    //   }
-    // };
+    const fetchResponses = async () => {
+      try {
+        const response = await axios.get("/api/data/responses");
+        setResponses(response.data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des réponses :", error);
+      }
+    };
 
     const fetchForms = async () => {
       try {
@@ -28,7 +28,7 @@ const Answers = () => {
       }
     };
     fetchForms();
-    // fetchResponses();
+    fetchResponses();
   }, []);
 
   // Gérer la suppression d'une réponse
@@ -93,12 +93,43 @@ const Answers = () => {
     <div>
       {/* Display forms */}
 
-      {forms.map((form) => (
-        <div key={form.id} className="form-item">
-          <h2>{form.name}</h2>
-          <p>{form.fields} {form.param} {form.id} </p>
+      <div className="answers-container">
+      <div className="responses-list">
+        {responses.map((responseFile, index) => (
+          <div key={index} className="response-header">
+            {responseFile.content.map((response) => (
+              <div key={response.id} className="response-item">
+                <h3>{response.name}</h3>
+                {/* <p>
+                  <strong>Form ID:</strong> {response.formID} 
+                  <strong>Fields File:</strong> {response.fieldsFile} 
+                  <strong>Param File:</strong> {response.paramFile}
+                </p> */}
+
+                <div className="parameters-block">
+                  {Object.entries(response.parametersFields).map(([key, value]) => (
+                    <p key={key}><strong>{key}:</strong> {value}</p>
+                  ))}
+                </div>
+                <table className="form-fields-table">
+                  <tbody>
+                    {Object.entries(response.fieldsFields).map(([field, value]) => (
+                      <tr key={field}>
+                        <td><strong>{field}</strong></td>
+                        <td>{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <button onClick={() => handleEdit(response)} className="edit-button">Modifier</button>
+                <button onClick={() => handleDelete(response.id)} className="delete-button">Supprimer</button>
+              </div>
+            ))}
+          </div>
+        ))}
         </div>
-      ))}
+      </div>
+
     </div>
     // <div className="answers-container">
     //   <h2>Réponses</h2>

@@ -112,12 +112,12 @@ const Form = () => {
   const handleRankingChange = ({ label, rankings }) => {
     setFormData({
       ...fieldsData,
-      [label]: rankings, // Classement sous fieldse de dictionnaire {option: ranking}
+      [label]: rankings, // Classement sous forme de dictionnaire {option: ranking}
     });
-    setErrors({
-      ...errors,
-      [label]: "",
-    });
+    // setErrors({
+    //   ...errors,
+    //   [label]: "",
+    // });
   };
 
   const handleParameterSelect = (event) => {
@@ -259,7 +259,7 @@ const Form = () => {
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
         </div>
       </div>
-      <h1>{formTitle} (id : {formID})</h1>
+      <h1>{formTitle}</h1>
       <p>{fieldsDescription}</p>
       <div className="fields-container">
         <form onSubmit={handleSubmit}>

@@ -1,38 +1,66 @@
 // components/fields/RankingField.jsx
 import React, { useState } from "react";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  arrayMove,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+const SortableItem = ({ id, index, option }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    padding: "8px",
+    // margin: "4px 0",
+    backgroundColor: "#f1f1f1",
+    border: "1px solid #ccc",
+    cursor: "pointer",
+  };
+
+  return (
+    <li ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {index + 1}. {option}
+    </li>
+  );
+};
 
 const RankingField = ({ label, options, onChange }) => {
-  const [rankings, setRankings] = useState(
-    options.reduce((acc, option) => ({ ...acc, [option]: "" }), {})
-  );
+  const [rankedOptions, setRankedOptions] = useState(options);
 
-  const handleRankingChange = (option, value) => {
-    const newRankings = { ...rankings, [option]: value };
-    setRankings(newRankings);
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
 
-    const values = Object.values(newRankings);
-    const hasDuplicates = values.some((val, i) => values.indexOf(val) !== i);
+    if (active.id !== over.id) {
+      const oldIndex = rankedOptions.indexOf(active.id);
+      const newIndex = rankedOptions.indexOf(over.id);
 
-    if (!hasDuplicates) {
-      onChange({ label, rankings: newRankings });
+      const updatedOptions = arrayMove(rankedOptions, oldIndex, newIndex);
+      setRankedOptions(updatedOptions);
+      onChange({ label, rankings: updatedOptions });
     }
   };
 
   return (
     <div className="ranking-field">
       <label>{label}</label>
-      {options.map((option, index) => (
-        <div key={index}>
-          <span>{option}</span>
-          <input
-            type="number"
-            value={rankings[option]}
-            onChange={(e) => handleRankingChange(option, e.target.value)}
-            min="1"
-            max={options.length}
-          />
-        </div>
-      ))}
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={rankedOptions}
+          strategy={verticalListSortingStrategy}
+        >
+          <ul className="ranking-list">
+            {rankedOptions.map((option, index) => (
+              <SortableItem key={option} id={option} index={index} option={option} />
+            ))}
+          </ul>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 };
