@@ -164,6 +164,16 @@ button:hover {
   accent-color: red;
 }
 
+.field-block.error {
+  border-color: red;
+  /* background-color: #ffe6e6; Fond légèrement rouge pour un meilleur contraste */
+  accent-color: red;
+}
+
+.field-label.error {
+  color: red;
+}
+
 .error-message {
   color: red; /* Couleur des messages d'erreur */
   font-size: 0.85rem; /* Taille de la police pour les messages d'erreur */

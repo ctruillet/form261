@@ -1,14 +1,20 @@
 [
     {
+        "name": "Expé Pointing at Occluded Objects",
+        "fields": "Expe1.json",
+        "param": "expe1.json",
+        "id": 0
+    },
+    {
         "name": "NASA-TLX expé 1",
         "fields": "NASA-TLX.json",
         "param": "expe1.json",
-        "id": 0
+        "id": 1
     },
     {
         "name": "Ranking Expé 1",
         "fields": "Ranking.json",
         "param": "UserID.json",
-        "id": 1
-      }
+        "id": 2
+    }
 ]

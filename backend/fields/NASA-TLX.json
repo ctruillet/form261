@@ -9,8 +9,7 @@
       "min": "Bas",
       "max": "Haut",
       "step": 5,
-      "required": true,
-      "category": "form"
+      "required": true
     },
     {
       "label": "Demande Physique",
@@ -19,8 +18,7 @@
       "min": "Bas",
       "max": "Haut",
       "step": 5,
-      "required": true,
-      "category": "form"
+      "required": true
     },
     {
       "label": "Demande Temporelle",
@@ -29,8 +27,7 @@
       "min": "Faible",
       "max": "Elevée",
       "step": 5,
-      "required": true,
-      "category": "form"
+      "required": true
     },
     {
       "label": "Performance",
@@ -39,8 +36,7 @@
       "min": "Bonne",
       "max": "Faible",
       "step": 5,
-      "required": true,
-      "category": "form"
+      "required": true
     },
     {
       "label": "Effort",
@@ -49,8 +45,7 @@
       "min": "Bas",
       "max": "Haut",
       "step": 5,
-      "required": true,
-      "category": "form"
+      "required": true
     },
     {
       "label": "Frustration",
@@ -59,8 +54,7 @@
       "min": "Bas",
       "max": "Haut",
       "step": 5,
-      "required": true,
-      "category": "form"
+      "required": true
     }
   ]
 }

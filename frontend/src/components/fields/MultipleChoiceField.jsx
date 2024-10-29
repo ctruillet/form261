@@ -1,32 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const MultipleChoiceField = ({ label, options = [], onChange }) => {
-  const handleChange = (option) => {
-    onChange((prev) => {
-      const newValue = prev.value.includes(option)
-        ? prev.value.filter((v) => v !== option) // Supprimer si déjà sélectionné
-        : [...prev.value, option]; // Ajouter si non sélectionné
-      return { ...prev, value: newValue };
-    });
+const MultipleChoiceField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  options,
+  required,
+  isDisabled,
+}) => {
+  const handleSelectChange = (event) => {
+    const selectedValue = event.target.value;
+
+    onChange({ target: { name: label, value: selectedValue } });
   };
+
+  placeholder = placeholder || "Choisir une option";
+
 
   return (
     <div>
-      <label>{label}</label>
-      {options.length > 0 ? (
-        options.map((option, index) => (
-          <div key={index}>
-            <input
-              type="checkbox"
-              value={option}
-              onChange={() => handleChange(option)}
-            />
-            {option}
-          </div>
-        ))
-      ) : (
-        <p>Aucune option disponible</p>
-      )}
+      <select
+        id={label}
+        name={label}
+        value={value}
+        onChange={handleSelectChange}
+        disabled={isDisabled}
+        required={required}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+
+        {options}
+        {options.map((opt, index) => (
+          <option key={index} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
     </div>
   );
 };

@@ -48,7 +48,6 @@ const RankingField = ({ label, options, onChange }) => {
 
   return (
     <div className="ranking-field">
-      <label>{label}</label>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext
           items={rankedOptions}

@@ -18,6 +18,15 @@
       "placeholder": "TI",
       "required": true,
       "category": "parameter" 
+    },
+    {
+      "label": "Block",
+      "sublabel": "",
+      "type": "drop-down",
+      "placeholder": "Block",
+      "options": ["TI 1", "TI 2", "TI 3", "TI 4"],
+      "required": true,
+      "category": "parameter" 
     }
   ]
 }

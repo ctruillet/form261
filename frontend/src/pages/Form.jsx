@@ -5,6 +5,8 @@ import "../styles/Form.css";
 import RankingField from "../components/fields/RankingField";
 import RangeField from "../components/fields/RangeField";
 import TextField from "../components/fields/TextField";
+import ChoiceField from "../components/fields/ChoiceField";
+import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 
 const Form = () => {
   const location = useLocation();
@@ -194,14 +196,17 @@ const Form = () => {
     const isDisabled = isParameterField && new URLSearchParams(location.search).has(field.label);
 
     return (
-      <div className="field-block" key={field.label}>
-        <label className="field-label">{field.label}</label>
-        <span className="field-sublabel">{field.sublabel}</span>
-        {field.type === "range" ? (
+      <div className={`field-block ${errors[field.label] ? "error" : ""}`} key={field.label}>
+        {/* Étiquette et sous-étiquette */}
+        <label className={`field-label ${errors[field.label] ? "error" : ""}`}>{field.label}</label>
+        {field.sublabel && <span className="field-sublabel">{field.sublabel}</span>}
+    
+        {/* Affichage conditionnel selon le type de champ */}
+        {field.type === "range" && (
           <RangeField
             label={field.label}
             errors={errors}
-            value={fieldsData[field.label] !== undefined ? fieldsData[field.label] : ""}
+            value={fieldsData[field.label] || ""}
             min={field.min}
             max={field.max}
             step={field.step}
@@ -209,29 +214,62 @@ const Form = () => {
             required={field.required}
             isDisabled={isDisabled}
           />
-        ) : field.type === "ranking" ? (
+        )}
+    
+        {field.type === "ranking" && (
           <RankingField
             label={field.label}
             options={field.options || []}
             onChange={handleRankingChange}
           />
-        ) : field.type === "text" ? (
+        )}
+    
+        {field.type === "text" && (
           <TextField
             label={field.label}
             errors={errors}
-            value={fieldsData[field.label] !== undefined ? fieldsData[field.label] : ""}
+            value={fieldsData[field.label] || ""}
             onChange={handleChange}
             placeholder={errors[field.label] || ""}
             required={field.required}
             isDisabled={isDisabled}
           />
-        ) : (
+        )}
+    
+        {field.type === "choice" && (
+          <ChoiceField
+            label={field.label}
+            value={fieldsData[field.label] || ""}
+            onChange={handleChange}
+            option={field.options || []}
+            otherChoice={field.otherChoice}
+            placeholder={errors[field.label] || ""}
+            required={field.required}
+            isDisabled={isDisabled}
+          />
+        )}
+
+        {field.type === "drop-down" && (
+          <MultipleChoiceField
+            label={field.label}
+            value={fieldsData[field.label] || ""}
+            onChange={handleChange}
+            placeholder={field.placeholder || ""}
+            options={field.options || []}
+            required={field.required}
+            isDisabled={isDisabled}
+          />
+        )}
+        
+    
+        {/* Champ générique pour les autres types */}
+        {!["range", "ranking", "text", "choice", "drop-down"].includes(field.type) && (
           <div>
             <input
               type={field.type}
               className={`field-input ${errors[field.label] ? "error" : ""}`}
               name={field.label}
-              value={fieldsData[field.label] !== undefined ? fieldsData[field.label] : ""}
+              value={fieldsData[field.label] || ""}
               onChange={handleChange}
               placeholder={errors[field.label] || ""}
               required={field.required}
@@ -241,6 +279,7 @@ const Form = () => {
         )}
       </div>
     );
+    
   };
 
   return (

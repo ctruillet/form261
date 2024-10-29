@@ -1,98 +1,18 @@
 .answers-container {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-
-.responses-list {
-    margin-top: 20px;
-}
-
-.response-item {
-    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+  }
+  
+  .form-response-box {
+    padding: 1em;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    margin-bottom: 20px;
-    padding: 15px;
     background-color: #f9f9f9;
-}
-
-.response-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.parameters-block {
-    background-color: #f1f1f1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-}
-
-.form-fields-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-}
-
-.form-fields-table tr:nth-child(even) {
-    background-color: #e8e8e8; /* Gris léger pour les lignes paires */
-}
-
-.form-fields-table tr:nth-child(odd) {
-    background-color: #ffffff; /* Blanc pour les lignes impaires */
-}
-
-.form-fields-table td {
-    padding: 15px; /* Augmenter le padding pour plus d'espace */
-    border: 1px solid #ddd;
-    text-align: left; /* Alignement à gauche pour une meilleure lisibilité */
-}
-
-.form-fields-table td:first-child {
-    font-weight: bold;
-}
-
-.input-field {
-    width: 100px;
-    padding: 5px;
-    margin: 5px 0;
-}
-
-.edit-block {
-    margin-bottom: 10px;
-}
-
-.save-button, .cancel-button, .edit-button, .delete-button {
-    margin-right: 10px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.save-button {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.cancel-button {
-    background-color: #f44336;
-    color: white;
-}
-
-.edit-button {
-    background-color: #2196F3;
-    color: white;
-}
-
-.delete-button {
-    background-color: #f44336;
-    color: white;
-}
+  }
+  
+  .response-content {
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+  
