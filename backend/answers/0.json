@@ -1,0 +1,40 @@
+[
+  {
+    "name": "Expé Pointing at Occluded Objects",
+    "formID": 0,
+    "fieldsFile": "Participant.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Block": "B"
+    },
+    "fieldsFields": {
+      "J'ai bien signé le formulaire de consentement.": "Oui",
+      "Genre": "Homme",
+      "Âge": "24",
+      "Profession": "Doctorant",
+      "Mon experience avec la Réalité Augmentée": 5,
+      "Droit à l'oubli": ""
+    },
+    "id": "014a8f99-24c5-4f49-9629-dda9ac707714"
+  },
+  {
+    "name": "Expé - Pointage d'objets occultés",
+    "formID": 0,
+    "fieldsFile": "Participant.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "2",
+      "Block": "C"
+    },
+    "fieldsFields": {
+      "J'ai bien signé le formulaire de consentement.": "Oui",
+      "Genre": "Homme",
+      "Âge": "24",
+      "Profession": "Etudiant",
+      "Mon experience avec la Réalité Augmentée": 2,
+      "Droit à l'oubli": ""
+    },
+    "id": "5d4af8a3-7c79-4fe2-afc1-3baa7a1b8fcd"
+  }
+]

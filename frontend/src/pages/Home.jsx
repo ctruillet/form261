@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Box from '@mui/material/Box';
+
+
 import '../styles/Home.css'; // Importer le CSS
 
 const Home = () => {
@@ -28,15 +33,20 @@ const Home = () => {
   return (
     <div>
       <h1>Sélectionnez un Formulaire</h1>
-      <ul>
+      <center>
+      <ButtonGroup size="large" variant="text">
         {forms.map((form, index) => (
-          <li key={index}>
-            <button onClick={() => handleFormSelect(form.fields, form.param)}>
-              {form.name}
-            </button>
-          </li>
+
+          <Button
+            key={index}
+            onClick={() => handleFormSelect(form.fields, form.param)}>
+              
+            {form.name}
+          </Button>
         ))}
-      </ul>
+
+      </ButtonGroup>
+      </center>
     </div>
   );
 };

@@ -35,14 +35,13 @@
     {
       "label": "Mon experience avec la Réalité Augmentée",
       "sublabel": "",
-      "type": "likert",
-      "min" : 0,
+      "type": "range",
+      "min" : 1,
       "max" : 5,
       "labelMin": "Aucune",
       "labelMax": "Expert",
       "required": true
-    }
-    ,
+    },
     {
       "label": "Droit à l'oubli",
       "sublabel": "A tout moment, je peux demander, en vertu du droit à l'oubli, demander la suppression de mes données issues de cette expérience par simple mail à clement.truillet@irit.fr",

@@ -1,0 +1,24 @@
+{
+  "title": "UserID Block",
+  "name": "UserID Block",
+  "description": "Expé 1 - Occultation : UserID et Block", 
+  "fields": [
+    {
+      "label": "UserID",
+      "sublabel": "UserID",
+      "type": "text",
+      "placeholder": "UserID",
+      "required": true,
+      "category": "parameter" 
+    },
+    {
+      "label": "Block",
+      "sublabel": "Block de l'expérience",
+      "type": "drop-down",
+      "placeholder": "Block",
+      "options": ["A", "B", "C", "D"],
+      "required": true,
+      "category": "parameter" 
+    }
+  ]
+}

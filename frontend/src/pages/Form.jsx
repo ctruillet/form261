@@ -3,12 +3,17 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
-import "../styles/Form.css";
+import Button from '@mui/material/Button';
+import SendIcon from '@mui/icons-material/Send';
+
 import RankingField from "../components/fields/RankingField";
 import RangeField from "../components/fields/RangeField";
 import TextInputField from "../components/fields/TextInputField";
 import ChoiceField from "../components/fields/ChoiceField";
 import MultipleChoiceField from "../components/fields/MultipleChoiceField";
+import InformationField from "../components/fields/InformationField";
+
+import "../styles/Form.css";
 
 const Form = () => {
   const location = useLocation();
@@ -239,6 +244,8 @@ const Form = () => {
             value={formData[field.label] || ""}
             min={field.min}
             max={field.max}
+            labelMin={field.labelMin}
+            labelMax={field.labelMax}
             step={field.step}
             onChange={handleChange}
             required={field.required}
@@ -292,9 +299,17 @@ const Form = () => {
           />
         )}
 
+        {field.type === "information" && (
+          <InformationField
+            label={field.label}
+            sublabel={field.sublabel}
+          />
+        )}
+
+
 
         {/* Champ générique pour les autres types */}
-        {!["range", "ranking", "text", "choice", "drop-down"].includes(field.type) && (
+        {!["range", "ranking", "text", "choice", "drop-down", "information"].includes(field.type) && (
           <div>
             <input
               type={field.type}
@@ -334,9 +349,13 @@ const Form = () => {
       <div className="fields-container">
         <form onSubmit={handleSubmit}>
           {fieldsFields.map(renderField)}
-          <button type="submit">Soumettre</button>
+          <Button variant="contained" endIcon={<SendIcon />} type="submit">
+            Soumettre
+          </Button>
         </form>
       </div>
+
+
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={popup.open}

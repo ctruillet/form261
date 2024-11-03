@@ -1,14 +1,14 @@
 [
     {
-        "name": "Expé Pointing at Occluded Objects",
-        "fields": "Expe1.json",
-        "param": "expe1.json",
+        "name": "Expé - Pointage d'objets occultés",
+        "fields": "Participant.json",
+        "param": "UserID_Block.json",
         "id": 0
     },
     {
         "name": "NASA-TLX expé 1",
         "fields": "NASA-TLX.json",
-        "param": "expe1.json",
+        "param": "UserID_TI_Block.json",
         "id": 1
     },
     {
