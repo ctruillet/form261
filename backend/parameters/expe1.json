@@ -5,7 +5,7 @@
   "fields": [
     {
       "label": "UserID",
-      "sublabel": "",
+      "sublabel": "UserID",
       "type": "text",
       "placeholder": "UserID",
       "required": true,
@@ -13,7 +13,7 @@
     },
     {
       "label": "Technique",
-      "sublabel": "",
+      "sublabel": "Technique",
       "type": "text",
       "placeholder": "TI",
       "required": true,
@@ -21,7 +21,7 @@
     },
     {
       "label": "Block",
-      "sublabel": "",
+      "sublabel": "Block de l'expérience",
       "type": "drop-down",
       "placeholder": "Block",
       "options": ["TI 1", "TI 2", "TI 3", "TI 4"],
