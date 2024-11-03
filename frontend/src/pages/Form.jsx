@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 import "../styles/Form.css";
 import RankingField from "../components/fields/RankingField";
 import RangeField from "../components/fields/RangeField";
-import TextField from "../components/fields/TextField";
+import Text from "../components/fields/Text";
 import ChoiceField from "../components/fields/ChoiceField";
 import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 
 const Form = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [fieldsData, setFormData] = useState({});
-  const [fieldsFields, setFormFields] = useState([]);
-  const [parameters, setParameters] = useState([]);
+  const [formData, setFormData] = useState({});
+  const [fieldsFields, setFieldsFields] = useState([]);
+  const [paramFields, setParametersFields] = useState([]);
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [parameterFields, setParameterFields] = useState([]);
   const [errors, setErrors] = useState({});
   const [formTitle, setFormTitle] = useState("");
   const [formID, setFormID] = useState();
   const [fieldsDescription, setFormDescription] = useState("");
+  const [popup, setPopup] = React.useState({
+    message: "",
+    severity: "",
+    open: false,
+  });
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -37,7 +44,7 @@ const Form = () => {
       const fetchForm = async () => {
         try {
           const response = await axios.get(`/api/fields/${fieldsName}`);
-          setFormFields(response.data.fields || []);
+          setFieldsFields(response.data.fields || []);
           setFormDescription(response.data.description || "");
 
           const initialFormData = {};
@@ -76,7 +83,7 @@ const Form = () => {
 
       const initialFormData = {};
       response.data.fields.forEach((field) => {
-        initialFormData[field.label] = urlValues[field.label] || fieldsData[field.label] || "";
+        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || "";
       });
       setFormData((prevData) => ({
         ...prevData,
@@ -91,7 +98,7 @@ const Form = () => {
     const fetchParameters = async () => {
       try {
         const response = await axios.get("/api/parameters");
-        setParameters(response.data);
+        setParametersFields(response.data);
       } catch (error) {
         console.error("Erreur lors de la récupération des paramètres :", error);
       }
@@ -101,19 +108,24 @@ const Form = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({
-      ...fieldsData,
-      [e.target.name]: e.target.value,
-    });
-    setErrors({
+    const { name, value } = e.target;
+    setFormData((formData) => ({
+      ...formData,
+      [name]: value,
+    }));
+
+    setErrors((errors) => ({
       ...errors,
-      [e.target.name]: "",
-    });
+      [name]: value !== "" ? "" : `${name} est requis`,
+    }));
+
+    console.log(formData);
+    console.log(errors);
   };
 
   const handleRankingChange = ({ label, rankings }) => {
     setFormData({
-      ...fieldsData,
+      ...formData,
       [label]: rankings, // Classement sous forme de dictionnaire {option: ranking}
     });
     // setErrors({
@@ -137,19 +149,34 @@ const Form = () => {
   const validateForm = () => {
     const newErrors = {};
     parameterFields.forEach((field) => {
-      if (field.required && !fieldsData[field.label]) {
+      if (field.required && !formData[field.label]) {
         newErrors[field.label] = `${field.label} est requis`;
       }
     });
 
     fieldsFields.forEach((field) => {
-      if (field.required && !fieldsData[field.label]) {
+      if (field.required && !formData[field.label]) {
         newErrors[field.label] = `${field.label} est requis`;
       }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handlePopupOpen = (message, severity) => {
+    setPopup({ 
+      message, 
+      severity, 
+      open: true 
+    });
+  };
+
+  const handlePopupClose = () => {
+    setPopup((prev) => ({ 
+      ...prev, 
+      open: false 
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -161,33 +188,39 @@ const Form = () => {
 
     const completeFormData = {
       name: formTitle,
-      formID : formID,
+      formID: formID,
       fieldsFile: fieldsName,
       paramFile: param,
       parametersFields: {},
       fieldsFields: {},
     };
 
-    console.log(completeFormData)
-
     fieldsFields.forEach((field) => {
-      completeFormData.fieldsFields[field.label] = fieldsData[field.label];
+      completeFormData.fieldsFields[field.label] = formData[field.label];
     });
 
     parameterFields.forEach((field) => {
-      completeFormData.parametersFields[field.label] = fieldsData[field.label];
+      completeFormData.parametersFields[field.label] = formData[field.label];
     });
 
+    console.log(completeFormData)
+
     if (!validateForm()) {
-      alert("Veuillez remplir tous les champs requis.");
+      handlePopupOpen("Veuillez remplir tous les champs requis", "error");
+      // <Alert severity="error">Veuillez remplir tous les champs requis</Alert>
+      // alert("Veuillez remplir tous les champs requis.");
       return;
     }
 
     try {
       const response = await axios.post("/api/data/registerData", completeFormData);
-      alert("Données envoyées avec succès");
+      handlePopupOpen("Données envoyées avec succès", "success");
+      // <Alert severity="success">Données envoyées avec succès</Alert>
+      // alert("Données envoyées avec succès");
     } catch (error) {
-      console.error("Erreur lors de l'envoi des données :", error);
+      handlePopupOpen("Erreur lors de l'envoi des données", "error");
+      // <Alert severity="error">Erreur lors de l'envoi des données : ${error}</Alert>
+      // console.error("Erreur lors de l'envoi des données :", error);
     }
   };
 
@@ -198,15 +231,15 @@ const Form = () => {
     return (
       <div className={`field-block ${errors[field.label] ? "error" : ""}`} key={field.label}>
         {/* Étiquette et sous-étiquette */}
-        <label className={`field-label ${errors[field.label] ? "error" : ""}`}>{field.label}</label>
-        {field.sublabel && <span className="field-sublabel">{field.sublabel}</span>}
-    
+        {/* <label className={`field-label ${errors[field.label] ? "error" : ""}`}>{field.label}</label> */}
+        {/* {field.sublabel && <span className="field-sublabel">{field.sublabel}</span>} */}
+
         {/* Affichage conditionnel selon le type de champ */}
         {field.type === "range" && (
           <RangeField
             label={field.label}
             errors={errors}
-            value={fieldsData[field.label] || ""}
+            value={formData[field.label] || ""}
             min={field.min}
             max={field.max}
             step={field.step}
@@ -215,7 +248,7 @@ const Form = () => {
             isDisabled={isDisabled}
           />
         )}
-    
+
         {field.type === "ranking" && (
           <RankingField
             label={field.label}
@@ -223,23 +256,23 @@ const Form = () => {
             onChange={handleRankingChange}
           />
         )}
-    
+
         {field.type === "text" && (
-          <TextField
+          <Text
             label={field.label}
+            sublabel={field.sublabel}
             errors={errors}
-            value={fieldsData[field.label] || ""}
             onChange={handleChange}
             placeholder={errors[field.label] || ""}
             required={field.required}
             isDisabled={isDisabled}
           />
         )}
-    
+
         {field.type === "choice" && (
           <ChoiceField
             label={field.label}
-            value={fieldsData[field.label] || ""}
+            value={formData[field.label] || ""}
             onChange={handleChange}
             option={field.options || []}
             otherChoice={field.otherChoice}
@@ -252,7 +285,8 @@ const Form = () => {
         {field.type === "drop-down" && (
           <MultipleChoiceField
             label={field.label}
-            value={fieldsData[field.label] || ""}
+            sublabel={field.sublabel}
+            value={formData[field.label] || ""}
             onChange={handleChange}
             placeholder={field.placeholder || ""}
             options={field.options || []}
@@ -260,8 +294,8 @@ const Form = () => {
             isDisabled={isDisabled}
           />
         )}
-        
-    
+
+
         {/* Champ générique pour les autres types */}
         {!["range", "ranking", "text", "choice", "drop-down"].includes(field.type) && (
           <div>
@@ -269,7 +303,7 @@ const Form = () => {
               type={field.type}
               className={`field-input ${errors[field.label] ? "error" : ""}`}
               name={field.label}
-              value={fieldsData[field.label] || ""}
+              value={formData[field.label] || ""}
               onChange={handleChange}
               placeholder={errors[field.label] || ""}
               required={field.required}
@@ -279,7 +313,7 @@ const Form = () => {
         )}
       </div>
     );
-    
+
   };
 
   return (
@@ -306,6 +340,16 @@ const Form = () => {
           <button type="submit">Soumettre</button>
         </form>
       </div>
+      <Snackbar
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        open={popup.open}
+        autoHideDuration={6000}
+        onClose={handlePopupClose}
+      >
+        <Alert onClose={handlePopupClose} severity={popup.severity} sx={{ width: '100%' }}>
+          {popup.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
