@@ -17,8 +17,7 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
         options={options}
         value={value || null}
         onChange={handleSelectChange}
-        placeholder={placeholder}
-
+        disabled={isDisabled}
         renderInput={(params) => (
           <TextField 
             {...params} 
@@ -26,7 +25,7 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
             placeholder={placeholder || "Choisir une option"} 
             disabled={isDisabled}
             required={required}
-            error={!!errors} 
+            error={!!errors[label]}
             helperText={sublabel || " "}
             variant="standard"
           />

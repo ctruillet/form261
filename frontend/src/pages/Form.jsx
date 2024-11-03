@@ -291,6 +291,7 @@ const Form = () => {
             label={field.label}
             sublabel={field.sublabel}
             value={formData[field.label] || ""}
+            errors={errors}
             onChange={handleChange}
             placeholder={field.placeholder || ""}
             options={field.options || []}
