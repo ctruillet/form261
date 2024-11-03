@@ -1,0 +1,82 @@
+[
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 1,
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "expe1.json",
+    "parametersFields": {
+      "UserID": "s",
+      "Technique": "s",
+      "Block": "TI 1"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "10",
+      "Demande Physique": "45",
+      "Demande Temporelle": "60",
+      "Performance": "40",
+      "Effort": "35",
+      "Frustration": "60"
+    },
+    "id": "6d703013-6cb2-40cc-bd74-49bd261b4639"
+  },
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 1,
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "expe1.json",
+    "parametersFields": {
+      "UserID": "4",
+      "Technique": "Balloon",
+      "Block": "TI 2"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "20",
+      "Demande Physique": "55",
+      "Demande Temporelle": "55",
+      "Performance": "35",
+      "Effort": "30",
+      "Frustration": "25"
+    },
+    "id": "a3fa2be6-e477-4d1a-ac26-179c6a5bb2df"
+  },
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 1,
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "expe1.json",
+    "parametersFields": {
+      "UserID": "4",
+      "Technique": "Balloon",
+      "Block": "TI 2"
+    },
+    "fieldsFields": {
+      "Demande Mentale": "15",
+      "Demande Physique": "65",
+      "Demande Temporelle": "60",
+      "Performance": "35",
+      "Effort": "35",
+      "Frustration": "70"
+    },
+    "id": "9a751fd4-2367-4a9f-96bf-1cb186428f02"
+  },
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 1,
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "expe1.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "d",
+      "Block": "TI 2"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 50,
+      "Demande Physique": 50,
+      "Demande Temporelle": 55,
+      "Performance": 75,
+      "Effort": 30,
+      "Frustration": 35
+    },
+    "id": "05003b41-6e7c-4bf1-9134-ef27370a06d9"
+  }
+]

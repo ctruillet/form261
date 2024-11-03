@@ -1,4 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import TextField from '@mui/material/TextField';
 
 const ChoiceField = ({
   label,
@@ -10,59 +16,74 @@ const ChoiceField = ({
   required,
   isDisabled,
 }) => {
+  const [isOtherSelected, setIsOtherSelected] = useState(false);
+  const [otherValue, setOtherValue] = useState("");
+
   const handleOptionChange = (event) => {
     const selectedValue = event.target.value;
 
     if (selectedValue === "other") {
-      // Si "Autre" est sélectionné, effacer la sélection des autres options
-      onChange({ target: { name: label, value: selectedValue } });
+      setIsOtherSelected(true);
+      onChange({ target: { name: label, value: "" } });
+      setOtherValue("");
     } else {
-      // Si une option standard est sélectionnée, effacer la valeur d'"Autre"
+      setIsOtherSelected(false);
       onChange({ target: { name: label, value: selectedValue } });
+      setOtherValue("");
     }
   };
 
+  const handleOtherChange = (event) => {
+    const newValue = event.target.value;
+    setOtherValue(newValue);
+    onChange({ target: { name: label, value: newValue } });
+  };
+
+  const handleOnClickOnOther = () => {
+    setIsOtherSelected(true);
+  }
+
   return (
     <div>
-      {/* Afficher les boutons radio pour chaque option */}
-      {option.map((opt, index) => (
-        <div key={index}>
-          <input
-            type="radio"
-            id={opt}
-            name={label}
+      <FormLabel component="legend" required={required}>
+        {label}
+      </FormLabel>
+      
+      <RadioGroup
+        aria-label={label}
+        name={label}
+        value={isOtherSelected ? "other" : value}
+        onChange={handleOptionChange}
+      >
+        {option.map((opt, index) => (
+          <FormControlLabel
+            key={index}
             value={opt}
-            checked={value === opt}
-            onChange={handleOptionChange}
+            control={<Radio />}
+            label={opt}
             disabled={isDisabled}
           />
-          <label htmlFor={opt}>{opt}</label>
-        </div>
-      ))}
+        ))}
 
-      {/* Champ texte pour "Autre" */}
-      {otherChoice && (
-        <div>
-          <input
-            type="radio"
-            id="other"
-            name={label}
-            value="other"
-            checked={value === "other"}
-            onChange={handleOptionChange}
-            disabled={isDisabled}
-          />
-          {/* <label htmlFor="other">Autre</label> */}
-          <input
-            type="text"
-            name="otherInput"
-            placeholder={placeholder || "Autre"}
-            required={required && value === "other"}
-            disabled={isDisabled || value !== "other"}
-            onChange={onChange}
-          />
-        </div>
-      )}
+        {otherChoice && (
+          <div style={{ display: 'flex', alignItems: 'left' }}>
+            <FormControlLabel
+              value="other"
+              control={<Radio />}
+              disabled={isDisabled}
+            />
+            <TextField
+              placeholder={placeholder || "Autre"}
+              value={otherValue}
+              onClick={handleOnClickOnOther}
+              onChange={handleOtherChange}
+              required={required && otherValue !== ""}
+              disabled={isDisabled}
+              variant="standard"
+            />
+          </div>
+        )}
+      </RadioGroup>
     </div>
   );
 };

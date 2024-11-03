@@ -27,7 +27,7 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
             disabled={isDisabled}
             required={required}
             error={!!errors} 
-            helperText={sublabel}
+            helperText={sublabel || " "}
             variant="standard"
           />
         )}

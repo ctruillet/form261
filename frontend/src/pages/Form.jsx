@@ -6,7 +6,7 @@ import Snackbar from '@mui/material/Snackbar';
 import "../styles/Form.css";
 import RankingField from "../components/fields/RankingField";
 import RangeField from "../components/fields/RangeField";
-import Text from "../components/fields/Text";
+import TextInputField from "../components/fields/TextInputField";
 import ChoiceField from "../components/fields/ChoiceField";
 import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 
@@ -118,9 +118,6 @@ const Form = () => {
       ...errors,
       [name]: value !== "" ? "" : `${name} est requis`,
     }));
-
-    console.log(formData);
-    console.log(errors);
   };
 
   const handleRankingChange = ({ label, rankings }) => {
@@ -258,7 +255,7 @@ const Form = () => {
         )}
 
         {field.type === "text" && (
-          <Text
+          <TextInputField
             label={field.label}
             sublabel={field.sublabel}
             errors={errors}
