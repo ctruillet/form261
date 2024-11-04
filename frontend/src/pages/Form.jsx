@@ -12,6 +12,7 @@ import TextInputField from "../components/fields/TextInputField";
 import ChoiceField from "../components/fields/ChoiceField";
 import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 import InformationField from "../components/fields/InformationField";
+import ImageField from "../components/fields/ImageField";
 
 import "../styles/Form.css";
 
@@ -307,10 +308,20 @@ const Form = () => {
           />
         )}
 
+        {field.type === "image" && (
+          <ImageField
+            label={field.label}
+            sublabel={field.sublabel}
+            src={field.src}
+            size={field.size}
+            align={field.align}
+          />
+        )}
+
 
 
         {/* Champ générique pour les autres types */}
-        {!["range", "ranking", "text", "choice", "drop-down", "information"].includes(field.type) && (
+        {!["range", "ranking", "text", "choice", "drop-down", "information", "image"].includes(field.type) && (
           <div>
             <input
               type={field.type}

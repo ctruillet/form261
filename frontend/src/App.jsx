@@ -21,7 +21,7 @@ function App() {
               <Link to="/answers">Réponses</Link>
             </li>
             <li>
-              <Link to="/data">Data</Link>
+              {/* <Link to="/data">Data</Link> */}
             </li>
             {/* <li>
               <Link to="/create">Créer un formulaire</Link>

@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Ranking Expé 1",
+    "formID": 2,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID.json",
+    "parametersFields": {
+      "UserID": "5"
+    },
+    "fieldsFields": {
+      "Classement": [
+        "Balloon",
+        "Vertical",
+        "NeuroSphere"
+      ]
+    },
+    "id": "63bd9879-29a4-43e6-80b0-d4a7244e1aa9"
+  }
+]

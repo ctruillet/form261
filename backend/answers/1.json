@@ -78,5 +78,26 @@
       "Frustration": 35
     },
     "id": "05003b41-6e7c-4bf1-9134-ef27370a06d9"
+  },
+  {
+    "name": "NASA-TLX expé 1",
+    "formID": 1,
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "VMIrror",
+      "Block": "C"
+    },
+    "fieldsFields": {
+      "Logo NASA": "",
+      "Demande Mentale": 20,
+      "Demande Physique": 50,
+      "Demande Temporelle": 50,
+      "Performance": 40,
+      "Effort": 40,
+      "Frustration": 30
+    },
+    "id": "5c79539e-9a30-4f9f-a38e-eab296c089c2"
   }
 ]

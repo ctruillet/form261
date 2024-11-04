@@ -3,6 +3,15 @@
   "description": "Évaluez la charge de travail perçue en fonction des six dimensions ci-dessous.",
   "fields": [
     {
+      "label": "Logo NASA",
+      "sublabel": "Logo NASA",
+      "type": "image",
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/1200px-NASA_logo.svg.png",
+      "size": "medium",
+      "align": "right",
+      "required": false
+    },
+    {
       "label": "Demande Mentale",
       "sublabel": "Dans quelle mesure la tâche était-elle exigeante sur le plan mental ?",
       "type": "range",

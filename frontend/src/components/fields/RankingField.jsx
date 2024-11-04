@@ -1,4 +1,3 @@
-// components/fields/RankingField.jsx
 import React, { useState } from "react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
@@ -8,25 +7,27 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Paper, Typography, List, ListItem } from "@mui/material";
 
 const SortableItem = ({ id, index, option }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     padding: "8px",
-    // margin: "4px 0",
-    backgroundColor: "#f1f1f1",
-    border: "1px solid #ccc",
-    cursor: "pointer",
+    backgroundColor: "#f9f9f9",
+    border: "1px solid #ddd",
+    borderRadius: "4px",
+    cursor: "grab",
   };
 
   return (
-    <li ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {index + 1}. {option}
-    </li>
+    <ListItem ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <Typography variant="body1">
+        {index + 1}. {option}
+      </Typography>
+    </ListItem>
   );
 };
 
@@ -36,7 +37,7 @@ const RankingField = ({ label, options, onChange }) => {
   const handleDragEnd = (event) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       const oldIndex = rankedOptions.indexOf(active.id);
       const newIndex = rankedOptions.indexOf(over.id);
 
@@ -48,16 +49,16 @@ const RankingField = ({ label, options, onChange }) => {
 
   return (
     <div className="ranking-field">
+      <Typography variant="h6" gutterBottom>
+        {label}
+      </Typography>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={rankedOptions}
-          strategy={verticalListSortingStrategy}
-        >
-          <ul className="ranking-list">
+        <SortableContext items={rankedOptions} strategy={verticalListSortingStrategy}>
+          <List>
             {rankedOptions.map((option, index) => (
               <SortableItem key={option} id={option} index={index} option={option} />
             ))}
-          </ul>
+          </List>
         </SortableContext>
       </DndContext>
     </div>
