@@ -1,0 +1,13 @@
+{
+  "title": "Ranking",
+  "description": "Classez les techniques de gestion d'Occultation en fonction de votre préférence.",
+  "fields": [
+    {
+      "label": "Classement",
+      "sublabel": "Classez les techniques par ordre de préférence",
+      "type": "ranking",
+      "options": ["NeuroSphere", "Balloon", "Vertical"],
+      "required": true
+    }
+  ]
+}

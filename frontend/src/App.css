@@ -1,42 +1,50 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* App.css */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-container {
+  display: flex;
+  /* height: 100vh; Prendre toute la hauteur de la vue */
+
+  flex-direction: row;
+  /* align-items: flex-start; */
+  justify-content: center;
+  position: relative; /* Nécessaire pour le positionnement de l'overlay */
+  background-color: #f9f9f9; /* Couleur de fond */
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar {
+  /* flex: 0; */
+  /* width: 20%; Largeur de la barre latérale */
+  background-color: #2c3e50; /* Couleur de fond de la barre latérale */
+  color: white; /* Couleur du texte */
+  padding: 20px; /* Espacement interne */
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.main-content {
+  flex: 1; /* Prendre tout l'espace restant */
+  width: 80%;
+  padding: 20px; /* Espacement interne */
+  background-color: #ecf0f1; /* Couleur de fond du contenu principal */
 }
 
-.card {
-  padding: 2em;
+.sidebar ul {
+  list-style-type: none; /* Supprimer les puces */
+  padding: 0; /* Supprimer le padding */
 }
 
-.read-the-docs {
-  color: #888;
+.sidebar li {
+  margin: 15px 0; /* Espacement entre les éléments de la liste */
+}
+
+.sidebar a {
+  color: white; /* Couleur des liens */
+  text-decoration: none; /* Pas de soulignement */
+}
+
+.sidebar a:hover {
+  text-decoration: underline; /* Soulignement au survol */
 }

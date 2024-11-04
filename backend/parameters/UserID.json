@@ -1,0 +1,15 @@
+{
+  "title": "UserID",
+  "name": "UserID",
+  "description": "Expé 1 - Occultation : UserID et Block",
+  "fields": [
+    {
+      "label": "UserID",
+      "sublabel": "",
+      "type": "text",
+      "placeholder": "UserID",
+      "required": true,
+      "category": "parameter" 
+    }
+  ]
+}

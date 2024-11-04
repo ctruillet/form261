@@ -1,0 +1,73 @@
+.field-manager {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Espace vertical entre chaque champ */
+    margin: 20px 0;
+  }
+  
+  .field-item {
+    background-color: #f9f9f9; /* Couleur de fond pour les champs */
+    border: 1px solid #ddd; /* Bordure légère */
+    border-radius: 8px; /* Coins arrondis */
+    padding: 1.5rem; /* Espacement intérieur */
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* Ombre douce */
+    transition: box-shadow 0.3s, background-color 0.3s; /* Transition pour l'ombre et la couleur */
+  }
+  
+  .field-item:hover {
+    background-color: #f1f1f1; /* Légère variation de la couleur au survol */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15); /* Accentuation de l'ombre au survol */
+  }
+  
+  .field-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .field-item-content {
+    display: flex;
+    align-items: flex-start; /* Aligne les éléments en haut */
+    justify-content: space-between;
+  }
+  
+  .field-item-content > * {
+    margin-right: 1rem; /* Espacement entre les éléments dans le champ */
+  }
+  
+  .add-button, .delete-button {
+    background-color: #007bff; /* Couleur de fond visible */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .add-button:hover, .delete-button:hover {
+    background-color: #0056b3; /* Couleur au survol */
+  }
+  
+  .delete-button {
+    background-color: #ff6b6b; /* Rouge pour la suppression */
+  }
+  
+  .delete-button:hover {
+    background-color: #ff4b4b; /* Rouge plus vif au survol */
+  }
+  
+  button {
+    padding: 8px 12px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  select {
+    padding: 8px;
+    margin-left: 8px;
+  }
+  

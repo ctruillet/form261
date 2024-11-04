@@ -1,42 +1,24 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const fieldsRoutes = require('./routes/fieldsRoutes');
+const dataRoutes = require('./routes/dataRoutes');
+const parametersRoutes = require('./routes/parametersRoutes');
+const formRoutes = require('./routes/formRoutes');
+
 const app = express();
 const PORT = 5000;
 
 // Middleware pour analyser le JSON du corps des requêtes
 app.use(express.json());
+app.use(cors());
+app.use(bodyParser.json());
 
-// Chemin vers le fichier JSON
-const filePath = path.join(__dirname, 'data.json');
+// Utiliser les routes
+app.use('/api/fields', fieldsRoutes); // Routes liées aux fields
+app.use('/api/parameters', parametersRoutes); // Routes liées aux parametres
+app.use('/api/data', dataRoutes); // Routes liées à la gestion des données
+app.use('/api/forms', formRoutes); // Routes liées aux formulaires
 
-// Route POST pour recevoir des données et les enregistrer dans data.json
-app.post('/api/registerData', (req, res) => {
-  const newData = req.body;
-
-  // Lire le contenu actuel du fichier JSON
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Erreur de lecture du fichier' });
-    }
-
-    // Convertir les données JSON en un tableau JavaScript
-    let jsonData = JSON.parse(data || '[]');
-
-    // Ajouter les nouvelles données au tableau
-    jsonData.push(newData);
-
-    // Écrire le nouveau tableau dans le fichier JSON
-    fs.writeFile(filePath, JSON.stringify(jsonData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Erreur lors de l\'écriture du fichier' });
-      }
-
-      res.status(200).json({ message: 'Données enregistrées avec succès' });
-    });
-  });
-});
-
+// Démarrer le serveur
 app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));

@@ -1,0 +1,32 @@
+{
+  "title": "UserID TI Block",
+  "name": "UserID TI Block",
+  "description": "Expé 1 - Occultation : UserID, TI et Block", 
+  "fields": [
+    {
+      "label": "UserID",
+      "sublabel": "UserID",
+      "type": "text",
+      "placeholder": "UserID",
+      "required": true,
+      "category": "parameter" 
+    },
+    {
+      "label": "Technique",
+      "sublabel": "Technique",
+      "type": "text",
+      "placeholder": "TI",
+      "required": true,
+      "category": "parameter" 
+    },
+    {
+      "label": "Block",
+      "sublabel": "Block de l'expérience",
+      "type": "drop-down",
+      "placeholder": "Block",
+      "options": ["A", "B", "C", "D"],
+      "required": true,
+      "category": "parameter" 
+    }
+  ]
+}

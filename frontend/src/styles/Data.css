@@ -1,0 +1,14 @@
+.data-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .graph-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .graph-block {
+    margin-bottom: 50px;
+  }
+  
