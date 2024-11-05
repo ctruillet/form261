@@ -259,6 +259,8 @@ const Form = () => {
             label={field.label}
             options={field.options || []}
             onChange={handleRankingChange}
+            required={field.required}
+            
           />
         )}
 
