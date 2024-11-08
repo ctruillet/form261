@@ -6,8 +6,8 @@
         "id": 0
     },
     {
-        "name": "NASA-TLX expé 1",
-        "fields": "NASA-TLX.json",
+        "name": "Evaluation Technique expé 1",
+        "fields": "OccultationExpe1.json",
         "param": "UserID_TI_Block.json",
         "id": 1
     },

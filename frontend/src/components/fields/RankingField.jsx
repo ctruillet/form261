@@ -8,6 +8,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Paper, Typography, List, ListItem } from "@mui/material";
+import FormLabel from '@mui/material/FormLabel';
 
 const SortableItem = ({ id, index, option }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
@@ -31,7 +32,7 @@ const SortableItem = ({ id, index, option }) => {
   );
 };
 
-const RankingField = ({ label, options, onChange }) => {
+const RankingField = ({ label, options, onChange, required }) => {
   const [rankedOptions, setRankedOptions] = useState(options);
 
   const handleDragEnd = (event) => {
@@ -49,9 +50,9 @@ const RankingField = ({ label, options, onChange }) => {
 
   return (
     <div className="ranking-field">
-      <Typography variant="h6" gutterBottom>
+      <FormLabel component="legend" required={required}>
         {label}
-      </Typography>
+      </FormLabel>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={rankedOptions} strategy={verticalListSortingStrategy}>
           <List>

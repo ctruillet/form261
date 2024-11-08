@@ -11,11 +11,12 @@
       "required": true,
       "category": "parameter" 
     },
-    {
+	{
       "label": "Technique",
       "sublabel": "Technique",
-      "type": "text",
+      "type": "drop-down",
       "placeholder": "TI",
+      "options": ["Baseline", "vMirrorAR", "BalloonProbeAR", "ClippingPlaceAR"],
       "required": true,
       "category": "parameter" 
     },

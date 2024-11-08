@@ -18,6 +18,7 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
         value={value || null}
         onChange={handleSelectChange}
         disabled={isDisabled}
+        autoWidth
         renderInput={(params) => (
           <TextField 
             {...params} 
@@ -28,6 +29,7 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
             error={!!errors[label]}
             helperText={sublabel || " "}
             variant="standard"
+            
           />
         )}
       />
