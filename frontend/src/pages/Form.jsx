@@ -13,6 +13,7 @@ import ChoiceField from "../components/fields/ChoiceField";
 import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 import InformationField from "../components/fields/InformationField";
 import ImageField from "../components/fields/ImageField";
+import TextAutosizeField from "../components/fields/TextAutosizeField";
 
 import "../styles/Form.css";
 
@@ -168,17 +169,17 @@ const Form = () => {
   };
 
   const handlePopupOpen = (message, severity) => {
-    setPopup({ 
-      message, 
-      severity, 
-      open: true 
+    setPopup({
+      message,
+      severity,
+      open: true
     });
   };
 
   const handlePopupClose = () => {
-    setPopup((prev) => ({ 
-      ...prev, 
-      open: false 
+    setPopup((prev) => ({
+      ...prev,
+      open: false
     }));
   };
 
@@ -260,7 +261,7 @@ const Form = () => {
             options={field.options || []}
             onChange={handleRankingChange}
             required={field.required}
-            
+
           />
         )}
 
@@ -320,10 +321,23 @@ const Form = () => {
           />
         )}
 
+        {field.type === "textAutosize" && (
+          <TextAutosizeField
+            label={field.label}
+            sublabel={field.sublabel}
+            errors={errors}
+            minRows={field.minRows}
+            onChange={handleChange}
+            placeholder=""
+            required={field.required}
+            isDisabled={isDisabled}
+          />
+        )}
+
 
 
         {/* Champ générique pour les autres types */}
-        {!["range", "ranking", "text", "choice", "drop-down", "information", "image"].includes(field.type) && (
+        {!["range", "ranking", "text", "choice", "drop-down", "information", "image", "textAutosize"].includes(field.type) && (
           <div>
             <input
               type={field.type}
