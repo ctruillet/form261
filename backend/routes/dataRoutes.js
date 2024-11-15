@@ -9,6 +9,7 @@ router.put('/modifyData', dataController.modifyData);
 
 // Routes pour la gestion des réponses
 router.get('/responses', dataController.getAllResponses); // Récupérer toutes les réponses
+router.get('/responses/exportResponsesToExcel', dataController.exportResponsesToExcel); // Télécharger toutes les réponses
 router.get('/responses/formID=:formID', dataController.getResponsesByFormID); // Récupérer les réponses d'un formulaire spécifique
 router.delete('/responses/formID=:formID:id', dataController.deleteResponse); // Supprimer une réponse
 router.put('/responses/formID=:formID:id', dataController.updateResponse); // Mettre à jour une réponse
