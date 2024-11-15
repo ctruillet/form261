@@ -11,3 +11,6 @@ npm run dev
 cd backend
 node server.js
 ```
+
+## ToDo
+[] Ajouter une page de création de participant
