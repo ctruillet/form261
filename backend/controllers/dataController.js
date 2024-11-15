@@ -41,7 +41,57 @@ exports.registerData = (req, res) => {
         console.error(err);
         return res.status(500).json({ message: 'Erreur lors de l\'écriture du fichier' });
       }
-      res.status(200).json({ message: 'Données enregistrées avec succès' });
+      res.status(200).json({ message: 'Données enregistrées avec succès', id: data.id });
+    });
+  });
+};
+
+// Modifier une réponse via le formulaire
+exports.modifyData = (req, res) => {
+  const data = req.body;
+  const id = data.id;
+  const answersFilePath = path.join(answersFolderPath, `${data.formID}.json`);
+
+  fs.readFile(answersFilePath, 'utf8', (err, fileData) => {
+    let jsonData = [];
+
+    // Si le fichier n'existe pas, initialise jsonData comme un tableau vide
+    if (err) {
+      if (err.code === 'ENOENT') {
+        console.log(`Fichier ${data.formID}.json non trouvé, création d'un nouveau fichier.`);
+      } else {
+        console.error(err);
+        return res.status(500).json({ message: 'Erreur de lecture du fichier' });
+      }
+    } else {
+      // Si le fichier existe, parse son contenu
+      try {
+        jsonData = JSON.parse(fileData || '[]');
+      } catch (parseError) {
+        console.error('Erreur de parsing du fichier:', parseError);
+        return res.status(500).json({ message: 'Erreur de parsing du fichier' });
+      }
+    }
+
+    // Cherche la réponse à modifier par son ID
+    const index = jsonData.findIndex((item) => item.id === id);
+
+    if (index === -1) {
+      // Si la réponse n'est pas trouvée, retourne une erreur
+      return res.status(404).json({ message: 'Réponse non trouvée' });
+    }
+
+    // Met à jour les données de la réponse
+    jsonData[index] = { ...jsonData[index], ...data };
+
+    // Écrit les données mises à jour dans le fichier
+    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.error(writeErr);
+        return res.status(500).json({ message: 'Erreur lors de l\'écriture du fichier' });
+      }
+
+      res.status(200).json({ message: 'Données modifiées avec succès', id });
     });
   });
 };

@@ -34,6 +34,7 @@ const Form = () => {
     severity: "",
     open: false,
   });
+  const [dataID, setDataID] = useState(undefined);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -217,10 +218,17 @@ const Form = () => {
     }
 
     try {
-      const response = await axios.post("/api/data/registerData", completeFormData);
-      handlePopupOpen("Données envoyées avec succès", "success");
-      // <Alert severity="success">Données envoyées avec succès</Alert>
-      // alert("Données envoyées avec succès");
+      if (dataID) {
+        completeFormData.id = dataID;
+        const response = await axios.put(`/api/data/modifyData`, completeFormData);
+        console.log(completeFormData)
+        handlePopupOpen("Données modifiées avec succès", "success");
+
+      }else{
+        const response = await axios.post("/api/data/registerData", completeFormData);
+        setDataID(response.data.id);
+        handlePopupOpen("Données envoyées avec succès", "success");
+      }
     } catch (error) {
       handlePopupOpen("Erreur lors de l'envoi des données", "error");
       // <Alert severity="error">Erreur lors de l'envoi des données : ${error}</Alert>
@@ -242,6 +250,7 @@ const Form = () => {
         {field.type === "range" && (
           <RangeField
             label={field.label}
+            sublabel={field.sublabel}
             errors={errors}
             value={formData[field.label] || ""}
             min={field.min}
@@ -377,8 +386,12 @@ const Form = () => {
       <div className="fields-container">
         <form onSubmit={handleSubmit}>
           {fieldsFields.map(renderField)}
-          <Button variant="contained" endIcon={<SendIcon />} type="submit">
-            Soumettre
+          <Button
+            variant="contained"
+            endIcon={<SendIcon />} type="submit"
+            color={dataID == undefined ? "primary" : "secondary"}
+            >
+            {dataID == undefined ? "Soumettre" : "Modifier"}
           </Button>
         </form>
       </div>
@@ -387,7 +400,7 @@ const Form = () => {
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={popup.open}
-        autoHideDuration={6000}
+        autoHideDuration={60000000}
         onClose={handlePopupClose}
       >
         <Alert onClose={handlePopupClose} severity={popup.severity} sx={{ width: '100%' }}>

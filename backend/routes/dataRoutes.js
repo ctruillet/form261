@@ -4,6 +4,7 @@ const dataController = require('../controllers/dataController');
 
 // Route pour enregistrer des données soumises via un formulaire
 router.post('/registerData', dataController.registerData);
+router.put('/modifyData', dataController.modifyData);
 
 
 // Routes pour la gestion des réponses

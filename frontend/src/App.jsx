@@ -15,7 +15,7 @@ function App() {
         <nav className="sidebar">
           <ul>
             <li>
-              <Link to="/">Formulaire</Link>
+              <Link to="/">Formulaires</Link>
             </li>
             <li>
               <Link to="/answers">Réponses</Link>

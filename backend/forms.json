@@ -14,7 +14,13 @@
     {
         "name": "Ranking Expé 1",
         "fields": "Ranking.json",
-        "param": "UserID.json",
+        "param": "UserID_Block.json",
         "id": 2
+    },
+    {
+        "name": "Commentaires Expé 1",
+        "fields": "techniques.json",
+        "param": "UserID_Block.json",
+        "id": 3
     }
 ]

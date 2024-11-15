@@ -1,0 +1,41 @@
+{
+  "title": "Ranking",
+  "description": "Commenaires",
+  "fields": [
+    {
+      "label": "Baseline",
+      "sublabel": "Commentaires sur la Baseline",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "BalloonProbeAR",
+      "sublabel": "Commentaires sur le BalloonProbeAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "ClippingPlaneAR",
+      "sublabel": "Commentaires sur le ClippingPlaneAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "vMirrorAR",
+      "sublabel": "Commentaires sur le vMirrorAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "Général",
+      "sublabel": "Commentaires généraux",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    }
+  ]
+}
