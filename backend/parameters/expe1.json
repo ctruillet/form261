@@ -16,7 +16,7 @@
       "sublabel": "Technique",
       "type": "drop-down",
       "placeholder": "TI",
-      "options": ["Baseline", "vMirrorAR", "BalloonProbeAR", "ClippingPlaceAR"],
+      "options": ["vMirrorAR", "BalloonProbeAR", "ClippingPlaceAR"],
       "required": true,
       "category": "parameter" 
     },
@@ -25,7 +25,7 @@
       "sublabel": "Block de l'expérience",
       "type": "drop-down",
       "placeholder": "Block",
-      "options": ["TI 1", "TI 2", "TI 3", "TI 4"],
+      "options": ["A", "B", "C", "D", "E", "F"],
       "required": true,
       "category": "parameter" 
     }

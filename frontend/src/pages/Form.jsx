@@ -153,21 +153,23 @@ const Form = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    parameterFields.forEach((field) => {
-      if (field.required && !formData[field.label]) {
-        newErrors[field.label] = `${field.label} est requis`;
-      }
-    });
-
-    fieldsFields.forEach((field) => {
-      if (field.required && !formData[field.label]) {
-        newErrors[field.label] = `${field.label} est requis`;
-      }
-    });
-
+  
+    const validateFields = (fields) => {
+      fields.forEach((field) => {
+        // Vérifie si le champ est requis et qu'il n'est pas de type "range"
+        if (field.required && field.type !== "range" && !formData[field.label]) {
+          newErrors[field.label] = `${field.label} est requis`;
+        }
+      });
+    };
+  
+    validateFields(parameterFields);
+    validateFields(fieldsFields);
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handlePopupOpen = (message, severity) => {
     setPopup({
@@ -252,7 +254,7 @@ const Form = () => {
             label={field.label}
             sublabel={field.sublabel}
             errors={errors}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             min={field.min}
             max={field.max}
             labelMin={field.labelMin}

@@ -129,4 +129,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-backend/answers/
+backend/answers/*
+.xlsx

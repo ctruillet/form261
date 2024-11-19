@@ -16,7 +16,7 @@
       "sublabel": "Block de l'expérience",
       "type": "drop-down",
       "placeholder": "Block",
-      "options": ["A", "B", "C", "D"],
+      "options": ["A", "B", "C", "D", "E", "F"],
       "required": true,
       "category": "parameter" 
     }

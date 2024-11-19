@@ -21,9 +21,21 @@ function App() {
       })
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
+  
+        // Récupérer la date et l'heure actuelles
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Mois de 0 à 11, donc +1
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+  
+        // Construire le nom du fichier
+        const fileName = `exported_responses_${year}_${month}_${day}_${hours}_${minutes}.xlsx`;
+  
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'exported_responses.xlsx');
+        link.setAttribute('download', fileName);
         document.body.appendChild(link);
         link.click();
         link.parentNode.removeChild(link);
@@ -46,7 +58,7 @@ function App() {
               <Link to="/answers">Réponses</Link>
             </li>
             <li>
-              <Link to="/" onClick={downloadResponses}>Télécharger les réponses</Link>
+              <Link onClick={downloadResponses}>Télécharger les réponses</Link>
             </li>
           </ul>
         </nav>

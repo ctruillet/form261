@@ -6,7 +6,7 @@
       "label": "Classement",
       "sublabel": "Classez les techniques par ordre de préférence",
       "type": "ranking",
-      "options": ["BalloonProbeAR", "ClippingPlaneAR", "Baseline", "vMirrorAR"],
+      "options": ["BalloonProbeAR", "ClippingPlaneAR", "vMirrorAR"],
       "required": false
     },
     {

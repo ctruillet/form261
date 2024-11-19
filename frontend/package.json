@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/base": "^5.0.0-beta.61",
     "@mui/icons-material": "^6.1.6",
-    "@mui/material": "^6.1.6",
+    "@mui/material": "^6.1.7",
     "axios": "^1.7.7",
     "chart.js": "^4.4.5",
     "espree": "^10.2.0",
