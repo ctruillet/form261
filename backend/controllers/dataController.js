@@ -179,7 +179,6 @@ exports.getResponsesByFormID = (req, res) => {
 // Récupérer une réponse d'un formulaire spécifique
 exports.getResponseByID = (req, res) => {
   const id = req.params.id;
-  console.log(id);
 
   fs.readdir(answersFolderPath, (err, files) => {
     if (err) {
@@ -237,30 +236,73 @@ exports.getResponseByID = (req, res) => {
   });
 };
 
-// Supprimer une réponse
-exports.deleteResponse = (req, res) => {
+exports.deleteResponseByID = (req, res) => {
   const id = req.params.id;
-  const formID = req.params.formID;
-  const answersFilePath = path.join(answersFolderPath, `${formID}.json`);
 
-  fs.readFile(answersFilePath, 'utf8', (err, data) => {
+  fs.readdir(answersFolderPath, (err, files) => {
     if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Erreur de lecture des réponses' });
+      console.error("Erreur de lecture du répertoire :", err);
+      return res.status(500).json({ message: "Erreur de lecture du répertoire des réponses" });
     }
 
-    let jsonData = JSON.parse(data || '[]');
-    jsonData = jsonData.filter((response) => response.id !== id);
+    let filePromises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        if (path.extname(file) === ".json") {
+          const answersFilePath = path.join(answersFolderPath, file);
 
-    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Erreur lors de la suppression de la réponse' });
-      }
-      res.status(200).json({ message: 'Réponse supprimée avec succès' });
+          fs.readFile(answersFilePath, "utf8", (err, data) => {
+            if (err) {
+              console.error(`Erreur de lecture du fichier ${answersFilePath} :`, err);
+              return reject(`Erreur de lecture du fichier ${file} de réponses`);
+            }
+
+            try {
+              let jsonData = JSON.parse(data || "[]");
+              const initialLength = jsonData.length;
+
+              // Filtrer les réponses pour supprimer celle avec l'ID correspondant
+              jsonData = jsonData.filter((response) => response.id !== id);
+
+              if (jsonData.length < initialLength) {
+                // Si une réponse a été supprimée, écrire le fichier mis à jour
+                fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (writeErr) => {
+                  if (writeErr) {
+                    console.error(`Erreur d'écriture dans le fichier ${answersFilePath} :`, writeErr);
+                    return reject(`Erreur d'écriture dans le fichier ${file}`);
+                  }
+                  console.log(`Réponse avec l'ID ${id} supprimée du fichier ${file}`);
+                  resolve(true); // Indique qu'une suppression a été effectuée
+                });
+              } else {
+                resolve(false); // Aucun élément supprimé dans ce fichier
+              }
+            } catch (parseError) {
+              console.error("Erreur de parsing du fichier :", parseError);
+              reject("Erreur de parsing du fichier de réponses");
+            }
+          });
+        } else {
+          resolve(false); // Ignorer les fichiers non-JSON
+        }
+      });
     });
+
+    Promise.all(filePromises)
+      .then((results) => {
+        const isDeleted = results.some((result) => result); // Vérifie si au moins une suppression a eu lieu
+        if (isDeleted) {
+          return res.status(200).json({ message: `Réponse avec l'ID ${id} supprimée avec succès` });
+        } else {
+          return res.status(404).json({ message: `Réponse avec l'ID ${id} non trouvée` });
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur :", error);
+        return res.status(500).json({ message: "Erreur de traitement des fichiers de réponses" });
+      });
   });
 };
+
 
 // Mettre à jour une réponse
 exports.updateResponse = (req, res) => {

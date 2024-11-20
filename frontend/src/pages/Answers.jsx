@@ -109,6 +109,25 @@ const Answers = () => {
   const handleDelete = () => {
     if (!selectedRow) return;
     alert("Êtes-vous sûr de vouloir supprimer cette ligne ?");
+
+    const DeleteResponse = async () => {
+      try {
+        await axios.delete(`/api/data/responses/id=${selectedRow.id}`);
+        
+        // Supprimer la ligne de la liste
+        setResponses((prevResponses) => {
+          const updatedResponses = prevResponses.map((file) => {
+            const updatedRows = file.rows.filter((row) => row.id !== selectedRow.id);
+            return { ...file, rows: updatedRows };
+          });
+          return updatedResponses;
+        });
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la ligne :", error);
+      }
+    };
+    DeleteResponse();
+
     console.log("Suppression de la ligne sélectionnée :", selectedRow);
   };
 
