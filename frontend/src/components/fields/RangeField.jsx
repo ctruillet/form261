@@ -8,7 +8,7 @@ const RangeField = ({ label, sublabel, errors, value, min, max, labelMin, labelM
   
   const defaultCenterValue = Math.round((min + max) / 2);
 
-  if (!isRangeModified) {
+  if (!isRangeModified && value === undefined) {
     value = Math.round((min + max) / 2);
   }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -10,14 +10,25 @@ const ChoiceField = ({
   label,
   value,
   onChange,
-  option,
+  options,
   otherChoice,
   placeholder,
   required,
   isDisabled,
 }) => {
+  
+
   const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [otherValue, setOtherValue] = useState("");
+
+  useEffect(() => {
+    if (!options.includes(value) && value !== "") {
+      setIsOtherSelected(true);
+      setOtherValue(value);
+    } else {
+      setIsOtherSelected(false);
+    }
+  }, [value, options]);
 
   const handleOptionChange = (event) => {
     const selectedValue = event.target.value;
@@ -43,7 +54,8 @@ const ChoiceField = ({
     setIsOtherSelected(true);
   }
 
-  return (
+
+    return (
     <div>
       <FormLabel component="legend" required={required}>
         {label}
@@ -55,7 +67,7 @@ const ChoiceField = ({
         value={isOtherSelected ? "other" : value}
         onChange={handleOptionChange}
       >
-        {option.map((opt, index) => (
+        {options.map((opt, index) => (
           <FormControlLabel
             key={index}
             value={opt}

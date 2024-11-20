@@ -176,6 +176,67 @@ exports.getResponsesByFormID = (req, res) => {
   });
 };
 
+// Récupérer une réponse d'un formulaire spécifique
+exports.getResponseByID = (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+
+  fs.readdir(answersFolderPath, (err, files) => {
+    if (err) {
+      console.error('Erreur de lecture du répertoire:', err);
+      return res.status(500).json({ message: 'Erreur de lecture du répertoire des réponses' });
+    }
+
+    let foundResponse = null;  // Variable pour stocker la réponse trouvée
+
+    // Utiliser une promesse pour s'assurer que nous lisons tous les fichiers avant de répondre
+    let filePromises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        if (path.extname(file) === '.json') {  // Vérifier si c'est un fichier .json
+          const answersFilePath = path.join(answersFolderPath, file);  // Créer le chemin complet du fichier
+
+          fs.readFile(answersFilePath, 'utf8', (err, data) => {
+            if (err) {
+              console.error(`Erreur de lecture du fichier ${answersFilePath}:`, err);
+              reject(`Erreur de lecture du fichier ${file} de réponses`);
+            }
+
+            try {
+              let jsonData = JSON.parse(data || '[]');
+              const response = jsonData.find((response) => response.id === id); // Trouver la réponse par ID
+
+              if (response) {
+                foundResponse = response;  // Stocker la réponse trouvée
+              }
+              resolve();
+            } catch (parseError) {
+              console.error('Erreur de parsing du fichier:', parseError);
+              reject('Erreur de parsing du fichier de réponses');
+            }
+          });
+        } else {
+          resolve();  // Si ce n'est pas un fichier JSON, on continue
+        }
+      });
+    });
+
+    // Une fois que toutes les promesses sont résolues, on renvoie la réponse
+    Promise.all(filePromises)
+      .then(() => {
+        if (foundResponse) {
+          console.log(foundResponse);
+          return res.status(200).json(foundResponse); // Retourner la réponse trouvée
+        } else {
+          return res.status(404).json({ message: `Réponse avec l'ID ${id} non trouvée` });
+        }
+      })
+      .catch((error) => {
+        console.error('Erreur:', error);
+        return res.status(500).json({ message: 'Erreur de traitement des fichiers de réponses' });
+      });
+  });
+};
+
 // Supprimer une réponse
 exports.deleteResponse = (req, res) => {
   const id = req.params.id;

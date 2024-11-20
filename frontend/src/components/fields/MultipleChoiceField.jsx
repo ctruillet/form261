@@ -20,6 +20,9 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
     }
   }, [options]);
 
+
+  
+
   return (
     <div>
       {/* Div invisible pour mesurer la largeur du choix le plus long */}

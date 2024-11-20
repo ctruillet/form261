@@ -131,3 +131,8 @@ dist
 
 backend/answers/*
 .xlsx
+
+backend/controllers/exported_responses.xlsx
+backend/answers/2.json
+backend/answers/1.json
+backend/answers/0.json
