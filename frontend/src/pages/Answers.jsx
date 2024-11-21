@@ -7,6 +7,12 @@ import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
 import "../styles/Answers.css";
 
 const flattenJSON = (obj, parentKey = "", res = {}) => {
@@ -26,22 +32,11 @@ const actions = [
   { icon: <DeleteIcon />, name: "Delete" }
 ];
 
-// Champs à afficher
-const parametersField = ["param1", "param2"]; // Remplace par tes champs
-const fieldFields = ["field1", "field2"]; // Remplace par tes champs
-
-const getFilteredHeaders = (headers) => {
-  // Filtrer les champs en fonction des paramètres définis
-  return headers.filter(
-    (header) =>
-      parametersField.includes(header) || fieldFields.includes(header) || header === "id"
-  );
-};
-
 const Answers = () => {
   const [responses, setResponses] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [speedDialPosition, setSpeedDialPosition] = useState({ top: 0, left: 0 });
+  const [openDialog, setOpenDialog] = useState(false); // Pour gérer l'état de la pop-up
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,37 +44,27 @@ const Answers = () => {
       try {
         const response = await axios.get("/api/data/responses");
         const data = response.data;
-        
 
         // Traitement des données
         const processedData = data.map((file) => {
-          if(!file.content[0]) return null;
-          // Extraire les champs depuis parametersFields et fieldsFields
+          if (!file.content[0]) return null;
           const parameterKeys = Object.keys(file.content[0].parametersFields || {});
           const fieldKeys = Object.keys(file.content[0].fieldsFields || {});
-
-          // Inclure aussi "id"
           const requiredHeaders = [...parameterKeys, ...fieldKeys, "id", "fieldsFile", "paramFile"];
-
-          // Aplatir chaque réponse
           const flatResponses = file.content.map((response) => flattenJSON(response));
-
-          // Filtrer les réponses pour n'inclure que les requiredHeaders
           const filteredResponses = flatResponses.map((response) =>
             Object.fromEntries(
               Object.entries(response).filter(([key]) => requiredHeaders.includes(key))
             )
           );
-
-          // Déterminer les colonnes non vides
           const nonEmptyHeaders = requiredHeaders.filter((header) =>
             filteredResponses.some((response) => response[header] !== undefined && response[header] !== "")
           );
 
           return {
-            name: file.content[0].name, // Nom du formulaire
-            headers: nonEmptyHeaders, // En-têtes non vides
-            rows: filteredResponses, // Réponses filtrées
+            name: file.content[0].name,
+            headers: nonEmptyHeaders,
+            rows: filteredResponses,
           };
         });
 
@@ -97,43 +82,36 @@ const Answers = () => {
       console.log("Aucune ligne sélectionnée pour l'édition.");
       return;
     }
-  
+
     navigate(
       `/form?fields=${selectedRow.fieldsFile}&param=${selectedRow.paramFile}&id=${selectedRow.id}`
     );
-  
+
     console.log("Édition de la ligne sélectionnée :", selectedRow);
   };
-  
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`/api/data/responses/id=${selectedRow.id}`);
+      setResponses((prevResponses) => {
+        const updatedResponses = prevResponses.map((file) => {
+          const updatedRows = file.rows.filter((row) => row.id !== selectedRow.id);
+          return { ...file, rows: updatedRows };
+        });
+        return updatedResponses;
+      });
+      setOpenDialog(false); // Fermer la pop-up après suppression
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la ligne :", error);
+    }
+  };
 
   const handleDelete = () => {
-    if (!selectedRow) return;
-    alert("Êtes-vous sûr de vouloir supprimer cette ligne ?");
-
-    const DeleteResponse = async () => {
-      try {
-        await axios.delete(`/api/data/responses/id=${selectedRow.id}`);
-        
-        // Supprimer la ligne de la liste
-        setResponses((prevResponses) => {
-          const updatedResponses = prevResponses.map((file) => {
-            const updatedRows = file.rows.filter((row) => row.id !== selectedRow.id);
-            return { ...file, rows: updatedRows };
-          });
-          return updatedResponses;
-        });
-      } catch (error) {
-        console.error("Erreur lors de la suppression de la ligne :", error);
-      }
-    };
-    DeleteResponse();
-
-    console.log("Suppression de la ligne sélectionnée :", selectedRow);
+    setOpenDialog(true); // Ouvrir la pop-up
   };
 
   const handleRowClick = (params, event) => {
     setSelectedRow(params.row);
-    // Récupère les coordonnées de l'événement pour positionner le SpeedDial
     const rect = event.currentTarget.getBoundingClientRect();
     setSpeedDialPosition({ top: rect.top + window.scrollY - 120, right: rect.right - 60 });
   };
@@ -149,16 +127,24 @@ const Answers = () => {
         }));
 
         const rows = file.rows.map((row, index) => ({
-          id: row.id || index, // Assigner un ID si inexistant
+          id: row.id || index,
           ...row,
         }));
 
         return (
           <div key={fileIndex} className="form-table-container">
             <h3>{file.name}</h3>
-            <div style={{ height: 500, width: "100%" }}>
+            <div style={{ height: 475, width: "100%" }}>
               <DataGrid
-                columnVisibilityModel={{id: false, fieldsFile: false, paramFile: false}}
+                initialState={{
+                  columns: {
+                    columnVisibilityModel: {
+                      id: false,
+                      fieldsFile: false,
+                      paramFile: false,
+                    },
+                  },
+                }}
                 rows={rows}
                 columns={columns}
                 pageSize={5}
@@ -186,6 +172,7 @@ const Answers = () => {
               key={action.name}
               icon={action.icon}
               tooltipTitle={action.name}
+              tooltipOpen
               onClick={() => {
                 if (action.name === "Edit") {
                   handleEdit();
@@ -197,6 +184,22 @@ const Answers = () => {
           ))}
         </SpeedDial>
       )}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Confirmer la suppression</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Êtes-vous sûr de vouloir supprimer cette réponse ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Annuler
+          </Button>
+          <Button onClick={confirmDelete} color="error">
+            Supprimer
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
