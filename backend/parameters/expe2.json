@@ -1,0 +1,33 @@
+{
+  "title": "Expé 2",
+  "name": "expe2",
+  "description": "Occultation",
+  "fields": [
+    {
+      "label": "UserID",
+      "sublabel": "UserID",
+      "type": "text",
+      "placeholder": "UserID",
+      "required": true,
+      "category": "parameter" 
+    },
+	  {
+      "label": "Technique",
+      "sublabel": "Technique",
+      "type": "drop-down",
+      "placeholder": "TI",
+      "options": ["vMirrorAR", "BalloonProbeAR", "ConeProbeAR", "ARPortal"],
+      "required": true,
+      "category": "parameter" 
+    },
+    {
+      "label": "Block",
+      "sublabel": "Block de l'expérience",
+      "type": "drop-down",
+      "placeholder": "Block",
+      "options": ["A", "B", "C", "D"],
+      "required": true,
+      "category": "parameter" 
+    }
+  ]
+}

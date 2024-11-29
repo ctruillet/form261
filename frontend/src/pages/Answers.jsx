@@ -43,11 +43,16 @@ const Answers = () => {
     const fetchResponses = async () => {
       try {
         const response = await axios.get("/api/data/responses");
+
         const data = response.data;
 
         // Traitement des données
         const processedData = data.map((file) => {
+          // console.log(!file.content[0])
           if (!file.content[0]) return null;
+
+          file.content.reverse(); // Afficher les réponses les plus récentes en premier
+
           const parameterKeys = Object.keys(file.content[0].parametersFields || {});
           const fieldKeys = Object.keys(file.content[0].fieldsFields || {});
           const requiredHeaders = [...parameterKeys, ...fieldKeys, "id", "fieldsFile", "paramFile"];
@@ -120,6 +125,8 @@ const Answers = () => {
     <div className="answers-container">
       <h2>Réponses des formulaires</h2>
       {responses.map((file, fileIndex) => {
+        if(!file) return null;
+
         const columns = file.headers.map((header) => ({
           field: header,
           headerName: header,

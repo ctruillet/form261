@@ -3,13 +3,6 @@
   "description": "Commenaires",
   "fields": [
     {
-      "label": "Baseline",
-      "sublabel": "Commentaires sur la Baseline",
-      "type": "textAutosize",
-      "minRows": 3,
-      "required": false
-    },
-    {
       "label": "BalloonProbeAR",
       "sublabel": "Commentaires sur le BalloonProbeAR",
       "type": "textAutosize",
@@ -17,8 +10,8 @@
       "required": false
     },
     {
-      "label": "ClippingPlaneAR",
-      "sublabel": "Commentaires sur le ClippingPlaneAR",
+      "label": "ConeProbeAR",
+      "sublabel": "Commentaires sur le ConeProbeAR",
       "type": "textAutosize",
       "minRows": 3,
       "required": false
@@ -26,6 +19,13 @@
     {
       "label": "vMirrorAR",
       "sublabel": "Commentaires sur le vMirrorAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "ARPortal",
+      "sublabel": "Commentaires sur la ARPortal",
       "type": "textAutosize",
       "minRows": 3,
       "required": false

@@ -151,6 +151,8 @@ const Form = () => {
       ...formData,
       [name]: value,
     }));
+    console.log(e.target)
+    console.log(value !== "")
 
     setErrors((errors) => ({
       ...errors,
@@ -253,6 +255,10 @@ const Form = () => {
       handlePopupOpen("Erreur lors de l'envoi des données", "error");
     }
   };
+
+  // fieldsFields.forEach((field) => {
+  //   console.log(field.label + " : " + formData[field.label]);
+  // });
 
   const renderField = (field) => {
 
