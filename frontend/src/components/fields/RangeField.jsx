@@ -13,7 +13,7 @@ const RangeField = ({label, sublabel, errors = {}, value, min = 0, max = 100, la
       // onChange({ target: { name: label, value: value } });
     }else{
       setCurrentValue(defaultCenterValue);
-      // onChange({ target: { name: label, value: defaultCenterValue } });
+      onChange({ target: { name: label, value: defaultCenterValue } });
     }
     
   }, [value]);
