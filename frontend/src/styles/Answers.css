@@ -15,4 +15,34 @@
     font-family: monospace;
     white-space: pre-wrap;
   }
+  .answers-container {
+    padding: 20px;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .answers-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .answers-table th, .answers-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .answers-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .answers-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .answers-table tr:hover {
+    background-color: #f1f1f1;
+  }
   

@@ -6,15 +6,21 @@
         "id": 0
     },
     {
-        "name": "Evaluation Technique expé 1",
-        "fields": "OccultationExpe1.json",
+        "name": "Evaluation Technique expé 2",
+        "fields": "OccultationExpe2.json",
         "param": "UserID_TI_Block.json",
         "id": 1
     },
     {
-        "name": "Ranking Expé 1",
+        "name": "Ranking Expé 2",
         "fields": "Ranking.json",
-        "param": "UserID.json",
+        "param": "UserID_Block.json",
         "id": 2
+    },
+    {
+        "name": "Commentaires Expé 2",
+        "fields": "techniques.json",
+        "param": "UserID_Block.json",
+        "id": 3
     }
 ]

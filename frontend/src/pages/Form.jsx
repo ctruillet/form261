@@ -35,11 +35,14 @@ const Form = () => {
     open: false,
   });
 
+  const [dataID, setDataID] = useState(undefined);
+
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const fieldsName = queryParams.get("fields");
     const param = queryParams.get("param");
-
+    const id = queryParams.get("id");
+   
     const urlValues = {};
     queryParams.forEach((value, key) => {
       if (key !== "fields" && key !== "param") {
@@ -65,8 +68,6 @@ const Form = () => {
 
         try {
           const response = await axios.get(`/api/forms/fields=${fieldsName}&param=${param}`);
-          console.log(response.data)
-          console.log(response.data.id)
           setFormTitle(response.data.name || "");
           setFormID(response.data.id);
         } catch (error) {
@@ -80,6 +81,36 @@ const Form = () => {
     if (param) {
       setSelectedParameter(param);
       fetchParameterFields(param, urlValues);
+    }
+
+    if (id) {
+      const fetchExistingData = async () => {
+        try {
+          const response = await axios.get(`/api/data/responses/id=${id}`);
+          const data = response.data;
+          setDataID(data.id);
+          setFormID(data.formID);
+          console.log("Existing Data:", data);
+  
+          // Pre-fill the form fields with the existing data
+          // const preFilledData = {};
+          // fieldsFields.forEach((field) => {
+          //   preFilledData[field.label] = data.fieldsFields?.[field.label] || "";
+          // });
+          
+          // let initialFormData = {};
+
+          let initialFormData = {...data.fieldsFields}
+          initialFormData = {...initialFormData, ...data.parametersFields}
+          console.log("d", data.fieldsFields, "t", initialFormData)
+
+          setFormData(initialFormData);
+
+        } catch (error) {
+          console.error("Erreur lors de la récupération des données existantes :", error);
+        }
+      };
+      fetchExistingData();
     }
   }, [location.search]);
 
@@ -120,6 +151,8 @@ const Form = () => {
       ...formData,
       [name]: value,
     }));
+    console.log(e.target)
+    console.log(value !== "")
 
     setErrors((errors) => ({
       ...errors,
@@ -138,35 +171,25 @@ const Form = () => {
     // });
   };
 
-  const handleParameterSelect = (event) => {
-    const param = event.target.value;
-    setSelectedParameter(param);
-    navigate(`?fields=${new URLSearchParams(location.search).get("fields")}&param=${param}`);
-
-    if (param) {
-      fetchParameterFields(param);
-    } else {
-      setParameterFields([]);
-    }
-  };
-
   const validateForm = () => {
     const newErrors = {};
-    parameterFields.forEach((field) => {
-      if (field.required && !formData[field.label]) {
-        newErrors[field.label] = `${field.label} est requis`;
-      }
-    });
-
-    fieldsFields.forEach((field) => {
-      if (field.required && !formData[field.label]) {
-        newErrors[field.label] = `${field.label} est requis`;
-      }
-    });
-
+  
+    const validateFields = (fields) => {
+      fields.forEach((field) => {
+        // Vérifie si le champ est requis et qu'il n'est pas de type "range"
+        if (field.required && field.type !== "range" && !formData[field.label]) {
+          newErrors[field.label] = `${field.label} est requis`;
+        }
+      });
+    };
+  
+    validateFields(parameterFields);
+    validateFields(fieldsFields);
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handlePopupOpen = (message, severity) => {
     setPopup({
@@ -217,33 +240,37 @@ const Form = () => {
     }
 
     try {
-      const response = await axios.post("/api/data/registerData", completeFormData);
-      handlePopupOpen("Données envoyées avec succès", "success");
-      // <Alert severity="success">Données envoyées avec succès</Alert>
-      // alert("Données envoyées avec succès");
+      if (dataID) {
+        completeFormData.id = dataID;
+        const response = await axios.put(`/api/data/modifyData`, completeFormData);
+        console.log(completeFormData)
+        handlePopupOpen("Données modifiées avec succès", "success");
+
+      }else{
+        const response = await axios.post("/api/data/registerData", completeFormData);
+        setDataID(response.data.id);
+        handlePopupOpen("Données envoyées avec succès", "success");
+      }
     } catch (error) {
       handlePopupOpen("Erreur lors de l'envoi des données", "error");
-      // <Alert severity="error">Erreur lors de l'envoi des données : ${error}</Alert>
-      // console.error("Erreur lors de l'envoi des données :", error);
     }
   };
 
+  // fieldsFields.forEach((field) => {
+  //   console.log(field.label + " : " + formData[field.label]);
+  // });
+
   const renderField = (field) => {
-    const isParameterField = parameterFields.some((paramField) => paramField.label === field.label);
-    const isDisabled = isParameterField && new URLSearchParams(location.search).has(field.label);
 
     return (
       <div className={`field-block ${errors[field.label] ? "error" : ""}`} key={field.label}>
-        {/* Étiquette et sous-étiquette */}
-        {/* <label className={`field-label ${errors[field.label] ? "error" : ""}`}>{field.label}</label> */}
-        {/* {field.sublabel && <span className="field-sublabel">{field.sublabel}</span>} */}
-
         {/* Affichage conditionnel selon le type de champ */}
         {field.type === "range" && (
           <RangeField
             label={field.label}
+            sublabel={field.sublabel}
             errors={errors}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             min={field.min}
             max={field.max}
             labelMin={field.labelMin}
@@ -251,13 +278,14 @@ const Form = () => {
             step={field.step}
             onChange={handleChange}
             required={field.required}
-            isDisabled={isDisabled}
+            isDisabled={field.disabled}
           />
         )}
 
         {field.type === "ranking" && (
           <RankingField
             label={field.label}
+            value={formData[field.label] || ""}
             options={field.options || []}
             onChange={handleRankingChange}
             required={field.required}
@@ -269,11 +297,12 @@ const Form = () => {
           <TextInputField
             label={field.label}
             sublabel={field.sublabel}
+            value={formData[field.label] || ""}
             errors={errors}
             onChange={handleChange}
             placeholder={errors[field.label] || ""}
             required={field.required}
-            isDisabled={isDisabled}
+            isDisabled={field.disabled}
           />
         )}
 
@@ -282,11 +311,11 @@ const Form = () => {
             label={field.label}
             value={formData[field.label] || ""}
             onChange={handleChange}
-            option={field.options || []}
+            options={field.options || []}
             otherChoice={field.otherChoice}
             placeholder={errors[field.label] || ""}
             required={field.required}
-            isDisabled={isDisabled}
+            isDisabled={field.disabled}
           />
         )}
 
@@ -300,7 +329,7 @@ const Form = () => {
             placeholder={field.placeholder || ""}
             options={field.options || []}
             required={field.required}
-            isDisabled={isDisabled}
+            isDisabled={field.disabled}
           />
         )}
 
@@ -315,6 +344,7 @@ const Form = () => {
           <ImageField
             label={field.label}
             sublabel={field.sublabel}
+            value={formData[field.label] || ""}
             src={field.src}
             size={field.size}
             align={field.align}
@@ -325,12 +355,13 @@ const Form = () => {
           <TextAutosizeField
             label={field.label}
             sublabel={field.sublabel}
+            value={formData[field.label] || ""}
             errors={errors}
             minRows={field.minRows}
             onChange={handleChange}
             placeholder=""
             required={field.required}
-            isDisabled={isDisabled}
+            isDisabled={field.disabled}
           />
         )}
 
@@ -347,7 +378,7 @@ const Form = () => {
               onChange={handleChange}
               placeholder={errors[field.label] || ""}
               required={field.required}
-              disabled={isDisabled}
+              disabled={field.disabled}
             />
           </div>
         )}
@@ -359,15 +390,6 @@ const Form = () => {
   return (
     <div className="fields-page">
       <div className="navbar">
-        {/* <select onChange={handleParameterSelect} value={selectedParameter || ""}>
-          <option value="">-- Choisissez un fichier de paramètre --</option>
-          {parameters.map((param, index) => (
-            <option key={index} value={param.file}>
-              {param.title}
-            </option>
-          ))}
-        </select> */}
-
         <div className="parameter-fields">
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
         </div>
@@ -377,8 +399,12 @@ const Form = () => {
       <div className="fields-container">
         <form onSubmit={handleSubmit}>
           {fieldsFields.map(renderField)}
-          <Button variant="contained" endIcon={<SendIcon />} type="submit">
-            Soumettre
+          <Button
+            variant="contained"
+            endIcon={<SendIcon />} type="submit"
+            color={dataID == undefined ? "primary" : "secondary"}
+            >
+            {dataID == undefined ? "Soumettre" : "Modifier"}
           </Button>
         </form>
       </div>
@@ -387,7 +413,7 @@ const Form = () => {
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={popup.open}
-        autoHideDuration={6000}
+        autoHideDuration={60000000}
         onClose={handlePopupClose}
       >
         <Alert onClose={handlePopupClose} severity={popup.severity} sx={{ width: '100%' }}>

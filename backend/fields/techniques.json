@@ -1,0 +1,41 @@
+{
+  "title": "Ranking",
+  "description": "Commenaires",
+  "fields": [
+    {
+      "label": "BalloonProbeAR",
+      "sublabel": "Commentaires sur le BalloonProbeAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "ConeProbeAR",
+      "sublabel": "Commentaires sur le ConeProbeAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "vMirrorAR",
+      "sublabel": "Commentaires sur le vMirrorAR",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "ARPortal",
+      "sublabel": "Commentaires sur la ARPortal",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    },
+    {
+      "label": "Général",
+      "sublabel": "Commentaires généraux",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    }
+  ]
+}

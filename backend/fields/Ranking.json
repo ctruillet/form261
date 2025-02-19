@@ -6,8 +6,15 @@
       "label": "Classement",
       "sublabel": "Classez les techniques par ordre de préférence",
       "type": "ranking",
-      "options": ["NeuroSphere", "Balloon", "Vertical"],
-      "required": true
+      "options": ["BalloonProbeAR", "ConeProbeAR", "vMirrorAR", "ARPortal"],
+      "required": false
+    },
+    {
+      "label": "Champ libre",
+      "sublabel": "Indiquez tout autre commentaire que vous jugerez utile.",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
     }
   ]
 }

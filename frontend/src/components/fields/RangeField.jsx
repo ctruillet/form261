@@ -1,34 +1,52 @@
-// components/fields/RangeField.jsx
-import React from "react";
-import Slider from '@mui/material/Slider';
-import FormLabel from '@mui/material/FormLabel';
+import React, { useState, useEffect } from "react";
+import Slider from "@mui/material/Slider";
+import FormLabel from "@mui/material/FormLabel";
 
-const RangeField = ({ label, errors, value, min, max, labelMin, labelMax, step, onChange, required, isDisabled }) => {
-  // Convertir min et max en nombres si possible, sinon utiliser une valeur par défaut
-  // const min = isNaN(parseFloat(min)) ? 0 : parseFloat(min);
-  // const max = isNaN(parseFloat(max)) ? 100 : parseFloat(max);
+const RangeField = ({label, sublabel, errors = {}, value, min = 0, max = 100, labelMin, labelMax, step = 1, onChange, required = false, isDisabled = false}) => {
+  const defaultCenterValue = Math.round((min + max) / 2);
+  const [currentValue, setCurrentValue] = useState(value ?? defaultCenterValue);
+
+  useEffect(() => {
+    console.log(value);
+    if (value) {
+      setCurrentValue(value);
+      // onChange({ target: { name: label, value: value } });
+    }else{
+      setCurrentValue(defaultCenterValue);
+      onChange({ target: { name: label, value: defaultCenterValue } });
+    }
+    
+  }, [value]);
+
+  const handleSliderChange = (event, newValue) => {
+    setCurrentValue(newValue);
+    if (onChange) {
+      onChange({ target: { name: label, value: newValue } });
+    }
+  };
 
   return (
     <div className="range-field">
       <FormLabel component="legend" required={required}>
-        {label}
+        <strong>{label}</strong>
       </FormLabel>
+      {sublabel && <FormLabel component="legend">{sublabel}</FormLabel>}
       <Slider
         aria-label={label}
-        value={value || min} // Valeur par défaut au minimum si non définie
+        value={currentValue}
+        defaultValue={defaultCenterValue}
         valueLabelDisplay="auto"
-        step={step || 1}
+        step={step}
         marks
         min={min}
         max={max}
         disabled={isDisabled}
-        required={required}
-        color={errors[label] ? "error" : (required ? "primary" : "secondary")}
-        onChange={(event, newValue) => onChange({ target: { name: label, value: newValue } })}
+        color={errors[label] ? "error" : required ? "primary" : "secondary"}
+        onChange={handleSliderChange}
       />
       <span className="range-labels">
         <span>{labelMin}</span>
-        <strong>{value}</strong>
+        <strong>{currentValue}</strong>
         <span>{labelMax}</span>
       </span>
     </div>

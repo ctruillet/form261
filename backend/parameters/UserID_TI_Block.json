@@ -16,7 +16,7 @@
       "sublabel": "Technique",
       "type": "drop-down",
       "placeholder": "TI",
-      "options": ["Baseline", "vMirrorAR", "BalloonProbeAR", "ClippingPlaneAR"],
+      "options": ["vMirrorAR", "BalloonProbeAR", "ConeProbeAR", "ARPortal"],
       "required": true,
       "category": "parameter" 
     },

@@ -6,7 +6,7 @@
       "label": "Logo NASA",
       "sublabel": "Logo NASA",
       "type": "image",
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/1200px-NASA_logo.svg.png",
+      "src": "src/assets/images/elipse-logo.png",
       "size": "medium",
       "align": "right",
       "required": false
@@ -95,6 +95,13 @@
       "type": "textAutosize",
       "minRows": 3,
       "required": true
+    },
+    {
+      "label": "Champ libre",
+      "sublabel": "Indiquez tout autre commentaire que vous jugerez utile.",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
     }
   ]
 }

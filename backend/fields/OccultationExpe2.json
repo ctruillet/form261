@@ -1,0 +1,107 @@
+{
+  "title": "NASA-TLX",
+  "description": "Évaluez la charge de travail perçue en fonction des six dimensions ci-dessous.",
+  "fields": [
+    {
+      "label": "Logo NASA",
+      "sublabel": "Logo NASA",
+      "type": "image",
+      "src": "src/assets/images/elipse-logo.png",
+      "size": "medium",
+      "align": "right",
+      "required": false
+    },
+    {
+      "label": "Demande Mentale",
+      "sublabel": "Dans quelle mesure la tâche était-elle exigeante sur le plan mental ?",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "labelMin": "Bas",
+      "labelMax": "Haut",
+      "step": 5,
+      "required": true
+    },
+    {
+      "label": "Demande Physique",
+      "sublabel": "Dans quelle mesure la tâche était-elle physiquement exigeante ?",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "labelMin": "Bas",
+      "labelMax": "Haut",
+      "step": 5,
+      "required": true
+    },
+    {
+      "label": "Demande Temporelle",
+      "sublabel": "Dans quelle mesure le rythme de la tâche était-il pressé ou précipité ?",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "labelMin": "Faible",
+      "labelMax": "Elevée",
+      "step": 5,
+      "required": true
+    },
+    {
+      "label": "Performance",
+      "sublabel": "Dans quelle mesure avez-vous réussi à accomplir ce qui vous était demandé ?",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "labelMin": "Bonne",
+      "labelMax": "Faible",
+      "step": 5,
+      "required": true
+    },
+    {
+      "label": "Effort",
+      "sublabel": "Quels efforts avez-vous dû fournir pour atteindre votre niveau de performance ?",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "labelMin": "Bas",
+      "labelMax": "Haut",
+      "step": 5,
+      "required": true
+    },
+    {
+      "label": "Frustration",
+      "sublabel": "Dans quelle mesure étiez-vous inquiet, découragé, irrité, stressé et ennuyé ?",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "labelMin": "Bas",
+      "labelMax": "Haut",
+      "step": 5,
+      "required": true
+    },
+    {
+      "label": "Points positifs / négatifs de la Technique",
+      "sublabel": "Indiquez les points positifs et négatifs de la technique utilisée. (env. 3)",
+      "type": "information"
+    },
+    {
+      "label": "Points positifs",
+      "sublabel": "Indiquez les points positifs de la technique utilisée. (env. 3)",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": true
+    },
+    {
+      "label": "Points négatifs",
+      "sublabel": "Indiquez les points négatifs de la technique utilisée. (env. 3)",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": true
+    },
+    {
+      "label": "Champ libre",
+      "sublabel": "Indiquez tout autre commentaire que vous jugerez utile.",
+      "type": "textAutosize",
+      "minRows": 3,
+      "required": false
+    }
+  ]
+}

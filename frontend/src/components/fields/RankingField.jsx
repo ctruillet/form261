@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -32,8 +32,17 @@ const SortableItem = ({ id, index, option }) => {
   );
 };
 
-const RankingField = ({ label, options, onChange, required }) => {
-  const [rankedOptions, setRankedOptions] = useState(options);
+const RankingField = ({ label, options, value, onChange, required }) => {
+  const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
+  const [rankedOptions, setRankedOptions] = useState(() => 
+    value && Array.isArray(value) ? [...value] : shuffleArray([...options])
+  );
+
+  useEffect(() => {
+    if (value && Array.isArray(value)) {
+      setRankedOptions([...value]);
+    }
+  }, [value]);
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -47,6 +56,7 @@ const RankingField = ({ label, options, onChange, required }) => {
       onChange({ label, rankings: updatedOptions });
     }
   };
+
 
   return (
     <div className="ranking-field">

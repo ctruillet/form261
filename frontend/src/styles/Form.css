@@ -42,6 +42,10 @@ p {
   font-weight: bold;
 }
 
+.fields-page{
+  margin: 5px;
+}
+
 /* Champs spécifiques au formulaire */
 .field-block {
   margin: 15px 0;
