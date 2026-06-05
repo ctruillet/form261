@@ -1,7 +1,7 @@
 {
-  "title": "UserID TI Block",
+  "title": "Participant + Block",
   "name": "UserID TI Block",
-  "description": "Expé 1 - Occultation : UserID, TI et Block", 
+  "description": "UserID, TI et Block", 
   "fields": [
     {
       "label": "UserID",

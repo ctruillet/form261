@@ -1,0 +1,83 @@
+{
+  "title": "French Sense of Agency Scale (F-SOAS)",
+  "description": "Évaluez votre perception générale de contrôle sur vos actions, votre esprit et votre environnement à l'aide des affirmations ci-dessous.",
+  "fields": [
+    {
+      "label": "Item 1 (SoPA)",
+      "sublabel": "Je contrôle pleinement ce que je fais.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Item 3 (SoNA)",
+      "sublabel": "Mes actions se produisent tout simplement, sans mon intention.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Item 7 (SoNA)",
+      "sublabel": "Les résultats de ma propre action me surprennent généralement.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Item 8 (SoPA)",
+      "sublabel": "Les choses que je fais ne dépendent que de mon libre arbitre.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Item 9 (SoPA)",
+      "sublabel": "La décision de savoir si je dois agir et quand je dois le faire est entre mes mains.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Item 11 (SoNA)",
+      "sublabel": "Pendant que j'agis, j'ai l'impression d'être un robot télécommandé.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Item 13 (SoPA)",
+      "sublabel": "Je suis entièrement responsable de tout ce qui découle de mes actions.",
+      "type": "range",
+      "min": 1,
+      "max": 7,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    }
+  ]
+}

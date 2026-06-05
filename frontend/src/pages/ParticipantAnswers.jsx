@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
@@ -15,8 +15,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 
+// Import du contexte du participant
+import { ParticipantContext } from "../context/ParticipantContext";
+
 import "../styles/Answers.css";
 
+// Fonction utilitaire pour aplanir le JSON (identique à Answers.jsx)
 const flattenJSON = (obj, parentKey = "", res = {}) => {
   for (const key in obj) {
     const propName = parentKey ? `${key}` : key;
@@ -34,72 +38,76 @@ const actions = [
   { icon: <DeleteIcon />, name: "Delete" }
 ];
 
-const Answers = () => {
+const ParticipantAnswers = () => {
+  const { participantData } = useContext(ParticipantContext); // Récupération du participant courant
   const [responses, setResponses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [selectedRow, setSelectedRow] = useState(null);
   const [speedDialPosition, setSpeedDialPosition] = useState({ top: 0, left: 0 });
-  const [openDialog, setOpenDialog] = useState(false); // Pour gérer l'état de la pop-up
+  const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Si aucun participant n'est défini, on redirige vers la page Participant
+    if (!participantData?.UserID) {
+      navigate("/participant");
+      return;
+    }
+
     const fetchResponses = async () => {
       try {
         const response = await axios.get("/api/data/responses");
-
         const data = response.data;
 
-        // Traitement des données
+        // Traitement et FILTRAGE des données
         const processedData = data.map((file) => {
-          // console.log(!file.content[0])
-          if (!file.content[0]) return null;
+          if (!file.content || file.content.length === 0) return null;
 
-          file.content.reverse(); // Afficher les réponses les plus récentes en premier
+          // On ne garde que les réponses dont l'UserID correspond au participant enregistré
+          const participantContent = file.content.filter(
+            (resp) => resp.parametersFields && resp.parametersFields.UserID === participantData.UserID
+          );
 
-          const parameterKeys = Object.keys(file.content[0].parametersFields || {});
-          const fieldKeys = Object.keys(file.content[0].fieldsFields || {});
+          // Si ce formulaire n'a aucune réponse pour ce participant, on l'ignore
+          if (participantContent.length === 0) return null;
+
+          participantContent.reverse(); // Afficher les réponses les plus récentes en premier
+
+          const parameterKeys = Object.keys(participantContent[0].parametersFields || {});
+          const fieldKeys = Object.keys(participantContent[0].fieldsFields || {});
           const requiredHeaders = [...parameterKeys, ...fieldKeys, "id", "fieldsFile", "paramFile"];
-          const flatResponses = file.content.map((response) => flattenJSON(response));
+          
+          const flatResponses = participantContent.map((response) => flattenJSON(response));
+          
           const filteredResponses = flatResponses.map((response) =>
             Object.fromEntries(
               Object.entries(response).filter(([key]) => requiredHeaders.includes(key))
             )
           );
+          
           const nonEmptyHeaders = requiredHeaders.filter((header) =>
             filteredResponses.some((response) => response[header] !== undefined && response[header] !== "")
           );
 
           return {
-            name: file.content[0].name,
+            name: participantContent[0].name || "Formulaire",
             headers: nonEmptyHeaders,
             rows: filteredResponses,
           };
-        });
+        }).filter(item => item !== null); // On retire les null (les formulaires sans réponse du participant)
 
-        const validData = processedData.filter((file) => file !== null);
-
-        setResponses(validData);
+        setResponses(processedData);
       } catch (error) {
         console.error("Erreur lors de la récupération des réponses :", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchResponses();
-  }, []);
+  }, [participantData, navigate]);
 
+  // Fonctions de gestion de l'édition et de la suppression (identiques à Answers.jsx)
   const handleEdit = () => {
-    if (!selectedRow) {
-      console.log("Aucune ligne sélectionnée pour l'édition.");
-      return;
-    }
-
-    navigate(
-      `/form?fields=${selectedRow.fieldsFile}&param=${selectedRow.paramFile}&id=${selectedRow.id}`
-    );
-
-    console.log("Édition de la ligne sélectionnée :", selectedRow);
+    if (!selectedRow) return;
+    navigate(`/form?fields=${selectedRow.fieldsFile}&param=${selectedRow.paramFile}&id=${selectedRow.id}`);
   };
 
   const confirmDelete = async () => {
@@ -107,22 +115,20 @@ const Answers = () => {
       await axios.delete(`/api/data/responses/id=${selectedRow.id}`);
       setResponses((prevResponses) => {
         const updatedResponses = prevResponses.map((file) => {
-          if (!file) return null;
           const updatedRows = file.rows.filter((row) => row.id !== selectedRow.id);
           return { ...file, rows: updatedRows };
-        })
-        .filter((file) => file && file.rows.length > 0);
+        }).filter(file => file.rows.length > 0); // Enlève la table si elle est devenue vide
+        
         return updatedResponses;
       });
-      setOpenDialog(false); // Fermer la pop-up après suppression
-      setSelectedRow(null); 
+      setOpenDialog(false);
     } catch (error) {
       console.error("Erreur lors de la suppression de la ligne :", error);
     }
   };
 
   const handleDelete = () => {
-    setOpenDialog(true); // Ouvrir la pop-up
+    setOpenDialog(true);
   };
 
   const handleRowClick = (params, event) => {
@@ -133,55 +139,53 @@ const Answers = () => {
 
   return (
     <div className="answers-container">
-      <h2>Réponses des formulaires</h2>
-
-      {!responses || responses.length === 0 ? (
+      <h2>Réponses du Participant : {participantData?.UserID}</h2>
+      
+      {responses.length === 0 ? (
         <Alert severity="info" sx={{ marginTop: "20px" }}>
-          Aucune donnée n'a encore été enregistrée.
+          Aucune donnée n'a encore été enregistrée pour le participant {participantData?.UserID}.
         </Alert>
       ) : (
-      responses.map((file, fileIndex) => {
-        if(!file) return null;
+        responses.map((file, fileIndex) => {
+          const columns = file.headers.map((header) => ({
+            field: header,
+            headerName: header,
+            flex: 1,
+          }));
 
-        const columns = file.headers.map((header) => ({
-          field: header,
-          headerName: header,
-          flex: 1,
-        }));
+          const rows = file.rows.map((row, index) => ({
+            id: row.id || index,
+            ...row,
+          }));
 
-        const rows = file.rows.map((row, index) => ({
-          id: row.id || index,
-          ...row,
-        }));
-
-        return (
-          <div key={fileIndex} className="form-table-container">
-            <h3>{file.name}</h3>
-            <div style={{ height: 475, width: "100%" }}>
-              <DataGrid
-                initialState={{
-                  columns: {
-                    columnVisibilityModel: {
-                      id: false,
-                      fieldsFile: false,
-                      paramFile: false,
+          return (
+            <div key={fileIndex} className="form-table-container">
+              <h3>{file.name}</h3>
+              <div style={{ height: 475, width: "100%" }}>
+                <DataGrid
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {
+                        id: false,
+                        fieldsFile: false,
+                        paramFile: false,
+                      },
                     },
-                  },
-                }}
-                rows={rows}
-                columns={columns}
-                pageSize={5}
-                disableMultipleRowSelection
-                autoPageSize
-                density="comfortable"
-                onRowClick={(params, event) => handleRowClick(params, event)}
-              />
+                  }}
+                  rows={rows}
+                  columns={columns}
+                  pageSize={1}
+                  disableMultipleRowSelection
+                  autoPageSize
+                  density="comfortable"
+                  onRowClick={(params, event) => handleRowClick(params, event)}
+                />
+              </div>
             </div>
-          </div>
-        );
-      })
-    )}
-    
+          );
+        })
+      )}
+
       {selectedRow && (
         <SpeedDial
           ariaLabel="SpeedDial"
@@ -209,11 +213,12 @@ const Answers = () => {
           ))}
         </SpeedDial>
       )}
+
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Confirmer la suppression</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Êtes-vous sûr de vouloir supprimer cette réponse ?
+            Êtes-vous sûr de vouloir supprimer cette réponse pour {participantData?.UserID} ?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -229,4 +234,4 @@ const Answers = () => {
   );
 };
 
-export default Answers;
+export default ParticipantAnswers;

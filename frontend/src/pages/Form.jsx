@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Alert from '@mui/material/Alert';
@@ -14,10 +14,13 @@ import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 import InformationField from "../components/fields/InformationField";
 import ImageField from "../components/fields/ImageField";
 import TextAutosizeField from "../components/fields/TextAutosizeField";
+import { ParticipantContext } from '../context/ParticipantContext'; // Importer le contexte
 
 import "../styles/Form.css";
 
 const Form = () => {
+  const { participantData } = useContext(ParticipantContext);
+  const [answers, setAnswers] = useState({});
   const location = useLocation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
@@ -121,7 +124,7 @@ const Form = () => {
 
       const initialFormData = {};
       response.data.fields.forEach((field) => {
-        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || "";
+        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || participantData[field.label] || "";
       });
       setFormData((prevData) => ({
         ...prevData,
@@ -144,6 +147,19 @@ const Form = () => {
 
     fetchParameters();
   }, []);
+
+  useEffect(() => {
+        // Au chargement du formulaire, on pré-remplit avec les données du participant
+        // Si le champ s'appelle "Âge" ou "Genre" dans votre JSON, vous pouvez faire le lien ici.
+        if (participantData) {
+            setAnswers(prev => ({
+                ...prev,
+                "Âge": participantData.age || prev["Âge"],
+                "Genre": participantData.gender || prev["Genre"],
+                "UserID": participantData.UserID || prev["UserID"]
+            }));
+        }
+    }, [participantData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

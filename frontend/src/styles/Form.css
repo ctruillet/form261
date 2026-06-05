@@ -80,6 +80,27 @@ p {
   color: #666;
 }
 
+.range-labels > span {
+  flex: 1; /* Distribue l'espace équitablement */
+  max-width: 40%; /* Ajuste le pourcentage selon tes besoins pour éviter les chevauchements */
+}
+
+/* Le texte de gauche s'aligne à gauche */
+.range-labels > span:first-of-type {
+  text-align: left;
+}
+
+/* Le texte de droite s'aligne à droite */
+.range-labels > span:last-of-type {
+  text-align: right;
+}
+
+/* Le 50 reste centré au milieu de l'espace restant */
+.range-labels strong {
+  flex: 0 0 auto;
+  text-align: center;
+}
+
 /* Styles pour les champs d'erreur */
 .field-input.error {
   border-color: red; /* Bordure rouge pour indiquer une erreur */

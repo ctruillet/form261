@@ -1,0 +1,160 @@
+{
+  "title": "Igroup Presence Questionnaire (IPQ) - Version Française",
+  "description": "Évaluez votre expérience et votre sentiment de présence dans l'environnement virtuel.",
+  "fields": [
+    {
+      "label": "G1",
+      "sublabel": "Dans le monde généré par l'ordinateur, j'ai eu le sentiment \"d'y être\".",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout",
+      "labelMax": "Beaucoup",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "SP1",
+      "sublabel": "D'une certaine façon, j'ai eu l'impression que le monde virtuel m'entourait.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "SP2",
+      "sublabel": "J'avais l'impression que j'étais juste en train de percevoir des images.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "SP3",
+      "sublabel": "Je ne me suis pas senti présent dans l'espace virtuel.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas senti présent",
+      "labelMax": "Senti présent",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "SP4",
+      "sublabel": "J'ai eu la sensation d'agir dans l'espace virtuel plutôt que d'agir sur un quelconque mécanisme à l'extérieur de celui-ci.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Complètement d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "SP5",
+      "sublabel": "Je me suis senti présent dans l'espace virtuel.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "INV1",
+      "sublabel": "À quel point étiez-vous conscient du monde réel environnant alors que vous étiez en train de naviguer dans le monde virtuel ? (par exemple : sons, température de la pièce, présence d'autres gens, etc.) ?",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Extrêmement conscient",
+      "labelMax": "Pas conscient du tout",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "INV2",
+      "sublabel": "Je n'étais pas conscient de mon environnement réel.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "INV3",
+      "sublabel": "Je faisais toujours attention à l'environnement réel.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "INV4",
+      "sublabel": "J'étais complètement captivé par le monde virtuel.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "REAL1",
+      "sublabel": "Comment le monde virtuel vous a-t-il semblé ?",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Complètement réel",
+      "labelMax": "Pas du tout réel",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "REAL2",
+      "sublabel": "À quel point votre expérience dans l'environnement virtuel vous a-t-elle semblé cohérente avec votre expérience dans le monde réel ?",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas cohérente",
+      "labelMax": "Très cohérente",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "REAL3",
+      "sublabel": "À quel point le monde virtuel vous a-t-il semblé réel ?",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "À peu près aussi réel qu'un monde imaginé",
+      "labelMax": "Indistinguable du monde réel",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "REAL4",
+      "sublabel": "Le monde virtuel semblait plus réaliste que le monde réel.",
+      "type": "range",
+      "min": -3,
+      "max": 3,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    }
+  ]
+}

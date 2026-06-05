@@ -1,0 +1,116 @@
+{
+  "title": "System Usability Scale (F-SUS)",
+  "description": "Pour chaque affirmation, veuillez exprimer votre degré d'accord ou de désaccord. Si vous ne savez pas comment vous positionner, vous pouvez cocher le centre de l'échelle (3).",
+  "fields": [
+    {
+      "label": "Question 1",
+      "sublabel": "Je voudrais utiliser ce système fréquemment",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 2",
+      "sublabel": "Ce système est inutilement complexe",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 3",
+      "sublabel": "Ce système est facile à utiliser",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 4",
+      "sublabel": "J'aurais besoin du soutien d'un technicien pour être capable d'utiliser ce système",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 5",
+      "sublabel": "Les différentes fonctionnalités de ce système sont bien intégrées",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 6",
+      "sublabel": "Il y a trop d'incohérences dans ce système",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 7",
+      "sublabel": "La plupart des gens apprendront à utiliser ce système très rapidement",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 8",
+      "sublabel": "Ce système est très lourd à utiliser",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 9",
+      "sublabel": "Je me suis senti·e très en confiance en utilisant ce système",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    },
+    {
+      "label": "Question 10",
+      "sublabel": "J'ai eu besoin d'apprendre beaucoup de choses avant de pouvoir utiliser ce système",
+      "type": "range",
+      "min": 1,
+      "max": 5,
+      "labelMin": "Pas du tout d'accord",
+      "labelMax": "Tout à fait d'accord",
+      "step": 1,
+      "required": true
+    }
+  ]
+}

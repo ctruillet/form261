@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import List from "@mui/material/List";
@@ -9,11 +9,14 @@ import ListItemText from "@mui/material/ListItemText";
 import SendIcon from "@mui/icons-material/Send";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import DownloadIcon from "@mui/icons-material/Download";
+import PersonIcon from '@mui/icons-material/Person';
+import { ParticipantContext } from '../context/ParticipantContext'; // Import du contexte
 
 import "../App.css"; // Import du fichier CSS
 
 function Nav() {
 	const navigate = useNavigate();
+	const { participantData } = useContext(ParticipantContext);
 
 	// Fonction pour télécharger le fichier des réponses
 	const downloadResponses = () => {
@@ -62,12 +65,28 @@ function Nav() {
 				<ListItemText primary="Formulaires"/>
 			</ListItemButton>
 
+			<ListItemButton onClick={() => navigate("/participant")}>
+				<ListItemIcon>
+					<PersonIcon color="action" />
+				</ListItemIcon>
+				<ListItemText primary={participantData?.UserID ? `Participant ${participantData.UserID}` : "Participant"} />
+			</ListItemButton>
+
 			<ListItemButton onClick={() => navigate("/answers")}>
 				<ListItemIcon>
 					<QuestionAnswerIcon color="action" />
 				</ListItemIcon>
 				<ListItemText primary="Réponses" />
 			</ListItemButton>
+			
+			{participantData?.UserID && (
+				<ListItemButton onClick={() => navigate("/participant-answers")}>
+					<ListItemIcon>
+						<QuestionAnswerIcon color="primary" />
+					</ListItemIcon>
+					<ListItemText primary={`Réponses de ${participantData.UserID}`} />
+				</ListItemButton>
+			)}
 
 			<ListItemButton onClick={downloadResponses}>
 				<ListItemIcon>
