@@ -17,12 +17,6 @@ npm run dev
 ```
 > Installe automatiquement les dépendances manquantes si nécessaire et lance les deux services. Appuyez sur `Ctrl+C` pour tout arrêter proprement.
 
-### Option 3 : Windows (Double-clic)
-Double-cliquez sur `run.bat` ou lancez dans le terminal :
-```cmd
-run.bat
-```
-
 ---
 
 ## 📦 Installation initiale (si nécessaire)
