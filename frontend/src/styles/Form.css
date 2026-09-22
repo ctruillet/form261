@@ -5,13 +5,13 @@
 }
 
 /* Titre et description du formulaire */
-h1 {
+.form-page h1 {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 10px;
 }
 
-p {
+.form-page p {
   text-align: center;
   margin-bottom: 20px;
   font-size: 1.2rem;
@@ -107,7 +107,7 @@ p {
   background-color: #ffe6e6; /* Fond légèrement rouge pour un meilleur contraste */
 }
 
-button {
+.form-container button {
   background-color: #4caf50; /* Couleur de fond du bouton */
   color: white;
   padding: 10px 20px;
@@ -116,7 +116,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.form-container button:hover {
   background-color: #45a049; /* Couleur au survol */
 }
 

@@ -1,20 +1,69 @@
 {
   "title": "Ranking",
-  "description": "Classez les techniques de gestion d'Occultation en fonction de votre préférence.",
+  "description": "Notation des techniques de 0 à 10 et classement par préférence.",
   "fields": [
     {
-      "label": "Classement",
-      "sublabel": "Classez les techniques par ordre de préférence",
-      "type": "ranking",
-      "options": ["BalloonProbeAR", "ConeProbeAR", "vMirrorAR", "ARPortal"],
-      "required": false
+      "label": "Note : BalloonProbeAR",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique BalloonProbeAR",
+      "type": "range",
+      "required": false,
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "labelMin": "0 - Très insatisfaisant",
+      "labelMax": "10 - Excellent"
     },
     {
-      "label": "Champ libre",
-      "sublabel": "Indiquez tout autre commentaire que vous jugerez utile.",
+      "label": "Note : ConeProbeAR",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique ConeProbeAR",
+      "type": "range",
+      "required": false,
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "labelMin": "0 - Très insatisfaisant",
+      "labelMax": "10 - Excellent"
+    },
+    {
+      "label": "Note : vMirrorAR",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique vMirrorAR",
+      "type": "range",
+      "required": false,
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "labelMin": "0 - Très insatisfaisant",
+      "labelMax": "10 - Excellent"
+    },
+    {
+      "label": "Note : ARPortal",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique ARPortal",
+      "type": "range",
+      "required": false,
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "labelMin": "0 - Très insatisfaisant",
+      "labelMax": "10 - Excellent"
+    },
+    {
+      "label": "Classement global",
+      "sublabel": "Classez les 4 techniques par ordre de préférence globale (glisser-déposer)",
+      "type": "ranking",
+      "required": false,
+      "options": [
+        "BalloonProbeAR",
+        "ConeProbeAR",
+        "vMirrorAR",
+        "ARPortal"
+      ]
+    },
+    {
+      "label": "Commentaires et nuances",
+      "sublabel": "Précisez vos impressions ou nuances quant aux différences entre les techniques.",
       "type": "textAutosize",
-      "minRows": 3,
-      "required": false
+      "required": false,
+      "minRows": 3
     }
   ]
 }

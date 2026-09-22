@@ -8,24 +8,37 @@ const parametersPath = path.join(__dirname, '../parameters');
 exports.getParameters = (req, res) => {
   fs.readdir(parametersPath, (err, files) => {
     if (err) return res.status(500).send(err);
-    const parameters = files.map(file => require(path.join(parametersPath, file)));
-    
-    // res.json(parameters);
-    // add field file name in the response
-    res.json(parameters.map((parameter, index) => {
-      return { ...parameter, file: files[index] };
-    }));
+    const jsonFiles = (files || []).filter((file) => path.extname(file) === '.json');
+    const parameters = [];
+
+    jsonFiles.forEach((file) => {
+      try {
+        const content = JSON.parse(fs.readFileSync(path.join(parametersPath, file), 'utf8'));
+        parameters.push({ ...content, file });
+      } catch (error) {
+        console.error(`Erreur de lecture du fichier paramètre ${file}:`, error);
+      }
+    });
+
+    res.json(parameters);
   });
 };
 
 // Méthode pour obtenir un paramètre spécifique
 exports.getParameterByName = (req, res) => {
-  // console.log(req.params.parameterName);
-  const parameterName = req.params.parameterName;
-  const parameterPath = path.join(parametersPath, `${parameterName}`);
+  let parameterName = req.params.parameterName;
+  if (!parameterName.endsWith('.json')) {
+    parameterName = `${parameterName}.json`;
+  }
+  const parameterFilePath = path.join(parametersPath, parameterName);
 
-  fs.readFile(parameterPath, 'utf8', (err, data) => {
+  fs.readFile(parameterFilePath, 'utf8', (err, data) => {
     if (err) return res.status(404).send('Parameter not found');
-    res.json(JSON.parse(data));
+    try {
+      res.json(JSON.parse(data));
+    } catch (parseErr) {
+      console.error('Erreur de parsing:', parseErr);
+      res.status(500).send('Erreur lors de la lecture du paramètre');
+    }
   });
 };

@@ -2,23 +2,35 @@ import React, { useState, useEffect } from "react";
 import Slider from "@mui/material/Slider";
 import FormLabel from "@mui/material/FormLabel";
 
-const RangeField = ({label, sublabel, errors = {}, value, min = 0, max = 100, labelMin, labelMax, step = 1, onChange, required = false, isDisabled = false}) => {
+const RangeField = ({
+  label,
+  sublabel,
+  errors = {},
+  value,
+  min = 0,
+  max = 100,
+  labelMin,
+  labelMax,
+  step = 1,
+  onChange,
+  required = false,
+  isDisabled = false,
+}) => {
   const defaultCenterValue = Math.round((min + max) / 2);
-  const [currentValue, setCurrentValue] = useState(value ?? defaultCenterValue);
+  const initialValue =
+    value !== undefined && value !== null && value !== ""
+      ? Number(value)
+      : defaultCenterValue;
+
+  const [currentValue, setCurrentValue] = useState(initialValue);
 
   useEffect(() => {
-    console.log(value);
-    if (value) {
-      setCurrentValue(value);
-      // onChange({ target: { name: label, value: value } });
-    }else{
-      setCurrentValue(defaultCenterValue);
-      onChange({ target: { name: label, value: defaultCenterValue } });
+    if (value !== undefined && value !== null && value !== "") {
+      setCurrentValue(Number(value));
     }
-    
   }, [value]);
 
-  const handleSliderChange = (event, newValue) => {
+  const handleSliderChange = (_event, newValue) => {
     setCurrentValue(newValue);
     if (onChange) {
       onChange({ target: { name: label, value: newValue } });
@@ -34,14 +46,13 @@ const RangeField = ({label, sublabel, errors = {}, value, min = 0, max = 100, la
       <Slider
         aria-label={label}
         value={currentValue}
-        defaultValue={defaultCenterValue}
         valueLabelDisplay="auto"
         step={step}
         marks
         min={min}
         max={max}
         disabled={isDisabled}
-        color={errors[label] ? "error" : required ? "primary" : "secondary"}
+        color={errors?.[label] ? "error" : required ? "primary" : "secondary"}
         onChange={handleSliderChange}
       />
       <span className="range-labels">

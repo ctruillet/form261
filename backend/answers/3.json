@@ -1,0 +1,482 @@
+[
+  {
+    "id": "2901aab2-531b-44f6-96f0-be2245a88e60",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 45,
+      "Demande Physique": 35,
+      "Demande Temporelle": 40,
+      "Performance": 90,
+      "Effort": 45,
+      "Frustration": 25
+    }
+  },
+  {
+    "id": "d73b8bd4-d213-4890-b53e-3f1c50cd0df0",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 80,
+      "Demande Physique": 45,
+      "Demande Temporelle": 75,
+      "Performance": 65,
+      "Effort": 80,
+      "Frustration": 55
+    }
+  },
+  {
+    "id": "c80459b1-6a7f-42da-ae6f-b3ec57e39eb8",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "1",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 45,
+      "Demande Physique": 35,
+      "Demande Temporelle": 45,
+      "Performance": 80,
+      "Effort": 55,
+      "Frustration": 40
+    }
+  },
+  {
+    "id": "6eb514cc-213a-43a5-9fcb-a2108ef5e2de",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "2",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 40,
+      "Demande Physique": 35,
+      "Demande Temporelle": 15,
+      "Performance": 70,
+      "Effort": 25,
+      "Frustration": 25
+    }
+  },
+  {
+    "id": "3222bcf0-4deb-4929-98ab-39de706ab49e",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "2",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 75,
+      "Demande Physique": 50,
+      "Demande Temporelle": 70,
+      "Performance": 60,
+      "Effort": 85,
+      "Frustration": 60
+    }
+  },
+  {
+    "id": "402292cc-bbce-4c41-a0a7-82d3a2a567c4",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "2",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 45,
+      "Demande Physique": 35,
+      "Demande Temporelle": 50,
+      "Performance": 80,
+      "Effort": 60,
+      "Frustration": 25
+    }
+  },
+  {
+    "id": "3d02e621-32ed-4e22-b187-2a8f5bd28aa9",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "3",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 30,
+      "Demande Physique": 30,
+      "Demande Temporelle": 35,
+      "Performance": 95,
+      "Effort": 20,
+      "Frustration": 15
+    }
+  },
+  {
+    "id": "aac7d3bb-d207-4e68-8746-52cd5ccf9d86",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "3",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 70,
+      "Demande Physique": 55,
+      "Demande Temporelle": 60,
+      "Performance": 55,
+      "Effort": 80,
+      "Frustration": 50
+    }
+  },
+  {
+    "id": "21cd5b59-226b-4c79-8c4a-34ca0e76846d",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "3",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 30,
+      "Demande Physique": 25,
+      "Demande Temporelle": 40,
+      "Performance": 75,
+      "Effort": 55,
+      "Frustration": 20
+    }
+  },
+  {
+    "id": "3a83fbb7-0f4d-4841-b670-09eb75a82273",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "4",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 40,
+      "Demande Physique": 20,
+      "Demande Temporelle": 25,
+      "Performance": 80,
+      "Effort": 30,
+      "Frustration": 10
+    }
+  },
+  {
+    "id": "3ecca66f-3f2a-44e9-b751-5b68d48aaf03",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "4",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 60,
+      "Demande Physique": 45,
+      "Demande Temporelle": 55,
+      "Performance": 60,
+      "Effort": 70,
+      "Frustration": 50
+    }
+  },
+  {
+    "id": "b6977b4f-e032-4b0f-92df-8d35a549b014",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "4",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 30,
+      "Demande Physique": 25,
+      "Demande Temporelle": 55,
+      "Performance": 75,
+      "Effort": 35,
+      "Frustration": 40
+    }
+  },
+  {
+    "id": "a6777152-1582-44f4-acb0-3e3a0eb0c357",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "5",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 40,
+      "Demande Physique": 30,
+      "Demande Temporelle": 30,
+      "Performance": 70,
+      "Effort": 30,
+      "Frustration": 20
+    }
+  },
+  {
+    "id": "0a23e122-6dcd-4573-8082-3c26b78163ed",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "5",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 60,
+      "Demande Physique": 55,
+      "Demande Temporelle": 75,
+      "Performance": 65,
+      "Effort": 75,
+      "Frustration": 50
+    }
+  },
+  {
+    "id": "fc38c613-32dc-4625-b26b-98fd846e8fe8",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "5",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 60,
+      "Demande Physique": 40,
+      "Demande Temporelle": 50,
+      "Performance": 65,
+      "Effort": 50,
+      "Frustration": 40
+    }
+  },
+  {
+    "id": "900df388-dc1b-4d2e-a586-e0c2ab10b075",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "6",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 40,
+      "Demande Physique": 10,
+      "Demande Temporelle": 20,
+      "Performance": 95,
+      "Effort": 30,
+      "Frustration": 20
+    }
+  },
+  {
+    "id": "d07a13b3-0579-4472-a582-19679a813eab",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "6",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 55,
+      "Demande Physique": 50,
+      "Demande Temporelle": 50,
+      "Performance": 55,
+      "Effort": 70,
+      "Frustration": 55
+    }
+  },
+  {
+    "id": "2c3c6efc-a1d4-43d5-89dd-a20506588b13",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "6",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 30,
+      "Demande Physique": 30,
+      "Demande Temporelle": 45,
+      "Performance": 75,
+      "Effort": 60,
+      "Frustration": 45
+    }
+  },
+  {
+    "id": "1374f7be-56f5-4d78-9b8f-25a808c80c1a",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "7",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 35,
+      "Demande Physique": 35,
+      "Demande Temporelle": 25,
+      "Performance": 80,
+      "Effort": 15,
+      "Frustration": 35
+    }
+  },
+  {
+    "id": "f9061ac7-6439-4add-8863-bacf28972c74",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "7",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 70,
+      "Demande Physique": 55,
+      "Demande Temporelle": 50,
+      "Performance": 55,
+      "Effort": 65,
+      "Frustration": 50
+    }
+  },
+  {
+    "id": "4c080731-68b8-48f6-b369-bd23e939928f",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "7",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 35,
+      "Demande Physique": 20,
+      "Demande Temporelle": 35,
+      "Performance": 60,
+      "Effort": 55,
+      "Frustration": 35
+    }
+  },
+  {
+    "id": "a492ecc0-8131-47fe-984c-c4fdd0d9bb0c",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "8",
+      "Technique": "vMirrorAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 25,
+      "Demande Physique": 25,
+      "Demande Temporelle": 25,
+      "Performance": 100,
+      "Effort": 35,
+      "Frustration": 15
+    }
+  },
+  {
+    "id": "87389751-6410-48c6-8176-cfd6305619fb",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "8",
+      "Technique": "ConeProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 65,
+      "Demande Physique": 45,
+      "Demande Temporelle": 60,
+      "Performance": 55,
+      "Effort": 80,
+      "Frustration": 55
+    }
+  },
+  {
+    "id": "cea6bf3b-659e-4a1e-8b45-516a9bd5cba5",
+    "formID": 3,
+    "name": "NASA-TLX",
+    "fieldsFile": "NASA-TLX.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "8",
+      "Technique": "BalloonProbeAR",
+      "Block": "A"
+    },
+    "fieldsFields": {
+      "Demande Mentale": 35,
+      "Demande Physique": 35,
+      "Demande Temporelle": 50,
+      "Performance": 65,
+      "Effort": 55,
+      "Frustration": 50
+    }
+  }
+]

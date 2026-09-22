@@ -2,15 +2,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 
-const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeholder, options, required, isDisabled }) => {
+const MultipleChoiceField = ({
+  label,
+  sublabel,
+  errors = {},
+  value,
+  onChange,
+  placeholder,
+  options = [],
+  required,
+  isDisabled,
+}) => {
   const [inputWidth, setInputWidth] = useState("auto");
   const longestOptionRef = useRef(null);
 
-  const handleSelectChange = (event, newValue) => {
-    if (newValue === null) {
-      newValue = '';
+  const handleSelectChange = (_event, newValue) => {
+    const nextVal = newValue === null ? '' : newValue;
+    if (onChange) {
+      onChange({ target: { name: label, value: nextVal } });
     }
-    onChange({ target: { name: label, value: newValue } });
   };
 
   useEffect(() => {
@@ -20,29 +30,35 @@ const MultipleChoiceField = ({ label, sublabel, errors, value, onChange, placeho
     }
   }, [options]);
 
-
-  
+  const longestText = (options || []).reduce(
+    (longest, option) =>
+      option && String(option).length > String(longest).length ? String(option) : longest,
+    ''
+  );
 
   return (
     <div>
       {/* Div invisible pour mesurer la largeur du choix le plus long */}
-      <div style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap' }} ref={longestOptionRef}>
-        {options.reduce((longest, option) => option.length > longest.length ? option : longest, '')}
+      <div
+        style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap' }}
+        ref={longestOptionRef}
+      >
+        {longestText}
       </div>
-      
+
       <Autocomplete
-        options={options}
+        options={options || []}
         value={value || null}
         onChange={handleSelectChange}
         disabled={isDisabled}
         renderInput={(params) => (
-          <TextField 
-            {...params} 
-            label={label} 
-            placeholder={placeholder || "Choisir une option"} 
+          <TextField
+            {...params}
+            label={label}
+            placeholder={placeholder || "Choisir une option"}
             disabled={isDisabled}
             required={required}
-            error={!!errors[label]}
+            error={Boolean(errors?.[label])}
             helperText={sublabel || " "}
             variant="standard"
             style={{ minWidth: inputWidth }}

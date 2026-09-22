@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useContext, useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
@@ -14,41 +14,60 @@ import MultipleChoiceField from "../components/fields/MultipleChoiceField";
 import InformationField from "../components/fields/InformationField";
 import ImageField from "../components/fields/ImageField";
 import TextAutosizeField from "../components/fields/TextAutosizeField";
-import { ParticipantContext } from '../context/ParticipantContext'; // Importer le contexte
+import { ParticipantContext } from '../context/ParticipantContext';
 
 import "../styles/Form.css";
 
 const Form = () => {
   const { participantData } = useContext(ParticipantContext);
-  const [answers, setAnswers] = useState({});
   const location = useLocation();
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({});
   const [fieldsFields, setFieldsFields] = useState([]);
-  const [paramFields, setParametersFields] = useState([]);
   const [selectedParameter, setSelectedParameter] = useState(null);
   const [parameterFields, setParameterFields] = useState([]);
   const [errors, setErrors] = useState({});
   const [formTitle, setFormTitle] = useState("");
   const [formID, setFormID] = useState();
   const [fieldsDescription, setFormDescription] = useState("");
-  const [popup, setPopup] = React.useState({
+  const [popup, setPopup] = useState({
     message: "",
-    severity: "",
+    severity: "info",
     open: false,
   });
 
   const [dataID, setDataID] = useState(undefined);
+
+  const fetchParameterFields = useCallback(async (param, urlValues = {}) => {
+    try {
+      const response = await axios.get(`/api/parameters/${param}`);
+      const fields = response.data.fields || [];
+      setParameterFields(fields);
+
+      const initialFormData = {};
+      fields.forEach((field) => {
+        initialFormData[field.label] =
+          urlValues[field.label] ||
+          participantData?.[field.label] ||
+          "";
+      });
+      setFormData((prevData) => ({
+        ...initialFormData,
+        ...prevData,
+      }));
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données du paramètre :", error);
+    }
+  }, [participantData]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const fieldsName = queryParams.get("fields");
     const param = queryParams.get("param");
     const id = queryParams.get("id");
-   
+
     const urlValues = {};
     queryParams.forEach((value, key) => {
-      if (key !== "fields" && key !== "param") {
+      if (key !== "fields" && key !== "param" && key !== "id") {
         urlValues[key] = value;
       }
     });
@@ -57,22 +76,45 @@ const Form = () => {
       const fetchForm = async () => {
         try {
           const response = await axios.get(`/api/fields/${fieldsName}`);
-          setFieldsFields(response.data.fields || []);
+          const fields = response.data.fields || [];
+          setFieldsFields(fields);
           setFormDescription(response.data.description || "");
 
           const initialFormData = {};
-          response.data.fields.forEach((field) => {
-            initialFormData[field.label] = urlValues[field.label] || "";
+          fields.forEach((field) => {
+            if (field.type === "range") {
+              const defaultRange = Math.round(((field.min ?? 0) + (field.max ?? 100)) / 2);
+              initialFormData[field.label] = urlValues[field.label] !== undefined
+                ? Number(urlValues[field.label])
+                : defaultRange;
+            } else {
+              initialFormData[field.label] =
+                urlValues[field.label] ||
+                participantData?.[field.label] ||
+                "";
+            }
           });
-          setFormData(initialFormData);
+          setFormData((prev) => ({
+            ...initialFormData,
+            ...prev,
+          }));
         } catch (error) {
           console.error("Erreur lors de la récupération du field :", error);
         }
 
         try {
-          const response = await axios.get(`/api/forms/fields=${fieldsName}&param=${param}`);
-          setFormTitle(response.data.name || "");
-          setFormID(response.data.id);
+          if (param) {
+            const response = await axios.get(`/api/forms/fields=${fieldsName}&param=${param}`);
+            setFormTitle(response.data.name || "");
+            setFormID(response.data.id);
+          } else {
+            const response = await axios.get(`/api/forms`);
+            const matched = (response.data || []).find((f) => f.fields === fieldsName);
+            if (matched) {
+              setFormTitle(matched.name || "");
+              setFormID(matched.id);
+            }
+          }
         } catch (error) {
           console.error("Erreur lors de la récupération du form :", error);
         }
@@ -93,132 +135,101 @@ const Form = () => {
           const data = response.data;
           setDataID(data.id);
           setFormID(data.formID);
-          console.log("Existing Data:", data);
-  
-          // Pre-fill the form fields with the existing data
-          // const preFilledData = {};
-          // fieldsFields.forEach((field) => {
-          //   preFilledData[field.label] = data.fieldsFields?.[field.label] || "";
-          // });
-          
-          // let initialFormData = {};
 
-          let initialFormData = {...data.fieldsFields}
-          initialFormData = {...initialFormData, ...data.parametersFields}
-          console.log("d", data.fieldsFields, "t", initialFormData)
+          let initialFormData = { ...(data.fieldsFields || {}) };
+          initialFormData = { ...initialFormData, ...(data.parametersFields || {}) };
 
           setFormData(initialFormData);
-
         } catch (error) {
           console.error("Erreur lors de la récupération des données existantes :", error);
         }
       };
       fetchExistingData();
     }
-  }, [location.search]);
+  }, [location.search, fetchParameterFields, participantData]);
 
-  const fetchParameterFields = async (param, urlValues) => {
-    try {
-      const response = await axios.get(`/api/parameters/${param}`);
-      setParameterFields(response.data.fields || []);
-
-      const initialFormData = {};
-      response.data.fields.forEach((field) => {
-        initialFormData[field.label] = urlValues[field.label] || formData[field.label] || participantData[field.label] || "";
+  // Synchronisation avec les données du participant context
+  useEffect(() => {
+    if (participantData && Object.keys(participantData).length > 0) {
+      setFormData((prev) => {
+        const updated = { ...prev };
+        Object.entries(participantData).forEach(([key, val]) => {
+          if (val && (updated[key] === undefined || updated[key] === "")) {
+            updated[key] = val;
+          }
+        });
+        return updated;
       });
-      setFormData((prevData) => ({
-        ...prevData,
-        ...initialFormData,
-      }));
-    } catch (error) {
-      console.error("Erreur lors de la récupération des données du paramètre :", error);
     }
-  };
-
-  useEffect(() => {
-    const fetchParameters = async () => {
-      try {
-        const response = await axios.get("/api/parameters");
-        setParametersFields(response.data);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des paramètres :", error);
-      }
-    };
-
-    fetchParameters();
-  }, []);
-
-  useEffect(() => {
-        // Au chargement du formulaire, on pré-remplit avec les données du participant
-        // Si le champ s'appelle "Âge" ou "Genre" dans votre JSON, vous pouvez faire le lien ici.
-        if (participantData) {
-            setAnswers(prev => ({
-                ...prev,
-                "Âge": participantData.age || prev["Âge"],
-                "Genre": participantData.gender || prev["Genre"],
-                "UserID": participantData.UserID || prev["UserID"]
-            }));
-        }
-    }, [participantData]);
+  }, [participantData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((formData) => ({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
-    console.log(e.target)
-    console.log(value !== "")
 
-    setErrors((errors) => ({
-      ...errors,
+    setErrors((prev) => ({
+      ...prev,
       [name]: value !== "" ? "" : `${name} est requis`,
     }));
   };
 
   const handleRankingChange = ({ label, rankings }) => {
-    setFormData({
-      ...formData,
-      [label]: rankings, // Classement sous forme de dictionnaire {option: ranking}
-    });
-    // setErrors({
-    //   ...errors,
-    //   [label]: "",
-    // });
+    setFormData((prev) => ({
+      ...prev,
+      [label]: rankings,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      [label]: "",
+    }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-  
+
     const validateFields = (fields) => {
       fields.forEach((field) => {
-        // Vérifie si le champ est requis et qu'il n'est pas de type "range"
-        if (field.required && field.type !== "range" && !formData[field.label]) {
-          newErrors[field.label] = `${field.label} est requis`;
+        if (!field.required) return;
+
+        const val = formData[field.label];
+        if (field.type === "range") {
+          if (val === undefined || val === null || val === "") {
+            newErrors[field.label] = `${field.label} est requis`;
+          }
+        } else if (field.type === "ranking") {
+          if (!Array.isArray(val) || val.length === 0) {
+            newErrors[field.label] = `${field.label} est requis`;
+          }
+        } else if (field.type !== "information" && field.type !== "image") {
+          if (val === undefined || val === null || String(val).trim() === "") {
+            newErrors[field.label] = `${field.label} est requis`;
+          }
         }
       });
     };
-  
+
     validateFields(parameterFields);
     validateFields(fieldsFields);
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
 
   const handlePopupOpen = (message, severity) => {
     setPopup({
       message,
       severity,
-      open: true
+      open: true,
     });
   };
 
   const handlePopupClose = () => {
     setPopup((prev) => ({
       ...prev,
-      open: false
+      open: false,
     }));
   };
 
@@ -229,9 +240,14 @@ const Form = () => {
     const fieldsName = queryParams.get("fields");
     const param = queryParams.get("param");
 
+    if (!validateForm()) {
+      handlePopupOpen("Veuillez remplir tous les champs requis", "error");
+      return;
+    }
+
     const completeFormData = {
       name: formTitle,
-      formID: formID,
+      formID: formID !== undefined ? formID : 0,
       fieldsFile: fieldsName,
       paramFile: param,
       parametersFields: {},
@@ -246,41 +262,25 @@ const Form = () => {
       completeFormData.parametersFields[field.label] = formData[field.label];
     });
 
-    console.log(completeFormData)
-
-    if (!validateForm()) {
-      handlePopupOpen("Veuillez remplir tous les champs requis", "error");
-      // <Alert severity="error">Veuillez remplir tous les champs requis</Alert>
-      // alert("Veuillez remplir tous les champs requis.");
-      return;
-    }
-
     try {
       if (dataID) {
         completeFormData.id = dataID;
-        const response = await axios.put(`/api/data/modifyData`, completeFormData);
-        console.log(completeFormData)
+        await axios.put(`/api/data/modifyData`, completeFormData);
         handlePopupOpen("Données modifiées avec succès", "success");
-
-      }else{
+      } else {
         const response = await axios.post("/api/data/registerData", completeFormData);
         setDataID(response.data.id);
         handlePopupOpen("Données envoyées avec succès", "success");
       }
     } catch (error) {
+      console.error("Erreur lors de l'enregistrement :", error);
       handlePopupOpen("Erreur lors de l'envoi des données", "error");
     }
   };
 
-  // fieldsFields.forEach((field) => {
-  //   console.log(field.label + " : " + formData[field.label]);
-  // });
-
   const renderField = (field) => {
-
     return (
       <div className={`field-block ${errors[field.label] ? "error" : ""}`} key={field.label}>
-        {/* Affichage conditionnel selon le type de champ */}
         {field.type === "range" && (
           <RangeField
             label={field.label}
@@ -301,11 +301,10 @@ const Form = () => {
         {field.type === "ranking" && (
           <RankingField
             label={field.label}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             options={field.options || []}
             onChange={handleRankingChange}
             required={field.required}
-
           />
         )}
 
@@ -313,10 +312,10 @@ const Form = () => {
           <TextInputField
             label={field.label}
             sublabel={field.sublabel}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             errors={errors}
             onChange={handleChange}
-            placeholder={errors[field.label] || ""}
+            placeholder={field.placeholder || ""}
             required={field.required}
             isDisabled={field.disabled}
           />
@@ -325,11 +324,11 @@ const Form = () => {
         {field.type === "choice" && (
           <ChoiceField
             label={field.label}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             onChange={handleChange}
             options={field.options || []}
             otherChoice={field.otherChoice}
-            placeholder={errors[field.label] || ""}
+            placeholder={field.placeholder || ""}
             required={field.required}
             isDisabled={field.disabled}
           />
@@ -339,7 +338,7 @@ const Form = () => {
           <MultipleChoiceField
             label={field.label}
             sublabel={field.sublabel}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             errors={errors}
             onChange={handleChange}
             placeholder={field.placeholder || ""}
@@ -360,7 +359,6 @@ const Form = () => {
           <ImageField
             label={field.label}
             sublabel={field.sublabel}
-            value={formData[field.label] || ""}
             src={field.src}
             size={field.size}
             align={field.align}
@@ -371,19 +369,16 @@ const Form = () => {
           <TextAutosizeField
             label={field.label}
             sublabel={field.sublabel}
-            value={formData[field.label] || ""}
+            value={formData[field.label]}
             errors={errors}
             minRows={field.minRows}
             onChange={handleChange}
-            placeholder=""
+            placeholder={field.placeholder || ""}
             required={field.required}
             isDisabled={field.disabled}
           />
         )}
 
-
-
-        {/* Champ générique pour les autres types */}
         {!["range", "ranking", "text", "choice", "drop-down", "information", "image", "textAutosize"].includes(field.type) && (
           <div>
             <input
@@ -392,7 +387,7 @@ const Form = () => {
               name={field.label}
               value={formData[field.label] || ""}
               onChange={handleChange}
-              placeholder={errors[field.label] || ""}
+              placeholder={field.placeholder || ""}
               required={field.required}
               disabled={field.disabled}
             />
@@ -400,7 +395,6 @@ const Form = () => {
         )}
       </div>
     );
-
   };
 
   return (
@@ -410,26 +404,41 @@ const Form = () => {
           {selectedParameter && <>{parameterFields.map(renderField)}</>}
         </div>
       </div>
-      <h1>{formTitle}</h1>
-      <p>{fieldsDescription}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
+        <div>
+          <h1 style={{ margin: 0 }}>{formTitle}</h1>
+          {fieldsDescription && <p style={{ margin: '8px 0 0 0', color: '#64748b' }}>{fieldsDescription}</p>}
+        </div>
+        {dataID !== undefined && (
+          <Button
+            variant="contained"
+            color="secondary"
+            endIcon={<SendIcon />}
+            onClick={handleSubmit}
+            sx={{ height: '42px', fontWeight: 700, textTransform: 'none', borderRadius: '8px' }}
+          >
+            Enregistrer les modifications
+          </Button>
+        )}
+      </div>
       <div className="fields-container">
         <form onSubmit={handleSubmit}>
           {fieldsFields.map(renderField)}
           <Button
             variant="contained"
-            endIcon={<SendIcon />} type="submit"
-            color={dataID == undefined ? "primary" : "secondary"}
-            >
-            {dataID == undefined ? "Soumettre" : "Modifier"}
+            endIcon={<SendIcon />}
+            type="submit"
+            color={dataID === undefined ? "primary" : "secondary"}
+          >
+            {dataID === undefined ? "Soumettre" : "Modifier"}
           </Button>
         </form>
       </div>
 
-
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         open={popup.open}
-        autoHideDuration={60000000}
+        autoHideDuration={6000}
         onClose={handlePopupClose}
       >
         <Alert onClose={handlePopupClose} severity={popup.severity} sx={{ width: '100%' }}>

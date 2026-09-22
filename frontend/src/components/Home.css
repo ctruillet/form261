@@ -17,7 +17,7 @@
 }
 
 /* Style des boutons */
-button {
+.form-buttons button {
   padding: 10px 20px;
   background-color: #3498db;
   color: white;
@@ -28,7 +28,7 @@ button {
   transition: background-color 0.3s ease;
 }
 
-button:hover {
+.form-buttons button:hover {
   background-color: #2980b9;
 }
 

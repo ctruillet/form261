@@ -1,0 +1,57 @@
+[
+  {
+    "id": "1",
+    "UserID": "1",
+    "Block": "A",
+    "formCount": 9,
+    "forms": [
+      "Questionnaire démographique",
+      "Sense of Agency Scale",
+      "NASA-TLX",
+      "SUS"
+    ],
+    "blocks": [
+      "A"
+    ],
+    "techniques": [
+      "vMirrorAR",
+      "ConeProbeAR",
+      "BalloonProbeAR"
+    ]
+  },
+  {
+    "id": "2",
+    "UserID": "2",
+    "Block": "A"
+  },
+  {
+    "id": "3",
+    "UserID": "3",
+    "Block": "A"
+  },
+  {
+    "id": "4",
+    "UserID": "4",
+    "Block": "A"
+  },
+  {
+    "id": "5",
+    "UserID": "5",
+    "Block": "A"
+  },
+  {
+    "id": "6",
+    "UserID": "6",
+    "Block": "A"
+  },
+  {
+    "id": "7",
+    "UserID": "7",
+    "Block": "A"
+  },
+  {
+    "id": "8",
+    "UserID": "8",
+    "Block": "A"
+  }
+]

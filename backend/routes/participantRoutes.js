@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const participantController = require('../controllers/participantController');
+
+router.get('/', participantController.getParticipants);
+router.post('/', participantController.createParticipant);
+router.put('/:id', participantController.updateParticipant);
+router.delete('/:id', participantController.deleteParticipant);
+
+module.exports = router;

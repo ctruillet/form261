@@ -1,0 +1,148 @@
+/* Participant.css - Modern participant management layout */
+
+.participant-container {
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.participant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.participant-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.participant-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.participant-active-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #10b981;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.participant-active-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.participant-active-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.participant-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .participant-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.participant-card-panel {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.participant-panel-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.participant-panel-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 20px 0;
+}
+
+/* Liste des participants enregistrés */
+.participant-history-list {
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.participant-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 10px;
+  transition: all 0.15s ease;
+}
+
+.participant-history-item:hover {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.05);
+}
+
+.participant-history-item.active {
+  background-color: #f0fdf4;
+  border-color: #86efac;
+}
+
+.participant-history-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.participant-card-panel.edit-mode-panel {
+  border-color: #fdba74;
+  box-shadow: 0 0 0 1px #fed7aa, 0 4px 12px rgba(234, 88, 12, 0.08);
+}
+
+.participant-history-item.being-edited {
+  background-color: #fff7ed;
+  border-color: #fdba74;
+}
+
+.participant-history-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+

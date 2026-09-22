@@ -14,13 +14,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
 
-// Import du contexte du participant
 import { ParticipantContext } from "../context/ParticipantContext";
-
 import "../styles/Answers.css";
 
-// Fonction utilitaire pour aplanir le JSON (identique à Answers.jsx)
 const flattenJSON = (obj, parentKey = "", res = {}) => {
   for (const key in obj) {
     const propName = parentKey ? `${key}` : key;
@@ -39,15 +37,15 @@ const actions = [
 ];
 
 const ParticipantAnswers = () => {
-  const { participantData } = useContext(ParticipantContext); // Récupération du participant courant
+  const { participantData } = useContext(ParticipantContext);
   const [responses, setResponses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedRow, setSelectedRow] = useState(null);
   const [speedDialPosition, setSpeedDialPosition] = useState({ top: 0, left: 0 });
   const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Si aucun participant n'est défini, on redirige vers la page Participant
     if (!participantData?.UserID) {
       navigate("/participant");
       return;
@@ -56,72 +54,80 @@ const ParticipantAnswers = () => {
     const fetchResponses = async () => {
       try {
         const response = await axios.get("/api/data/responses");
-        const data = response.data;
+        const data = response.data || [];
 
-        // Traitement et FILTRAGE des données
-        const processedData = data.map((file) => {
-          if (!file.content || file.content.length === 0) return null;
+        const processedData = data
+          .map((file) => {
+            if (!file.content || file.content.length === 0) return null;
 
-          // On ne garde que les réponses dont l'UserID correspond au participant enregistré
-          const participantContent = file.content.filter(
-            (resp) => resp.parametersFields && resp.parametersFields.UserID === participantData.UserID
-          );
+            const participantContent = file.content.filter(
+              (resp) =>
+                resp.parametersFields &&
+                String(resp.parametersFields.UserID) === String(participantData.UserID)
+            );
 
-          // Si ce formulaire n'a aucune réponse pour ce participant, on l'ignore
-          if (participantContent.length === 0) return null;
+            if (participantContent.length === 0) return null;
 
-          participantContent.reverse(); // Afficher les réponses les plus récentes en premier
+            const reversedContent = [...participantContent].reverse();
 
-          const parameterKeys = Object.keys(participantContent[0].parametersFields || {});
-          const fieldKeys = Object.keys(participantContent[0].fieldsFields || {});
-          const requiredHeaders = [...parameterKeys, ...fieldKeys, "id", "fieldsFile", "paramFile"];
-          
-          const flatResponses = participantContent.map((response) => flattenJSON(response));
-          
-          const filteredResponses = flatResponses.map((response) =>
-            Object.fromEntries(
-              Object.entries(response).filter(([key]) => requiredHeaders.includes(key))
-            )
-          );
-          
-          const nonEmptyHeaders = requiredHeaders.filter((header) =>
-            filteredResponses.some((response) => response[header] !== undefined && response[header] !== "")
-          );
+            const parameterKeys = Object.keys(reversedContent[0].parametersFields || {});
+            const fieldKeys = Object.keys(reversedContent[0].fieldsFields || {});
+            const requiredHeaders = [...parameterKeys, ...fieldKeys, "id", "fieldsFile", "paramFile"];
 
-          return {
-            name: participantContent[0].name || "Formulaire",
-            headers: nonEmptyHeaders,
-            rows: filteredResponses,
-          };
-        }).filter(item => item !== null); // On retire les null (les formulaires sans réponse du participant)
+            const flatResponses = reversedContent.map((resp) => flattenJSON(resp));
+
+            const filteredResponses = flatResponses.map((resp) =>
+              Object.fromEntries(
+                Object.entries(resp).filter(([key]) => requiredHeaders.includes(key))
+              )
+            );
+
+            const nonEmptyHeaders = requiredHeaders.filter((header) =>
+              filteredResponses.some(
+                (resp) => resp[header] !== undefined && resp[header] !== ""
+              )
+            );
+
+            return {
+              name: reversedContent[0].name || file.file,
+              headers: nonEmptyHeaders,
+              rows: filteredResponses,
+            };
+          })
+          .filter((item) => item !== null);
 
         setResponses(processedData);
       } catch (error) {
         console.error("Erreur lors de la récupération des réponses :", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchResponses();
   }, [participantData, navigate]);
 
-  // Fonctions de gestion de l'édition et de la suppression (identiques à Answers.jsx)
   const handleEdit = () => {
     if (!selectedRow) return;
-    navigate(`/form?fields=${selectedRow.fieldsFile}&param=${selectedRow.paramFile}&id=${selectedRow.id}`);
+    navigate(
+      `/form?fields=${selectedRow.fieldsFile}&param=${selectedRow.paramFile}&id=${selectedRow.id}`
+    );
   };
 
   const confirmDelete = async () => {
+    if (!selectedRow) return;
     try {
       await axios.delete(`/api/data/responses/id=${selectedRow.id}`);
       setResponses((prevResponses) => {
-        const updatedResponses = prevResponses.map((file) => {
-          const updatedRows = file.rows.filter((row) => row.id !== selectedRow.id);
-          return { ...file, rows: updatedRows };
-        }).filter(file => file.rows.length > 0); // Enlève la table si elle est devenue vide
-        
-        return updatedResponses;
+        return prevResponses
+          .map((file) => {
+            const updatedRows = file.rows.filter((row) => row.id !== selectedRow.id);
+            return { ...file, rows: updatedRows };
+          })
+          .filter((file) => file.rows.length > 0);
       });
       setOpenDialog(false);
+      setSelectedRow(null);
     } catch (error) {
       console.error("Erreur lors de la suppression de la ligne :", error);
     }
@@ -134,16 +140,23 @@ const ParticipantAnswers = () => {
   const handleRowClick = (params, event) => {
     setSelectedRow(params.row);
     const rect = event.currentTarget.getBoundingClientRect();
-    setSpeedDialPosition({ top: rect.top + window.scrollY - 120, right: rect.right - 60 });
+    setSpeedDialPosition({
+      top: Math.max(10, rect.top + window.scrollY - 80),
+      left: Math.max(10, rect.right - 60),
+    });
   };
 
   return (
     <div className="answers-container">
       <h2>Réponses du Participant : {participantData?.UserID}</h2>
-      
-      {responses.length === 0 ? (
+
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '40px' }}>
+          <CircularProgress />
+        </div>
+      ) : responses.length === 0 ? (
         <Alert severity="info" sx={{ marginTop: "20px" }}>
-          Aucune donnée n'a encore été enregistrée pour le participant {participantData?.UserID}.
+          Aucune donnée n&apos;a encore été enregistrée pour le participant {participantData?.UserID}.
         </Alert>
       ) : (
         responses.map((file, fileIndex) => {
@@ -192,7 +205,7 @@ const ParticipantAnswers = () => {
           sx={{
             position: "absolute",
             top: `${speedDialPosition.top}px`,
-            left: `${speedDialPosition.right}px`,
+            left: `${speedDialPosition.left}px`,
           }}
           icon={<SpeedDialIcon />}
         >
