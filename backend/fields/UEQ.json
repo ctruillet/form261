@@ -1,266 +1,292 @@
 {
-  "title": "User Experience Questionnaire (UEQ)",
-  "description": "Afin d'évaluer le produit, veuillez remplir le questionnaire ci-dessous. Il se compose de paires opposées de propriétés que peuvent avoir le produit. Veuillez répondre à toutes les questions, même si vous n'êtes pas sûr de l'évaluation.",
+  "title": "UEQ",
+  "description": "Évaluez le produit à l'aide des paires d'adjectifs opposés.",
   "fields": [
     {
       "label": "Question 1",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Agaçant",
-      "labelMax": "Agréable",
       "step": 1,
-      "required": true
+      "labelMin": "Agaçant",
+      "labelMax": "Agréable"
     },
     {
       "label": "Question 2",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Incompréhensible",
-      "labelMax": "Compréhensible",
       "step": 1,
-      "required": true
+      "labelMin": "Incompréhensible",
+      "labelMax": "Compréhensible"
     },
     {
       "label": "Question 3",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Moderne",
-      "labelMax": "Sans fantaisie",
       "step": 1,
-      "required": true
+      "labelMin": "Moderne",
+      "labelMax": "Sans fantaisie"
     },
     {
       "label": "Question 4",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Appropriation simple",
-      "labelMax": "Appropriation compliquée",
       "step": 1,
-      "required": true
+      "labelMin": "Appropriation simple",
+      "labelMax": "Appropriation compliquée"
     },
     {
       "label": "Question 5",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Apporte de la valeur",
-      "labelMax": "Peu de valeur ajoutée",
       "step": 1,
-      "required": true
+      "labelMin": "Apporte de la valeur",
+      "labelMax": "Peu de valeur ajoutée"
     },
     {
       "label": "Question 6",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Ennuyeux",
-      "labelMax": "Captivant",
       "step": 1,
-      "required": true
+      "labelMin": "Ennuyeux",
+      "labelMax": "Captivant"
     },
     {
       "label": "Question 7",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Inintéressant",
-      "labelMax": "Intéressant",
       "step": 1,
-      "required": true
+      "labelMin": "Inintéressant",
+      "labelMax": "Intéressant"
     },
     {
       "label": "Question 8",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Imprévisible",
-      "labelMax": "Prévisible",
       "step": 1,
-      "required": true
+      "labelMin": "Imprévisible",
+      "labelMax": "Prévisible"
     },
     {
       "label": "Question 9",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Rapide",
-      "labelMax": "Lent",
       "step": 1,
-      "required": true
+      "labelMin": "Rapide",
+      "labelMax": "Lent"
     },
     {
       "label": "Question 10",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Original",
-      "labelMax": "Conventionnel",
       "step": 1,
-      "required": true
+      "labelMin": "Original",
+      "labelMax": "Conventionnel"
     },
     {
       "label": "Question 11",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Rigide",
-      "labelMax": "Facilitant",
       "step": 1,
-      "required": true
+      "labelMin": "Rigide",
+      "labelMax": "Facilitant"
     },
     {
       "label": "Question 12",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Bien",
-      "labelMax": "Médiocre",
       "step": 1,
-      "required": true
+      "labelMin": "Bien",
+      "labelMax": "Médiocre"
     },
     {
       "label": "Question 13",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Compliqué",
-      "labelMax": "Simple",
       "step": 1,
-      "required": true
+      "labelMin": "Compliqué",
+      "labelMax": "Simple"
     },
     {
       "label": "Question 14",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Repoussant",
-      "labelMax": "Attractif",
       "step": 1,
-      "required": true
+      "labelMin": "Repoussant",
+      "labelMax": "Attractif"
     },
     {
       "label": "Question 15",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Habituel",
-      "labelMax": "Avant-gardiste",
       "step": 1,
-      "required": true
+      "labelMin": "Habituel",
+      "labelMax": "Avant-gardiste"
     },
     {
       "label": "Question 16",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Désagréable",
-      "labelMax": "Agréable",
       "step": 1,
-      "required": true
+      "labelMin": "Désagréable",
+      "labelMax": "Agréable"
     },
     {
       "label": "Question 17",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Sécurisant",
-      "labelMax": "Insécurisant",
       "step": 1,
-      "required": true
+      "labelMin": "Sécurisant",
+      "labelMax": "Insécurisant"
     },
     {
       "label": "Question 18",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Stimulant",
-      "labelMax": "Soporifique",
       "step": 1,
-      "required": true
+      "labelMin": "Stimulant",
+      "labelMax": "Soporifique"
     },
     {
       "label": "Question 19",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Répond aux attentes",
-      "labelMax": "Ne répond pas aux attentes",
       "step": 1,
-      "required": true
+      "labelMin": "Répond aux attentes",
+      "labelMax": "Ne répond pas aux attentes"
     },
     {
       "label": "Question 20",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Inefficace",
-      "labelMax": "Efficace",
       "step": 1,
-      "required": true
+      "labelMin": "Inefficace",
+      "labelMax": "Efficace"
     },
     {
       "label": "Question 21",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Clair",
-      "labelMax": "Déroutant",
       "step": 1,
-      "required": true
+      "labelMin": "Clair",
+      "labelMax": "Déroutant"
     },
     {
       "label": "Question 22",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Non pragmatique",
-      "labelMax": "Pragmatique",
       "step": 1,
-      "required": true
+      "labelMin": "Non pragmatique",
+      "labelMax": "Pragmatique"
     },
     {
       "label": "Question 23",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Sobre",
-      "labelMax": "Surchargé",
       "step": 1,
-      "required": true
+      "labelMin": "Sobre",
+      "labelMax": "Surchargé"
     },
     {
       "label": "Question 24",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Attrayant",
-      "labelMax": "Rébarbatif",
       "step": 1,
-      "required": true
+      "labelMin": "Attrayant",
+      "labelMax": "Rébarbatif"
     },
     {
       "label": "Question 25",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Sympathique",
-      "labelMax": "Inamical",
       "step": 1,
-      "required": true
+      "labelMin": "Sympathique",
+      "labelMax": "Inamical"
     },
     {
       "label": "Question 26",
+      "sublabel": "",
       "type": "range",
+      "required": true,
       "min": 1,
       "max": 7,
-      "labelMin": "Conservateur",
-      "labelMax": "Innovant",
       "step": 1,
-      "required": true
+      "labelMin": "Conservateur",
+      "labelMax": "Innovant"
     }
   ]
 }

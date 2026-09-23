@@ -5,6 +5,7 @@
         "param": "UserID_Block.json",
         "id": 0,
         "tag": "Profil",
+        "timing": "pre",
         "description": "Informations générales sur le participant (âge, genre, profil)."
     },
     {
@@ -13,6 +14,7 @@
         "param": "UserID_TI_Block.json",
         "id": 1,
         "tag": "Immersion",
+        "timing": "post-modality",
         "description": "Évaluez votre expérience et votre sentiment de présence dans l'environnement virtuel."
     },
     {
@@ -21,6 +23,7 @@
         "param": "UserID_TI_Block.json",
         "id": 2,
         "tag": "Agency",
+        "timing": "post-modality",
         "description": "Évaluez votre perception de contrôle sur vos actions et votre environnement."
     },
     {
@@ -29,6 +32,7 @@
         "param": "UserID_TI_Block.json",
         "id": 3,
         "tag": "Charge mentale",
+        "timing": "post-modality",
         "description": "Évaluez la charge de travail perçue en fonction des six dimensions."
     },
     {
@@ -37,6 +41,7 @@
         "param": "UserID_TI_Block.json",
         "id": 4,
         "tag": "Expérience Utilisateur",
+        "timing": "post-modality",
         "description": "Évaluez le produit à l'aide des paires d'adjectifs opposés."
     },
     {
@@ -45,6 +50,7 @@
         "param": "UserID_TI_Block.json",
         "id": 5,
         "tag": "Utilisabilité",
+        "timing": "post-modality",
         "description": "System Usability Scale pour mesurer la facilité globale d'utilisation."
     },
     {
@@ -53,6 +59,7 @@
         "param": "UserID_Block.json",
         "id": 6,
         "tag": "Classement",
+        "timing": "post",
         "description": "Notation des techniques de 0 à 10 et classement par préférence."
     },
     {
@@ -61,6 +68,7 @@
         "param": "UserID_Block.json",
         "id": 7,
         "tag": "Commentaires",
+        "timing": "post",
         "description": "Retours libres et remarques qualitatives sur les techniques."
     }
 ]

@@ -1,31 +1,24 @@
 {
   "title": "Ranking",
-  "description": "Commenaires",
+  "description": "Commentaires",
   "fields": [
     {
-      "label": "BalloonProbeAR",
-      "sublabel": "Commentaires sur le BalloonProbeAR",
+      "label": "Joystick",
+      "sublabel": "Commentaires sur le Joystick",
       "type": "textAutosize",
       "minRows": 3,
       "required": false
     },
     {
-      "label": "ConeProbeAR",
-      "sublabel": "Commentaires sur le ConeProbeAR",
+      "label": "GoTo",
+      "sublabel": "Commentaires sur le GoTo",
       "type": "textAutosize",
       "minRows": 3,
       "required": false
     },
     {
-      "label": "vMirrorAR",
-      "sublabel": "Commentaires sur le vMirrorAR",
-      "type": "textAutosize",
-      "minRows": 3,
-      "required": false
-    },
-    {
-      "label": "ARPortal",
-      "sublabel": "Commentaires sur la ARPortal",
+      "label": "IMU",
+      "sublabel": "Commentaires sur l'IMU",
       "type": "textAutosize",
       "minRows": 3,
       "required": false

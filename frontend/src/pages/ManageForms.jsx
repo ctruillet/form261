@@ -28,22 +28,30 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import DescriptionIcon from '@mui/icons-material/Description';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 const ManageForms = () => {
   const navigate = useNavigate();
   const [forms, setForms] = useState([]);
+  const [parametersMap, setParametersMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
 
-  // Charger la liste des formulaires
+  // Charger la liste des formulaires et des paramètres
   const fetchForms = async () => {
     setLoading(true);
     try {
-      const res = await axios.get('/api/forms');
-      setForms(res.data || []);
+      const [formsRes, paramsRes] = await Promise.all([
+        axios.get('/api/forms'),
+        axios.get('/api/parameters').catch(() => ({ data: [] })),
+      ]);
+      setForms(formsRes.data || []);
+      const pMap = {};
+      (paramsRes.data || []).forEach((p) => {
+        if (p.file) pMap[p.file] = p;
+      });
+      setParametersMap(pMap);
     } catch (err) {
       console.error('Erreur lors du chargement des formulaires :', err);
       setNotification({
@@ -54,6 +62,20 @@ const ManageForms = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getSavedFactors = (form) => {
+    if (!form.param || form.param === 'none') {
+      return [];
+    }
+    const paramConfig = parametersMap[form.param];
+    if (paramConfig && Array.isArray(paramConfig.fields) && paramConfig.fields.length > 0) {
+      return paramConfig.fields.map((f) => f.label);
+    }
+    if (form.param === 'UserID_Block.json') return ['UserID', 'Block'];
+    if (form.param === 'UserID_TI_Block.json') return ['UserID', 'Modalité', 'Block'];
+    if (form.param === 'Active_Protocol.json') return ['UserID', 'TrialOrder', 'Facteurs', 'Block'];
+    return [form.param.replace('.json', '')];
   };
 
   useEffect(() => {
@@ -136,8 +158,9 @@ const ManageForms = () => {
               <TableRow>
                 <TableCell sx={{ fontWeight: 700, width: '80px' }}>ID</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Nom du Questionnaire</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Moment de passation</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Fichier Questions</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Fichier Paramètres</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Facteurs sauvegardés</TableCell>
                 <TableCell align="right" sx={{ fontWeight: 700, minWidth: '180px' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -164,6 +187,23 @@ const ManageForms = () => {
                     </Box>
                   </TableCell>
                   <TableCell>
+                    {form.timing === 'pre' && (
+                      <Chip label="Pré-expérience" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', backgroundColor: '#e0f2fe', color: '#0369a1' }} />
+                    )}
+                    {form.timing === 'post-modality' && (
+                      <Chip label="Fin de modalité" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', backgroundColor: '#f3e8ff', color: '#7e22ce' }} />
+                    )}
+                    {form.timing === 'trial' && (
+                      <Chip label="Par essai" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', backgroundColor: '#fef3c7', color: '#b45309' }} />
+                    )}
+                    {form.timing === 'post' && (
+                      <Chip label="Bilan final" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#15803d' }} />
+                    )}
+                    {form.timing === 'free' && (
+                      <Chip label="Libre / Autonome" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#475569' }} />
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <Chip
                       icon={<DescriptionIcon fontSize="small" />}
                       label={form.fields}
@@ -172,12 +212,35 @@ const ManageForms = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    <Chip
-                      icon={<SettingsIcon fontSize="small" />}
-                      label={form.param}
-                      size="small"
-                      sx={{ backgroundColor: '#ede7f6', color: '#512da8' }}
-                    />
+                    {(() => {
+                      const factors = getSavedFactors(form);
+                      if (factors.length === 0) {
+                        return (
+                          <Chip label="Aucun (autonome)" size="small" variant="outlined" sx={{ color: 'text.secondary', fontSize: '0.72rem' }} />
+                        );
+                      }
+                      return (
+                        <Tooltip title={`Enregistré automatiquement avec chaque réponse : ${factors.join(', ')}`}>
+                          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', maxWidth: 280 }}>
+                            {factors.map((factor, idx) => (
+                              <Chip
+                                key={idx}
+                                label={factor}
+                                size="small"
+                                sx={{
+                                  fontWeight: 600,
+                                  fontSize: '0.72rem',
+                                  height: 22,
+                                  backgroundColor: '#ede7f6',
+                                  color: '#512da8',
+                                  border: '1px solid #d8b4fe',
+                                }}
+                              />
+                            ))}
+                          </Box>
+                        </Tooltip>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Tester / Répondre">

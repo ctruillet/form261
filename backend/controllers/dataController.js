@@ -480,12 +480,18 @@ exports.exportTidyCSV = (req, res) => {
       }
     });
 
-    // 2. Ordonner les facteurs/paramètres (ex: UserID en premier, puis Technique/Condition, Block, etc.)
+    // 2. Ordonner les facteurs/paramètres (UserID, puis Block, puis TrialOrder, puis les facteurs expérimentaux)
     const sortedParamKeys = Array.from(paramKeySet).sort((a, b) => {
-      const aLower = a.toLowerCase();
-      const bLower = b.toLowerCase();
-      if (aLower.includes('user') || aLower.includes('partic')) return -1;
-      if (bLower.includes('user') || bLower.includes('partic')) return 1;
+      const getPriority = (k) => {
+        const l = k.toLowerCase();
+        if (l.includes('user') || l.includes('partic')) return 1;
+        if (l === 'block') return 2;
+        if (l === 'trialorder' || l === 'order' || l.includes('essai')) return 3;
+        return 4;
+      };
+      const pA = getPriority(a);
+      const pB = getPriority(b);
+      if (pA !== pB) return pA - pB;
       return a.localeCompare(b);
     });
 

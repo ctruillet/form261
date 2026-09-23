@@ -1,19 +1,27 @@
 {
-  "title": "Paramètres de Modalité (Technique)",
-  "name": "UserID TI Block",
-  "description": "Modalité : UserID, Technique et Block",
+  "title": "Paramètres d'Essai (Protocole Actif)",
+  "name": "Active_Protocol",
+  "description": "Essais : UserID, TrialOrder, Technique, Tache, Block",
   "fields": [
     {
       "label": "UserID",
-      "sublabel": "UserID unique",
+      "sublabel": "UserID unique du participant",
       "type": "text",
       "placeholder": "UserID",
       "required": true,
       "category": "parameter"
     },
     {
+      "label": "TrialOrder",
+      "sublabel": "Numéro d'ordre de l'essai",
+      "type": "text",
+      "placeholder": "TrialOrder",
+      "required": false,
+      "category": "parameter"
+    },
+    {
       "label": "Technique",
-      "sublabel": "Modalité : Technique",
+      "sublabel": "Facteur : Technique",
       "type": "drop-down",
       "placeholder": "Technique",
       "options": [
@@ -25,8 +33,20 @@
       "category": "parameter"
     },
     {
+      "label": "Tache",
+      "sublabel": "Facteur : Tache",
+      "type": "drop-down",
+      "placeholder": "Tache",
+      "options": [
+        "T1",
+        "T2"
+      ],
+      "required": true,
+      "category": "parameter"
+    },
+    {
       "label": "Block",
-      "sublabel": "Bloc de l'expérience",
+      "sublabel": "Bloc de contrebalancement",
       "type": "drop-down",
       "placeholder": "Block",
       "options": [

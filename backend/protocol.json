@@ -1,0 +1,580 @@
+{
+  "factors": [
+    {
+      "name": "Technique",
+      "values": [
+        "Joystick",
+        "GoTo",
+        "IMU"
+      ]
+    },
+    {
+      "name": "Tache",
+      "values": [
+        "T1",
+        "T2"
+      ]
+    }
+  ],
+  "conditionsCount": 6,
+  "conditions": [
+    {
+      "Technique": "Joystick",
+      "Tache": "T1"
+    },
+    {
+      "Technique": "GoTo",
+      "Tache": "T1"
+    },
+    {
+      "Technique": "IMU",
+      "Tache": "T1"
+    },
+    {
+      "Technique": "Joystick",
+      "Tache": "T2"
+    },
+    {
+      "Technique": "GoTo",
+      "Tache": "T2"
+    },
+    {
+      "Technique": "IMU",
+      "Tache": "T2"
+    }
+  ],
+  "counterbalancingMethod": "blocked",
+  "blockedFactorName": "Technique",
+  "blocksCount": 12,
+  "blocks": {
+    "A1": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      }
+    ],
+    "A2": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      }
+    ],
+    "B1": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T2"
+      }
+    ],
+    "B2": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T1"
+      }
+    ],
+    "C1": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      }
+    ],
+    "C2": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      }
+    ],
+    "D1": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      }
+    ],
+    "D2": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      }
+    ],
+    "E1": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      }
+    ],
+    "E2": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      }
+    ],
+    "F1": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T2"
+      }
+    ],
+    "F2": [
+      {
+        "trialOrder": 1,
+        "macroBlock": 1,
+        "subTrial": 1,
+        "Technique": "Joystick",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 2,
+        "macroBlock": 1,
+        "subTrial": 2,
+        "Technique": "Joystick",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 3,
+        "macroBlock": 2,
+        "subTrial": 1,
+        "Technique": "GoTo",
+        "Tache": "T1"
+      },
+      {
+        "trialOrder": 4,
+        "macroBlock": 2,
+        "subTrial": 2,
+        "Technique": "GoTo",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 5,
+        "macroBlock": 3,
+        "subTrial": 1,
+        "Technique": "IMU",
+        "Tache": "T2"
+      },
+      {
+        "trialOrder": 6,
+        "macroBlock": 3,
+        "subTrial": 2,
+        "Technique": "IMU",
+        "Tache": "T1"
+      }
+    ]
+  },
+  "name": "Protocole générique"
+}

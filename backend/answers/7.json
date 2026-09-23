@@ -1,0 +1,104 @@
+[
+  {
+    "id": "0dcfda69-b009-426b-a6fd-8a3db0b9e7c1",
+    "name": "Commentaires",
+    "formID": 7,
+    "fieldsFile": "techniques.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P01",
+      "Block": "A1"
+    },
+    "fieldsFields": {
+      "Joystick": "Très naturel, aucune latence perceptible.",
+      "GoTo": "Utile pour des déplacements rapides mais parfois difficile de s'arrêter exactement au bon endroit.",
+      "IMU": "Sensibilité trop élevée, nécessite une calibration régulière.",
+      "Général": "Expérience fluide et consignes claires."
+    }
+  },
+  {
+    "id": "3179f319-9ca7-427f-a26d-24db21424123",
+    "name": "Commentaires",
+    "formID": 7,
+    "fieldsFile": "techniques.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P02",
+      "Block": "A2"
+    },
+    "fieldsFields": {
+      "Joystick": "Efficace et stable.",
+      "GoTo": "Ma modalité préférée pour explorer la scène globale.",
+      "IMU": "Difficile à maîtriser au début, mais s'améliore au fil des essais.",
+      "Général": "Bonne organisation des blocs d'essais."
+    }
+  },
+  {
+    "id": "5a47e1cd-e653-4f38-9bbe-00247a265ffc",
+    "name": "Commentaires",
+    "formID": 7,
+    "fieldsFile": "techniques.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P03",
+      "Block": "B1"
+    },
+    "fieldsFields": {
+      "Joystick": "Repose bien la main, contrôle continu parfait.",
+      "GoTo": "Bien pour aller droit au but.",
+      "IMU": "Léger tremblement visible lors des pointages fins.",
+      "Général": "Les questionnaires inter-modalités sont rapides à remplir."
+    }
+  },
+  {
+    "id": "5ff2ec00-c855-4ce3-9fc0-aa6d82dbc714",
+    "name": "Commentaires",
+    "formID": 7,
+    "fieldsFile": "techniques.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P04",
+      "Block": "B2"
+    },
+    "fieldsFields": {
+      "Joystick": "Classique et robuste.",
+      "GoTo": "Excellente idée, gain de temps appréciable.",
+      "IMU": "Intéressant mais fatigant sans accoudoir.",
+      "Général": "Protocole bien rythmé."
+    }
+  },
+  {
+    "id": "7701bfe9-89dc-4a64-a831-f46152f47246",
+    "name": "Commentaires",
+    "formID": 7,
+    "fieldsFile": "techniques.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P05",
+      "Block": "C1"
+    },
+    "fieldsFields": {
+      "Joystick": "Zéro frustration, navigation intuitive.",
+      "GoTo": "Fonctionne bien pour les cibles nettes.",
+      "IMU": "Fatigue musculaire au niveau de l'épaule.",
+      "Général": "Interface très agréable."
+    }
+  },
+  {
+    "id": "070bb5c0-1ffb-42a0-b83a-301462f2b9fa",
+    "name": "Commentaires",
+    "formID": 7,
+    "fieldsFile": "techniques.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P06",
+      "Block": "C2"
+    },
+    "fieldsFields": {
+      "Joystick": "10/10 en termes de confort et de précision.",
+      "GoTo": "Bon compromis vitesse/précision.",
+      "IMU": "Nécessite plus de pratique pour être compétitif.",
+      "Général": "Expérience globalement très positive."
+    }
+  }
+]

@@ -22,6 +22,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import DownloadIcon from '@mui/icons-material/Download';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import DataObjectIcon from '@mui/icons-material/DataObject';
+import TuneIcon from '@mui/icons-material/Tune';
 
 import { ParticipantContext } from '../context/ParticipantContext';
 
@@ -202,20 +203,6 @@ function Nav() {
       </ListSubheader>
 
       <ListItemButton
-        selected={isSelected('/')}
-        sx={navItemStyle(isSelected('/'))}
-        onClick={() => navigate('/')}
-      >
-        <ListItemIcon sx={{ minWidth: 36, color: isSelected('/') ? '#60a5fa' : '#94a3b8' }}>
-          <AssignmentIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText
-          primary="Passer un formulaire"
-          primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: isSelected('/') ? 600 : 400, noWrap: true }}
-        />
-      </ListItemButton>
-
-      <ListItemButton
         selected={isSelected('/participant')}
         sx={navItemStyle(isSelected('/participant'))}
         onClick={() => navigate('/participant')}
@@ -224,15 +211,15 @@ function Nav() {
           <PersonIcon fontSize="small" />
         </ListItemIcon>
         <ListItemText
-          primary="Participant"
+          primary="Session & Sujets"
           primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: isSelected('/participant') ? 600 : 400, noWrap: true }}
         />
         {participantData?.UserID ? (
           <Chip
-            label={participantData.UserID}
+            label={`#${participantData.UserID}`}
             size="small"
             color="success"
-            sx={{ height: 20, fontSize: '0.7rem', fontWeight: 600, ml: 1, maxWidth: '90px' }}
+            sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700, ml: 1, maxWidth: '90px' }}
           />
         ) : (
           <Chip
@@ -241,6 +228,34 @@ function Nav() {
             sx={{ height: 20, fontSize: '0.7rem', backgroundColor: 'rgba(255,255,255,0.1)', color: '#94a3b8', ml: 1 }}
           />
         )}
+      </ListItemButton>
+
+      <ListItemButton
+        selected={isSelected('/')}
+        sx={navItemStyle(isSelected('/'))}
+        onClick={() => navigate('/')}
+      >
+        <ListItemIcon sx={{ minWidth: 36, color: isSelected('/') ? '#60a5fa' : '#94a3b8' }}>
+          <AssignmentIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText
+          primary="Questionnaires"
+          primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: isSelected('/') ? 600 : 400, noWrap: true }}
+        />
+      </ListItemButton>
+
+      <ListItemButton
+        selected={isSelected('/protocol')}
+        sx={navItemStyle(isSelected('/protocol'))}
+        onClick={() => navigate('/protocol')}
+      >
+        <ListItemIcon sx={{ minWidth: 36, color: isSelected('/protocol') ? '#60a5fa' : '#94a3b8' }}>
+          <TuneIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText
+          primary="Plan d'Expérience"
+          primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: isSelected('/protocol') ? 600 : 400, noWrap: true }}
+        />
       </ListItemButton>
 
       <Divider sx={{ my: 1, borderColor: 'rgba(255,255,255,0.06)' }} />

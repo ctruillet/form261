@@ -51,7 +51,7 @@ const PALETTE = [
 
 // Nettoyer les clés de paramètres pour un affichage lisible
 const cleanParamName = (rawKey) => {
-  if (!rawKey || rawKey === 'Global') return 'Global';
+  if (!rawKey || rawKey === 'Global') return 'Tous les participants (Global)';
   return rawKey
     .replace(/[a-zA-Z0-9_-]+:/g, '')
     .replace(/\s*\|\s*/g, ' - ')
@@ -94,6 +94,7 @@ const Data = () => {
   const [loading, setLoading] = useState(true);
   const [selectedFormIndex, setSelectedFormIndex] = useState(0);
   const [onlySignificant, setOnlySignificant] = useState(false);
+  const [mergeBlocks, setMergeBlocks] = useState(true);
 
   useEffect(() => {
     const fetchResponses = async () => {
@@ -187,13 +188,13 @@ const Data = () => {
 
     if (allResponses.length === 0) return [];
 
-    // 1. Regrouper par formulaire
+    // 1. Regrouper par formulaire (par formID pour réunir toutes les sessions)
     const formsMap = {};
     allResponses.forEach((res) => {
-      const key = `${res.name || res.fieldsFile || 'Formulaire'} (${res.paramFile || 'Défaut'})`;
+      const key = res.formID !== undefined ? String(res.formID) : (res.name || res.fieldsFile || 'Formulaire');
       if (!formsMap[key]) {
         formsMap[key] = {
-          title: res.name || res.fieldsFile || 'Formulaire',
+          title: res.name || res.fieldsFile || `Formulaire #${key}`,
           paramFile: res.paramFile || 'Défaut',
           items: [],
         };
@@ -217,11 +218,30 @@ const Data = () => {
 
       const factors = Array.from(factorSet);
 
-      // Regrouper les réponses par combinaison de paramètres (excluant UserID)
+      // Regrouper les réponses par combinaison de paramètres (excluant UserID et les blocs de contrebalancement)
       const paramsMap = {};
       items.forEach((it) => {
         const params = { ...(it.parametersFields || {}) };
         delete params.UserID;
+        delete params.id;
+        delete params.trialOrder;
+
+        // FUSION DES GROUPES DE CONTREBALANCEMENT :
+        // Le bloc (A1, A2...) sert uniquement à neutraliser l'ordre de passation.
+        // En analyse statistique, on regroupe les réponses d'une même condition indépendamment du bloc.
+        if (mergeBlocks) {
+          delete params.Block;
+          delete params.Bloc;
+          delete params.block;
+          delete params.bloc;
+          delete params.Group;
+          delete params.group;
+          delete params.Order;
+          delete params.order;
+          delete params.MacroBlock;
+          delete params.macroBlock;
+        }
+
         const pKey = Object.keys(params).length > 0
           ? Object.entries(params).map(([k, v]) => `${k}:${v}`).join(' | ')
           : 'Global';
@@ -232,7 +252,9 @@ const Data = () => {
 
       // Analyser chaque facteur
       const factorAnalyses = factors.map((factor) => {
-        const conditionGroups = Object.entries(paramsMap).map(([rawParamKey, paramItems], idx) => {
+        const conditionGroups = Object.entries(paramsMap)
+          .sort(([keyA], [keyB]) => keyA.localeCompare(keyB, undefined, { numeric: true }))
+          .map(([rawParamKey, paramItems], idx) => {
           const values = [];
           paramItems.forEach((it) => {
             const raw = it.fieldsFields?.[factor];
@@ -275,7 +297,7 @@ const Data = () => {
         significantCount,
       };
     }).filter((f) => f.totalFactors > 0);
-  }, [responses]);
+  }, [responses, mergeBlocks]);
 
   // Statistiques globales
   const overallStats = useMemo(() => {
@@ -464,7 +486,7 @@ const Data = () => {
           </Tabs>
         </Box>
 
-        {/* Barre de filtre et légende */}
+        {/* Barre de filtre et contrôles */}
         <Box
           sx={{
             p: 2,
@@ -476,24 +498,49 @@ const Data = () => {
             backgroundColor: '#ffffff',
           }}
         >
-          <FormControlLabel
-            control={
-              <Switch
-                checked={onlySignificant}
-                onChange={(e) => setOnlySignificant(e.target.checked)}
-                color="success"
-              />
-            }
-            label={
-              <Typography variant="body2" fontWeight={600} color="#1e293b">
-                Afficher uniquement les différences significatives (p &lt; 0.05)
-              </Typography>
-            }
-          />
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2.5} alignItems={{ xs: 'flex-start', md: 'center' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={mergeBlocks}
+                  onChange={(e) => setMergeBlocks(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="body2" fontWeight={700} color="#0f172a">
+                    Fusionner les groupes (contrebalancement)
+                  </Typography>
+                  <Chip
+                    label="Actif"
+                    size="small"
+                    color="primary"
+                    sx={{ height: 18, fontSize: '0.65rem', fontWeight: 800 }}
+                  />
+                </Box>
+              }
+            />
+
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={onlySignificant}
+                  onChange={(e) => setOnlySignificant(e.target.checked)}
+                  color="success"
+                />
+              }
+              label={
+                <Typography variant="body2" fontWeight={600} color="#1e293b">
+                  Différences significatives uniquement (p &lt; 0.05)
+                </Typography>
+              }
+            />
+          </Stack>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
             <Typography variant="caption" color="text.secondary">
-              Légende de significativité :
+              Légende :
             </Typography>
             <Chip size="small" label="*** p < 0.001" sx={{ height: 20, fontSize: '0.68rem', backgroundColor: '#dcfce7', color: '#166534', fontWeight: 600 }} />
             <Chip size="small" label="** p < 0.01" sx={{ height: 20, fontSize: '0.68rem', backgroundColor: '#dcfce7', color: '#166534', fontWeight: 600 }} />
@@ -501,6 +548,15 @@ const Data = () => {
             <Chip size="small" label="ns p ≥ 0.05" sx={{ height: 20, fontSize: '0.68rem', backgroundColor: '#f1f5f9', color: '#64748b' }} />
           </Box>
         </Box>
+
+        {/* Message informatif sur la fusion des groupes */}
+        {mergeBlocks && (
+          <Box sx={{ px: 2, pb: 1.5, backgroundColor: '#ffffff' }}>
+            <Alert severity="info" sx={{ py: 0.4, borderRadius: 1.5, fontSize: '0.78rem' }}>
+              <strong>Groupes de contrebalancement fusionnés :</strong> les blocs (A1, A2, B1, B2...) sont agrégés afin de neutraliser les effets d&apos;ordre et comparer directement les modalités expérimentales avec l&apos;ensemble de la cohorte de participants.
+            </Alert>
+          </Box>
+        )}
       </Paper>
 
       {/* Liste des cartes de graphiques */}

@@ -3,8 +3,8 @@
   "description": "Notation des techniques de 0 à 10 et classement par préférence.",
   "fields": [
     {
-      "label": "Note : BalloonProbeAR",
-      "sublabel": "Attribuez une note de 0 à 10 à la technique BalloonProbeAR",
+      "label": "Note : Joystick",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique Joystick",
       "type": "range",
       "required": false,
       "min": 0,
@@ -14,8 +14,8 @@
       "labelMax": "10 - Excellent"
     },
     {
-      "label": "Note : ConeProbeAR",
-      "sublabel": "Attribuez une note de 0 à 10 à la technique ConeProbeAR",
+      "label": "Note : GoTo",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique GoTo",
       "type": "range",
       "required": false,
       "min": 0,
@@ -25,19 +25,8 @@
       "labelMax": "10 - Excellent"
     },
     {
-      "label": "Note : vMirrorAR",
-      "sublabel": "Attribuez une note de 0 à 10 à la technique vMirrorAR",
-      "type": "range",
-      "required": false,
-      "min": 0,
-      "max": 10,
-      "step": 1,
-      "labelMin": "0 - Très insatisfaisant",
-      "labelMax": "10 - Excellent"
-    },
-    {
-      "label": "Note : ARPortal",
-      "sublabel": "Attribuez une note de 0 à 10 à la technique ARPortal",
+      "label": "Note : IMU",
+      "sublabel": "Attribuez une note de 0 à 10 à la technique IMU",
       "type": "range",
       "required": false,
       "min": 0,
@@ -48,14 +37,13 @@
     },
     {
       "label": "Classement global",
-      "sublabel": "Classez les 4 techniques par ordre de préférence globale (glisser-déposer)",
+      "sublabel": "Classez les 3 techniques par ordre de préférence globale (glisser-déposer)",
       "type": "ranking",
       "required": false,
       "options": [
-        "BalloonProbeAR",
-        "ConeProbeAR",
-        "vMirrorAR",
-        "ARPortal"
+        "Joystick",
+        "GoTo",
+        "IMU"
       ]
     },
     {

@@ -1,1 +1,506 @@
-[]
+[
+  {
+    "id": "042c8468-139a-4fce-b4c9-f590dfaf28dd",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P01",
+      "Technique": "Joystick",
+      "Block": "A1"
+    },
+    "fieldsFields": {
+      "G1": 2,
+      "SP1": 3,
+      "SP2": 2,
+      "SP3": 2,
+      "SP4": 3,
+      "SP5": 2,
+      "INV1": 3,
+      "INV2": 3,
+      "INV3": 2,
+      "INV4": 1,
+      "REAL1": 1,
+      "REAL2": 1,
+      "REAL3": 3,
+      "REAL4": 2
+    }
+  },
+  {
+    "id": "ac75eb27-679f-4f4f-aac7-03300227688c",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P01",
+      "Technique": "GoTo",
+      "Block": "A1"
+    },
+    "fieldsFields": {
+      "G1": 0,
+      "SP1": 2,
+      "SP2": 2,
+      "SP3": 0,
+      "SP4": 0,
+      "SP5": 0,
+      "INV1": 2,
+      "INV2": 0,
+      "INV3": 2,
+      "INV4": 1,
+      "REAL1": 1,
+      "REAL2": 2,
+      "REAL3": 2,
+      "REAL4": 1
+    }
+  },
+  {
+    "id": "3aaccc46-74c6-4bc3-a65c-30c4761cc6bc",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P01",
+      "Technique": "IMU",
+      "Block": "A1"
+    },
+    "fieldsFields": {
+      "G1": 0,
+      "SP1": 0,
+      "SP2": 1,
+      "SP3": 1,
+      "SP4": -1,
+      "SP5": -1,
+      "INV1": 1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": 1,
+      "REAL1": 0,
+      "REAL2": 0,
+      "REAL3": 0,
+      "REAL4": -1
+    }
+  },
+  {
+    "id": "45f64a97-55e2-4b8c-9fcd-a5af529519b4",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P02",
+      "Technique": "Joystick",
+      "Block": "A2"
+    },
+    "fieldsFields": {
+      "G1": 1,
+      "SP1": 1,
+      "SP2": 2,
+      "SP3": 3,
+      "SP4": 3,
+      "SP5": 1,
+      "INV1": 3,
+      "INV2": 1,
+      "INV3": 3,
+      "INV4": 2,
+      "REAL1": 2,
+      "REAL2": 3,
+      "REAL3": 2,
+      "REAL4": 2
+    }
+  },
+  {
+    "id": "ebd9a062-bb78-416a-be67-0d0b1288abf0",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P02",
+      "Technique": "GoTo",
+      "Block": "A2"
+    },
+    "fieldsFields": {
+      "G1": 1,
+      "SP1": 2,
+      "SP2": 2,
+      "SP3": 0,
+      "SP4": 1,
+      "SP5": 1,
+      "INV1": 1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": 1,
+      "REAL1": 0,
+      "REAL2": 0,
+      "REAL3": 1,
+      "REAL4": 0
+    }
+  },
+  {
+    "id": "100b9a6c-0ea8-4f27-9c6f-e5fb899b569c",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P02",
+      "Technique": "IMU",
+      "Block": "A2"
+    },
+    "fieldsFields": {
+      "G1": -1,
+      "SP1": 0,
+      "SP2": 1,
+      "SP3": 0,
+      "SP4": 0,
+      "SP5": -1,
+      "INV1": 1,
+      "INV2": -1,
+      "INV3": -1,
+      "INV4": 0,
+      "REAL1": 1,
+      "REAL2": -1,
+      "REAL3": 1,
+      "REAL4": 0
+    }
+  },
+  {
+    "id": "e55c579b-5116-4632-b494-00635bccc747",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P03",
+      "Technique": "Joystick",
+      "Block": "B1"
+    },
+    "fieldsFields": {
+      "G1": 3,
+      "SP1": 2,
+      "SP2": 1,
+      "SP3": 3,
+      "SP4": 2,
+      "SP5": 1,
+      "INV1": 1,
+      "INV2": 2,
+      "INV3": 3,
+      "INV4": 3,
+      "REAL1": 2,
+      "REAL2": 3,
+      "REAL3": 3,
+      "REAL4": 1
+    }
+  },
+  {
+    "id": "67e9d16b-4bfc-473b-b674-eff6ea65f66f",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P03",
+      "Technique": "GoTo",
+      "Block": "B1"
+    },
+    "fieldsFields": {
+      "G1": 2,
+      "SP1": 1,
+      "SP2": 1,
+      "SP3": 0,
+      "SP4": 0,
+      "SP5": 2,
+      "INV1": 0,
+      "INV2": 2,
+      "INV3": 1,
+      "INV4": 1,
+      "REAL1": 0,
+      "REAL2": 1,
+      "REAL3": 0,
+      "REAL4": 0
+    }
+  },
+  {
+    "id": "e109a816-0ca6-47ae-92f4-5b3f53fdfe18",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P03",
+      "Technique": "IMU",
+      "Block": "B1"
+    },
+    "fieldsFields": {
+      "G1": 1,
+      "SP1": 1,
+      "SP2": 1,
+      "SP3": -1,
+      "SP4": 1,
+      "SP5": 1,
+      "INV1": -1,
+      "INV2": 0,
+      "INV3": 1,
+      "INV4": 0,
+      "REAL1": 0,
+      "REAL2": -1,
+      "REAL3": 1,
+      "REAL4": -1
+    }
+  },
+  {
+    "id": "4c98d334-c26c-46a1-b09c-9db240dab056",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P04",
+      "Technique": "Joystick",
+      "Block": "B2"
+    },
+    "fieldsFields": {
+      "G1": 2,
+      "SP1": 2,
+      "SP2": 1,
+      "SP3": 3,
+      "SP4": 3,
+      "SP5": 3,
+      "INV1": 1,
+      "INV2": 3,
+      "INV3": 2,
+      "INV4": 2,
+      "REAL1": 3,
+      "REAL2": 2,
+      "REAL3": 2,
+      "REAL4": 2
+    }
+  },
+  {
+    "id": "7a876cc5-7dc5-404f-8d89-63247c615871",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P04",
+      "Technique": "GoTo",
+      "Block": "B2"
+    },
+    "fieldsFields": {
+      "G1": 0,
+      "SP1": 0,
+      "SP2": 0,
+      "SP3": 1,
+      "SP4": 2,
+      "SP5": 0,
+      "INV1": 1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": 1,
+      "REAL1": 1,
+      "REAL2": 1,
+      "REAL3": 1,
+      "REAL4": 2
+    }
+  },
+  {
+    "id": "f055164f-63d6-4641-9414-e6233e3716bc",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P04",
+      "Technique": "IMU",
+      "Block": "B2"
+    },
+    "fieldsFields": {
+      "G1": -1,
+      "SP1": 1,
+      "SP2": 1,
+      "SP3": -1,
+      "SP4": 0,
+      "SP5": 0,
+      "INV1": -1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": 0,
+      "REAL1": 0,
+      "REAL2": 0,
+      "REAL3": 1,
+      "REAL4": 1
+    }
+  },
+  {
+    "id": "d5b1aede-fa30-4d74-bedd-473646fd1852",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P05",
+      "Technique": "Joystick",
+      "Block": "C1"
+    },
+    "fieldsFields": {
+      "G1": 2,
+      "SP1": 3,
+      "SP2": 2,
+      "SP3": 2,
+      "SP4": 1,
+      "SP5": 1,
+      "INV1": 1,
+      "INV2": 3,
+      "INV3": 3,
+      "INV4": 2,
+      "REAL1": 2,
+      "REAL2": 2,
+      "REAL3": 2,
+      "REAL4": 3
+    }
+  },
+  {
+    "id": "ca541df7-822f-49d7-9331-86da47677ef3",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P05",
+      "Technique": "GoTo",
+      "Block": "C1"
+    },
+    "fieldsFields": {
+      "G1": 0,
+      "SP1": 1,
+      "SP2": 2,
+      "SP3": 1,
+      "SP4": 0,
+      "SP5": 2,
+      "INV1": 0,
+      "INV2": 2,
+      "INV3": 2,
+      "INV4": 0,
+      "REAL1": 0,
+      "REAL2": 2,
+      "REAL3": 1,
+      "REAL4": 1
+    }
+  },
+  {
+    "id": "5333ef91-7a54-40ef-8222-07ee20f801ad",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P05",
+      "Technique": "IMU",
+      "Block": "C1"
+    },
+    "fieldsFields": {
+      "G1": -1,
+      "SP1": 1,
+      "SP2": -1,
+      "SP3": 0,
+      "SP4": 1,
+      "SP5": -1,
+      "INV1": -1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": -1,
+      "REAL1": 1,
+      "REAL2": 0,
+      "REAL3": 0,
+      "REAL4": 0
+    }
+  },
+  {
+    "id": "096606bf-92d9-4d6c-a21b-384ae3eb4b53",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P06",
+      "Technique": "Joystick",
+      "Block": "C2"
+    },
+    "fieldsFields": {
+      "G1": 2,
+      "SP1": 3,
+      "SP2": 3,
+      "SP3": 3,
+      "SP4": 2,
+      "SP5": 3,
+      "INV1": 2,
+      "INV2": 3,
+      "INV3": 1,
+      "INV4": 2,
+      "REAL1": 3,
+      "REAL2": 1,
+      "REAL3": 3,
+      "REAL4": 1
+    }
+  },
+  {
+    "id": "fbe3e120-7fa5-407e-9651-05f99bc94051",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P06",
+      "Technique": "GoTo",
+      "Block": "C2"
+    },
+    "fieldsFields": {
+      "G1": 1,
+      "SP1": 2,
+      "SP2": 2,
+      "SP3": 1,
+      "SP4": 0,
+      "SP5": 1,
+      "INV1": 1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": 0,
+      "REAL1": 0,
+      "REAL2": 1,
+      "REAL3": 1,
+      "REAL4": 1
+    }
+  },
+  {
+    "id": "7576e4f7-082a-47af-89b1-dd4c064690ff",
+    "name": "Igroup Presence",
+    "formID": 1,
+    "fieldsFile": "IPQ.json",
+    "paramFile": "UserID_TI_Block.json",
+    "parametersFields": {
+      "UserID": "P06",
+      "Technique": "IMU",
+      "Block": "C2"
+    },
+    "fieldsFields": {
+      "G1": 0,
+      "SP1": -1,
+      "SP2": 1,
+      "SP3": 0,
+      "SP4": -1,
+      "SP5": 0,
+      "INV1": -1,
+      "INV2": 0,
+      "INV3": 0,
+      "INV4": 1,
+      "REAL1": 0,
+      "REAL2": 0,
+      "REAL3": 1,
+      "REAL4": 0
+    }
+  }
+]

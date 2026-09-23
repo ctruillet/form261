@@ -10,6 +10,7 @@ import Participant from "./pages/Participant";
 import ParticipantAnswers from "./pages/ParticipantAnswers";
 import CreateForm from "./pages/CreateForm";
 import ManageForms from "./pages/ManageForms";
+import ProtocolManager from "./pages/ProtocolManager";
 
 import "./App.css";
 
@@ -25,6 +26,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/form" element={<Form />} />
               <Route path="/participant" element={<Participant />} />
+              <Route path="/protocol" element={<ProtocolManager />} />
               <Route path="/answers" element={<Answers />} />
               <Route path="/participant-answers" element={<ParticipantAnswers />} />
               <Route path="/data" element={<Data />} />

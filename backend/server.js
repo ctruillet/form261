@@ -5,6 +5,7 @@ const dataRoutes = require('./routes/dataRoutes');
 const parametersRoutes = require('./routes/parametersRoutes');
 const formRoutes = require('./routes/formRoutes');
 const participantRoutes = require('./routes/participantRoutes');
+const protocolRoutes = require('./routes/protocolRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -20,6 +21,7 @@ app.use('/api/parameters', parametersRoutes); // Routes liées aux parametres
 app.use('/api/data', dataRoutes); // Routes liées à la gestion des données
 app.use('/api/forms', formRoutes); // Routes liées aux formulaires
 app.use('/api/participants', participantRoutes); // Routes liées aux participants
+app.use('/api/protocol', protocolRoutes); // Routes liées au protocole et contrebalancement
 
 // Démarrer le serveur
 app.listen(PORT, () => console.log(`Serveur en écoute sur le port ${PORT}`));

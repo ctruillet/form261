@@ -24,6 +24,7 @@ const enrichForm = (form) => {
     ...form,
     description: desc,
     tag: form.tag || "",
+    timing: form.timing || (form.param === 'UserID_Block.json' ? 'pre' : 'post-modality'),
   };
 };
 
@@ -197,12 +198,25 @@ exports.createForm = (req, res) => {
         ? Math.max(...forms.map((f) => (Number(f.id) !== undefined && !isNaN(Number(f.id)) ? Number(f.id) : 0))) + 1
         : 0;
 
+    const resolvedTiming = req.body.timing || 'post-modality';
+    let resolvedParam = paramFile;
+    if (!resolvedParam || resolvedParam === 'auto') {
+      if (resolvedTiming === 'pre' || resolvedTiming === 'post') resolvedParam = 'UserID_Block.json';
+      else if (resolvedTiming === 'post-modality') resolvedParam = 'UserID_TI_Block.json';
+      else if (resolvedTiming === 'trial') resolvedParam = 'Active_Protocol.json';
+      else if (resolvedTiming === 'free') resolvedParam = '';
+      else resolvedParam = 'UserID_Block.json';
+    } else if (resolvedParam === 'none') {
+      resolvedParam = '';
+    }
+
     const newFormEntry = {
       name: name.trim(),
       fields: targetFileName,
-      param: paramFile || "UserID_Block.json",
+      param: resolvedParam,
       id: newId,
       tag: (tag || "").trim(),
+      timing: resolvedTiming,
       description: (description || "").trim(),
     };
 
@@ -302,8 +316,28 @@ exports.updateForm = (req, res) => {
     if (description !== undefined) {
       currentForm.description = (description || "").trim();
     }
-    if (paramFile) {
-      currentForm.param = paramFile;
+    if (paramFile !== undefined) {
+      if (paramFile === 'auto') {
+        const t = req.body.timing || currentForm.timing;
+        if (t === 'pre' || t === 'post') currentForm.param = 'UserID_Block.json';
+        else if (t === 'post-modality') currentForm.param = 'UserID_TI_Block.json';
+        else if (t === 'trial') currentForm.param = 'Active_Protocol.json';
+        else if (t === 'free') currentForm.param = '';
+        else currentForm.param = 'UserID_Block.json';
+      } else if (paramFile === 'none') {
+        currentForm.param = '';
+      } else {
+        currentForm.param = paramFile;
+      }
+    } else if (req.body.timing !== undefined) {
+      const t = req.body.timing;
+      if (t === 'pre' || t === 'post') currentForm.param = 'UserID_Block.json';
+      else if (t === 'post-modality') currentForm.param = 'UserID_TI_Block.json';
+      else if (t === 'trial') currentForm.param = 'Active_Protocol.json';
+      else if (t === 'free') currentForm.param = '';
+    }
+    if (req.body.timing !== undefined) {
+      currentForm.timing = req.body.timing;
     }
     forms[formIndex] = currentForm;
 

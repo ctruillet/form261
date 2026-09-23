@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Box from '@mui/material/Box';
@@ -13,6 +13,7 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
+import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 
 // Icons
@@ -46,6 +47,55 @@ const slugify = (text) => {
     .replace(/_+/g, '_');
 };
 
+const TIMING_OPTIONS = [
+  {
+    value: 'pre',
+    label: 'Au tout début (Pré-expérience)',
+    subtitle: 'Profil, consentement, données initiales ou démographiques',
+    paramFile: 'UserID_Block.json',
+  },
+  {
+    value: 'post-modality',
+    label: 'À la fin de chaque modalité',
+    subtitle: 'Évaluation par modalité/condition (NASA-TLX, SUS, Agency...)',
+    paramFile: 'UserID_TI_Block.json',
+  },
+  {
+    value: 'trial',
+    label: 'Au fil des essais (Par essai)',
+    subtitle: 'Évaluation répétée à chaque essai individuel du protocole',
+    paramFile: 'Active_Protocol.json',
+  },
+  {
+    value: 'post',
+    label: 'À la fin de l\'expérience (Clôture)',
+    subtitle: 'Classement global, debriefing, commentaires finaux',
+    paramFile: 'UserID_Block.json',
+  },
+  {
+    value: 'free',
+    label: 'Formulaire libre / Autonome',
+    subtitle: 'Administrable à tout moment ou hors protocole expérimental',
+    paramFile: 'none',
+  },
+];
+
+const TIMING_LABELS = {
+  pre: 'Pré-expérience',
+  'post-modality': 'Fin de modalité',
+  trial: 'Par essai',
+  post: 'Bilan final',
+  free: 'Libre / Autonome',
+};
+
+const getRecommendedParamFile = (timing) => {
+  if (timing === 'pre' || timing === 'post') return 'UserID_Block.json';
+  if (timing === 'post-modality') return 'UserID_TI_Block.json';
+  if (timing === 'trial') return 'Active_Protocol.json';
+  if (timing === 'free') return 'none';
+  return 'UserID_TI_Block.json';
+};
+
 const CreateForm = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -55,9 +105,10 @@ const CreateForm = () => {
   const [formName, setFormName] = useState('');
   const [formTag, setFormTag] = useState('');
   const [formDescription, setFormDescription] = useState('');
+  const [formTiming, setFormTiming] = useState('post-modality');
   const [fileName, setFileName] = useState('');
   const [isFileNameManuallyEdited, setIsFileNameManuallyEdited] = useState(false);
-  const [selectedParamFile, setSelectedParamFile] = useState('UserID_Block.json');
+  const [selectedParamFile, setSelectedParamFile] = useState('UserID_TI_Block.json');
   const [availableParamFiles, setAvailableParamFiles] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
 
@@ -105,21 +156,42 @@ const CreateForm = () => {
   const [createdFormInfo, setCreatedFormInfo] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Paramètre actuellement sélectionné et variables correspondantes
+  const selectedParamConfig = useMemo(() => {
+    if (!selectedParamFile || selectedParamFile === 'none' || formTiming === 'free') return null;
+    return availableParamFiles.find((p) => p.file === selectedParamFile);
+  }, [selectedParamFile, availableParamFiles, formTiming]);
+
+  const paramVariables = useMemo(() => {
+    if (formTiming === 'free' || selectedParamFile === 'none') return [];
+    if (selectedParamConfig?.fields && selectedParamConfig.fields.length > 0) {
+      return selectedParamConfig.fields.map((f) => f.label);
+    }
+    // Secours dynamique pendant le chargement
+    if (formTiming === 'pre' || formTiming === 'post') return ['UserID', 'Block'];
+    if (formTiming === 'post-modality') return ['UserID', 'Modalité (active)', 'Block'];
+    if (formTiming === 'trial') return ['UserID', 'TrialOrder', 'Facteurs', 'Block'];
+    return [];
+  }, [selectedParamConfig, formTiming, selectedParamFile]);
+
+  const handleTimingChange = (newTiming) => {
+    setFormTiming(newTiming);
+    setSelectedParamFile(getRecommendedParamFile(newTiming));
+  };
+
   // Charger la liste des fichiers de paramètres disponibles
   useEffect(() => {
     const fetchParams = async () => {
       try {
         const response = await axios.get('/api/parameters');
-        setAvailableParamFiles(response.data || []);
-        if (response.data && response.data.length > 0 && !isEditMode) {
-          setSelectedParamFile(response.data[0].file);
-        }
+        const list = response.data || [];
+        setAvailableParamFiles(list);
       } catch (error) {
         console.error('Erreur de chargement des paramètres :', error);
       }
     };
     fetchParams();
-  }, [isEditMode]);
+  }, []);
 
   // Si mode édition : charger les données du formulaire existant
   useEffect(() => {
@@ -135,10 +207,14 @@ const CreateForm = () => {
         setFormName(formData.name || '');
         setFormTag(formData.tag || '');
         setFormDescription(formData.description || '');
+        const timingVal = formData.timing || (formData.param === 'UserID_Block.json' ? 'pre' : 'post-modality');
+        setFormTiming(timingVal);
         setFileName(formData.fields || '');
         setIsFileNameManuallyEdited(true);
         if (formData.param) {
           setSelectedParamFile(formData.param);
+        } else {
+          setSelectedParamFile(getRecommendedParamFile(timingVal));
         }
 
         // Charger les questions depuis le fichier de champs
@@ -292,6 +368,7 @@ const CreateForm = () => {
           tag: formTag.trim(),
           description: formDescription.trim(),
           paramFile: selectedParamFile,
+          timing: formTiming,
           fields: fields,
         };
 
@@ -310,6 +387,7 @@ const CreateForm = () => {
           description: formDescription.trim(),
           fileName: fileName.trim() || `${slugify(formName)}.json`,
           paramFile: selectedParamFile,
+          timing: formTiming,
           fields: fields,
         };
 
@@ -371,7 +449,8 @@ const CreateForm = () => {
             {formTag && <Chip label={formTag} size="small" sx={{ backgroundColor: '#eff6ff', color: '#1d4ed8' }} />}
           </Box>
           <Typography variant="body2" color="text.secondary">
-            {fields.length} question{fields.length > 1 ? 's' : ''} • Structure : {selectedParamFile}
+            {fields.length} question{fields.length > 1 ? 's' : ''} • Jalon : {TIMING_LABELS[formTiming] || formTiming}
+            {paramVariables.length > 0 && ` (${paramVariables.join(', ')})`}
           </Typography>
         </Box>
 
@@ -455,10 +534,10 @@ const CreateForm = () => {
         </Alert>
       )}
 
-      {/* Carte des Métadonnées */}
+      {/* Carte des Métadonnées & Contexte Expérimental */}
       <Paper elevation={1} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
         <Typography variant="h6" fontWeight={600} gutterBottom color="primary">
-          1. Paramètres généraux du questionnaire
+          1. Configuration générale et contexte expérimental
         </Typography>
 
         <Stack spacing={2.5} sx={{ mt: 2 }}>
@@ -471,40 +550,15 @@ const CreateForm = () => {
             onChange={(e) => handleNameChange(e.target.value)}
           />
 
-          <TextField
-            fullWidth
-            label="Catégorie ou Tag (optionnel)"
-            value={formTag}
-            placeholder="Ex: Charge mentale, Utilisabilité, Immersion, Profil, etc."
-            helperText="Affiché sur la carte du formulaire (accueil) et dans la liste de gestion."
-            onChange={(e) => setFormTag(e.target.value)}
-          />
-
-          <TextField
-            fullWidth
-            multiline
-            rows={2}
-            label="Consigne ou description pour le participant"
-            value={formDescription}
-            placeholder="Ex: Évaluez votre perception de contrôle sur vos actions à l'aide des affirmations ci-dessous."
-            onChange={(e) => setFormDescription(e.target.value)}
-          />
-
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
-              select
               fullWidth
-              label="Fichier de paramètres associé (Expérimentation)"
-              value={selectedParamFile}
-              onChange={(e) => setSelectedParamFile(e.target.value)}
-              helperText="Définit les variables indépendantes (UserID, Block, Technique, etc.)"
-            >
-              {availableParamFiles.map((param, index) => (
-                <MenuItem key={index} value={param.file}>
-                  {param.title ? `${param.title} (${param.file})` : param.file}
-                </MenuItem>
-              ))}
-            </TextField>
+              label="Catégorie ou Tag (optionnel)"
+              value={formTag}
+              placeholder="Ex: Charge mentale, Utilisabilité, Immersion, Profil..."
+              helperText="Affiché sur la carte du formulaire et dans le cockpit."
+              onChange={(e) => setFormTag(e.target.value)}
+            />
 
             <TextField
               fullWidth
@@ -516,10 +570,82 @@ const CreateForm = () => {
               helperText={
                 isEditMode
                   ? 'Fichier associé dans backend/fields/ (non modifiable)'
-                  : 'Enregistré dans backend/fields/'
+                  : 'Enregistré automatiquement dans backend/fields/'
               }
             />
           </Stack>
+
+          <TextField
+            fullWidth
+            multiline
+            rows={2}
+            label="Consigne ou description pour le participant"
+            value={formDescription}
+            placeholder="Ex: Évaluez votre perception de contrôle sur vos actions à l'aide des affirmations ci-dessous."
+            onChange={(e) => setFormDescription(e.target.value)}
+          />
+
+          <Divider sx={{ my: 1 }} />
+
+          {/* Section Jalon & Variables sauvegardées */}
+          <Box>
+            <Typography variant="subtitle1" fontWeight={700} color="#0f172a" sx={{ mb: 0.5 }}>
+              Jalon et Variables sauvegardées
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              Indiquez à quel moment ce questionnaire s&apos;insère dans l&apos;expérimentation. Les variables contextuelles (participant, modalité, essai, bloc) sont configurées automatiquement selon le jalon sélectionné.
+            </Typography>
+
+            <TextField
+              select
+              fullWidth
+              label="Moment de passation (Jalon expérimental)"
+              value={formTiming}
+              onChange={(e) => handleTimingChange(e.target.value)}
+              helperText="Définit à quelle étape de la session le formulaire est administré"
+            >
+              {TIMING_OPTIONS.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  <strong>{opt.label}</strong> — {opt.subtitle}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            {/* Récapitulatif visuel direct des variables capturées */}
+            {paramVariables.length > 0 ? (
+              <Box sx={{ mt: 2, p: 2, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
+                <Typography variant="caption" fontWeight={800} color="#166534" sx={{ textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', mb: 1 }}>
+                  📌 Facteurs & Variables enregistrés automatiquement avec chaque réponse ({paramVariables.length}) :
+                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 0.5 }}>
+                  {paramVariables.map((v, i) => (
+                    <Chip
+                      key={i}
+                      label={v}
+                      size="small"
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.78rem',
+                        backgroundColor: '#dcfce7',
+                        color: '#15803d',
+                        border: '1px solid #86efac',
+                        py: 0.5,
+                      }}
+                    />
+                  ))}
+                </Stack>
+                {selectedParamConfig?.description && (
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                    {selectedParamConfig.description}
+                  </Typography>
+                )}
+              </Box>
+            ) : formTiming === 'free' || selectedParamFile === 'none' ? (
+              <Alert severity="info" sx={{ mt: 2, py: 0.5, borderRadius: 2 }}>
+                <strong>Formulaire autonome :</strong> aucune variable expérimentale ne sera exigée lors de la passation.
+              </Alert>
+            ) : null}
+          </Box>
         </Stack>
       </Paper>
 
@@ -557,9 +683,25 @@ const CreateForm = () => {
                     {formDescription}
                   </Typography>
                 )}
-                <Typography variant="caption" color="primary" sx={{ display: 'block', mt: 1 }}>
-                  Paramètre associé : <strong>{selectedParamFile}</strong>
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Facteurs enregistrés :
+                  </Typography>
+                  {paramVariables.length > 0 ? (
+                    paramVariables.map((v, i) => (
+                      <Chip
+                        key={i}
+                        label={v}
+                        size="small"
+                        sx={{ height: 20, fontSize: '0.7rem', bgcolor: '#dcfce7', color: '#166534', fontWeight: 700, border: '1px solid #bbf7d0' }}
+                      />
+                    ))
+                  ) : (
+                    <Typography variant="caption" color="text.secondary">
+                      <em>Aucun (formulaire autonome)</em>
+                    </Typography>
+                  )}
+                </Box>
               </Box>
 
               {fields.length === 0 ? (

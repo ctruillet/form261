@@ -1,57 +1,44 @@
 [
   {
-    "id": "1",
-    "UserID": "1",
-    "Block": "A",
-    "formCount": 9,
-    "forms": [
-      "Questionnaire démographique",
-      "Sense of Agency Scale",
-      "NASA-TLX",
-      "SUS"
-    ],
-    "blocks": [
-      "A"
-    ],
-    "techniques": [
-      "vMirrorAR",
-      "ConeProbeAR",
-      "BalloonProbeAR"
-    ]
+    "id": "P01",
+    "UserID": "P01",
+    "Block": "A1",
+    "currentTrialIndex": 7,
+    "notes": "Sujet très attentif, habitué aux jeux vidéo"
   },
   {
-    "id": "2",
-    "UserID": "2",
-    "Block": "A"
+    "id": "P02",
+    "UserID": "P02",
+    "Block": "A2",
+    "currentTrialIndex": 7,
+    "notes": "Pratique occasionnelle de la VR"
   },
   {
-    "id": "3",
-    "UserID": "3",
-    "Block": "A"
+    "id": "P03",
+    "UserID": "P03",
+    "Block": "B1",
+    "currentTrialIndex": 7,
+    "notes": "Première expérience avec guidage 3D"
   },
   {
-    "id": "4",
-    "UserID": "4",
-    "Block": "A"
+    "id": "P04",
+    "UserID": "P04",
+    "Block": "B2",
+    "currentTrialIndex": 7,
+    "notes": "Ingénieur en robotique, bonne dextérité"
   },
   {
-    "id": "5",
-    "UserID": "5",
-    "Block": "A"
+    "id": "P05",
+    "UserID": "P05",
+    "Block": "C1",
+    "currentTrialIndex": 7,
+    "notes": "Léger temps d'adaptation sur l'IMU"
   },
   {
-    "id": "6",
-    "UserID": "6",
-    "Block": "A"
-  },
-  {
-    "id": "7",
-    "UserID": "7",
-    "Block": "A"
-  },
-  {
-    "id": "8",
-    "UserID": "8",
-    "Block": "A"
+    "id": "P06",
+    "UserID": "P06",
+    "Block": "C2",
+    "currentTrialIndex": 7,
+    "notes": "Excellente compréhension des consignes"
   }
 ]

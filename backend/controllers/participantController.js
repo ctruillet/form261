@@ -103,10 +103,39 @@ exports.createParticipant = (req, res) => {
       return res.status(409).json({ message: `Le participant #${userId} existe déjà` });
     }
 
+    const protocolFilePath = path.join(__dirname, '../protocol.json');
+    let defaultBlock = data.Block;
+    if (!defaultBlock) {
+      try {
+        if (fs.existsSync(protocolFilePath)) {
+          const protocol = JSON.parse(fs.readFileSync(protocolFilePath, 'utf8') || '{}');
+          const blockKeys = Object.keys(protocol.blocks || {});
+          if (blockKeys.length > 0) {
+            const counts = {};
+            blockKeys.forEach(k => { counts[k] = 0; });
+            participants.forEach(p => {
+              if (p.Block && counts[p.Block] !== undefined) counts[p.Block]++;
+            });
+            let minCount = Infinity;
+            blockKeys.forEach(k => {
+              if (counts[k] < minCount) {
+                minCount = counts[k];
+                defaultBlock = k;
+              }
+            });
+          }
+        }
+      } catch (e) {
+        defaultBlock = 'A';
+      }
+    }
+
     const newParticipant = {
       id: userId,
       UserID: userId,
+      currentTrialIndex: 1,
       ...data,
+      Block: defaultBlock || 'A',
     };
 
     participants.push(newParticipant);

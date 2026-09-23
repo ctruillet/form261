@@ -1,0 +1,134 @@
+[
+  {
+    "id": "44b2516a-a257-4625-aea1-e9e6091ec713",
+    "name": "Ranking",
+    "formID": 6,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P01",
+      "Block": "A1"
+    },
+    "fieldsFields": {
+      "Note : Joystick": 9,
+      "Note : GoTo": 7,
+      "Note : IMU": 5,
+      "Classement global": [
+        "Joystick",
+        "GoTo",
+        "IMU"
+      ],
+      "Commentaires et nuances": "Le Joystick est de loin le plus précis et le plus reposant. L'IMU demande trop de tension dans l'avant-bras."
+    }
+  },
+  {
+    "id": "08838bf2-c78d-410f-bfb7-db0546010ad4",
+    "name": "Ranking",
+    "formID": 6,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P02",
+      "Block": "A2"
+    },
+    "fieldsFields": {
+      "Note : Joystick": 8,
+      "Note : GoTo": 8,
+      "Note : IMU": 4,
+      "Classement global": [
+        "GoTo",
+        "Joystick",
+        "IMU"
+      ],
+      "Commentaires et nuances": "GoTo est très agréable pour les longues distances. Joystick très précis pour l'ajustement fin."
+    }
+  },
+  {
+    "id": "8b26a991-fc03-4fa9-8cb5-45dcad93b86b",
+    "name": "Ranking",
+    "formID": 6,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P03",
+      "Block": "B1"
+    },
+    "fieldsFields": {
+      "Note : Joystick": 9,
+      "Note : GoTo": 6,
+      "Note : IMU": 5,
+      "Classement global": [
+        "Joystick",
+        "GoTo",
+        "IMU"
+      ],
+      "Commentaires et nuances": "Prise en main immédiate du Joystick. Le GoTo manque parfois d'anticipation."
+    }
+  },
+  {
+    "id": "a1543bd0-7382-4280-b332-9ec32e94944f",
+    "name": "Ranking",
+    "formID": 6,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P04",
+      "Block": "B2"
+    },
+    "fieldsFields": {
+      "Note : Joystick": 8,
+      "Note : GoTo": 9,
+      "Note : IMU": 6,
+      "Classement global": [
+        "GoTo",
+        "Joystick",
+        "IMU"
+      ],
+      "Commentaires et nuances": "GoTo permet d'aller très vite sur les cibles éloignées. L'IMU a du potentiel mais tremble un peu."
+    }
+  },
+  {
+    "id": "770af109-3adc-4c9a-bd92-427a95856d11",
+    "name": "Ranking",
+    "formID": 6,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P05",
+      "Block": "C1"
+    },
+    "fieldsFields": {
+      "Note : Joystick": 9,
+      "Note : GoTo": 7,
+      "Note : IMU": 4,
+      "Classement global": [
+        "Joystick",
+        "GoTo",
+        "IMU"
+      ],
+      "Commentaires et nuances": "Excellente fluidité avec le joystick physique. L'IMU m'a semblé fatiguant après quelques minutes."
+    }
+  },
+  {
+    "id": "01fc548f-e8b6-47b6-9f4a-659a03cb7f2c",
+    "name": "Ranking",
+    "formID": 6,
+    "fieldsFile": "Ranking.json",
+    "paramFile": "UserID_Block.json",
+    "parametersFields": {
+      "UserID": "P06",
+      "Block": "C2"
+    },
+    "fieldsFields": {
+      "Note : Joystick": 10,
+      "Note : GoTo": 7,
+      "Note : IMU": 5,
+      "Classement global": [
+        "Joystick",
+        "GoTo",
+        "IMU"
+      ],
+      "Commentaires et nuances": "Très nette préférence pour le Joystick. GoTo est intéressant en complément."
+    }
+  }
+]

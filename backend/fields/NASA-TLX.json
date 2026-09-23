@@ -1,72 +1,72 @@
 {
   "title": "NASA-TLX",
-  "description": "Évaluez la charge de travail perçue en fonction des six dimensions ci-dessous.",
+  "description": "Évaluez la charge de travail perçue en fonction des six dimensions.",
   "fields": [
     {
       "label": "Demande Mentale",
       "sublabel": "Dans quelle mesure la tâche était-elle exigeante sur le plan mental ?",
       "type": "range",
+      "required": true,
       "min": 0,
       "max": 100,
-      "labelMin": "Bas",
-      "labelMax": "Haut",
       "step": 5,
-      "required": true
+      "labelMin": "Bas",
+      "labelMax": "Haut"
     },
     {
       "label": "Demande Physique",
       "sublabel": "Dans quelle mesure la tâche était-elle physiquement exigeante ?",
       "type": "range",
+      "required": true,
       "min": 0,
       "max": 100,
-      "labelMin": "Bas",
-      "labelMax": "Haut",
       "step": 5,
-      "required": true
+      "labelMin": "Bas",
+      "labelMax": "Haut"
     },
     {
       "label": "Demande Temporelle",
       "sublabel": "Dans quelle mesure le rythme de la tâche était-il pressé ou précipité ?",
       "type": "range",
+      "required": true,
       "min": 0,
       "max": 100,
-      "labelMin": "Faible",
-      "labelMax": "Elevée",
       "step": 5,
-      "required": true
+      "labelMin": "Faible",
+      "labelMax": "Elevée"
     },
     {
       "label": "Performance",
       "sublabel": "Dans quelle mesure avez-vous réussi à accomplir ce qui vous était demandé ?",
       "type": "range",
+      "required": true,
       "min": 0,
       "max": 100,
-      "labelMin": "Bonne",
-      "labelMax": "Faible",
       "step": 5,
-      "required": true
+      "labelMin": "Bonne",
+      "labelMax": "Faible"
     },
     {
       "label": "Effort",
       "sublabel": "Quels efforts avez-vous dû fournir pour atteindre votre niveau de performance ?",
       "type": "range",
+      "required": true,
       "min": 0,
       "max": 100,
-      "labelMin": "Bas",
-      "labelMax": "Haut",
       "step": 5,
-      "required": true
+      "labelMin": "Bas",
+      "labelMax": "Haut"
     },
     {
       "label": "Frustration",
       "sublabel": "Dans quelle mesure étiez-vous inquiet, découragé, irrité, stressé et ennuyé ?",
       "type": "range",
+      "required": true,
       "min": 0,
       "max": 100,
-      "labelMin": "Bas",
-      "labelMax": "Haut",
       "step": 5,
-      "required": true
+      "labelMin": "Bas",
+      "labelMax": "Haut"
     }
   ]
 }

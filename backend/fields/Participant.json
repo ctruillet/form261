@@ -1,22 +1,27 @@
 {
-  "title": "Expé Pointing at Occluded Objects",
-  "description": "",
+  "title": "Questionnaire démographique",
+  "description": "Informations générales sur le participant (âge, genre, profil).",
   "fields": [
     {
       "label": "J'ai bien signé le formulaire de consentement.",
       "sublabel": "",
       "type": "choice",
-      "options": ["Oui"],
-      "otherChoice" : false,
-      "required": true
+      "required": true,
+      "options": [
+        "Oui"
+      ],
+      "otherChoice": false
     },
     {
       "label": "Genre",
       "sublabel": "A quel genre vous vous auto-identifiez vous ?",
       "type": "choice",
-      "options": ["Femme", "Homme"],
-      "otherChoice" : true,
-      "required": true
+      "required": true,
+      "options": [
+        "Femme",
+        "Homme"
+      ],
+      "otherChoice": true
     },
     {
       "label": "Âge",
@@ -28,14 +33,20 @@
       "label": "Profession",
       "sublabel": "Dans la vie, je suis (métier)",
       "type": "choice",
-      "options": ["Doctorant", "Etudiant", "Enseignant", "Ingénieur"],
-      "otherChoice" : true,
-      "required": true
+      "required": true,
+      "options": [
+        "Doctorant",
+        "Etudiant",
+        "Enseignant",
+        "Ingénieur"
+      ],
+      "otherChoice": true
     },
     {
       "label": "Droit à l'oubli",
       "sublabel": "A tout moment, je peux demander, en vertu du droit à l'oubli, demander la suppression de mes données issues de cette expérience par simple mail à clement.truillet@enac.fr",
-      "type": "information"
+      "type": "information",
+      "required": false
     }
   ]
 }

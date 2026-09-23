@@ -11,6 +11,7 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Tooltip from '@mui/material/Tooltip';
 import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
 
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -20,6 +21,8 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PersonIcon from '@mui/icons-material/Person';
+import ScienceIcon from '@mui/icons-material/Science';
+import SkipNextIcon from '@mui/icons-material/SkipNext';
 
 import { ParticipantContext } from '../context/ParticipantContext';
 import '../styles/Home.css';
@@ -33,7 +36,14 @@ const Home = () => {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const { participantData } = useContext(ParticipantContext);
+  const {
+    participantData,
+    currentTrialIndex,
+    currentTrial,
+    activeTrials,
+    activeFactors = {},
+    nextTrial
+  } = useContext(ParticipantContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -172,6 +182,108 @@ const Home = () => {
         </div>
       </div>
 
+      {/* BANNIÈRE COCKPIT : Session active ou invitation à démarrer */}
+      {participantData?.UserID ? (
+        <Paper
+          sx={{
+            p: 2,
+            mb: 3,
+            borderRadius: '12px',
+            backgroundColor: '#eff6ff',
+            border: '1.5px solid #bfdbfe',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 2
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <ScienceIcon sx={{ color: '#2563eb', fontSize: 28 }} />
+            <div>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Typography variant="subtitle1" fontWeight={800} color="#1e3a8a">
+                  Session en cours : Sujet #{participantData.UserID}
+                </Typography>
+                <Chip
+                  label={`Bloc ${participantData.Block}`}
+                  size="small"
+                  sx={{ height: 22, fontWeight: 700, backgroundColor: '#dbeafe', color: '#1e40af' }}
+                />
+                <Chip
+                  label={`Essai ${currentTrialIndex} / ${activeTrials.length || 8}`}
+                  size="small"
+                  color="primary"
+                  sx={{ height: 22, fontWeight: 800 }}
+                />
+              </Box>
+              {Object.entries(activeFactors).length > 0 && (
+                <Typography variant="body2" color="#334155" sx={{ mt: 0.3 }}>
+                  Conditions : <strong>{Object.entries(activeFactors).map(([k, v]) => `${k} : ${v}`).join(' • ')}</strong>
+                </Typography>
+              )}
+            </div>
+          </Box>
+
+          <Stack direction="row" spacing={1}>
+            {currentTrialIndex < (activeTrials.length || 8) && (
+              <Button
+                size="small"
+                variant="outlined"
+                endIcon={<SkipNextIcon />}
+                onClick={nextTrial}
+                sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '8px' }}
+              >
+                Essai suiv.
+              </Button>
+            )}
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => navigate('/participant')}
+              sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '8px', backgroundColor: '#2563eb' }}
+            >
+              Guide pas-à-pas
+            </Button>
+          </Stack>
+        </Paper>
+      ) : (
+        <Paper
+          sx={{
+            p: 2,
+            mb: 3,
+            borderRadius: '12px',
+            backgroundColor: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 2
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <PersonIcon sx={{ color: '#64748b', fontSize: 26 }} />
+            <div>
+              <Typography variant="subtitle2" fontWeight={700} color="#1e293b">
+                Aucune session de passation active
+              </Typography>
+              <Typography variant="caption" color="#64748b">
+                Démarrez une session de sujet pour bénéficier du contrebalancement automatique des facteurs expérimentaux.
+              </Typography>
+            </div>
+          </Box>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => navigate('/participant')}
+            sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '8px' }}
+          >
+            Démarrer un sujet
+          </Button>
+        </Paper>
+      )}
+
       {/* Barre d'outils : Recherche */}
       <div className="home-toolbar">
         <div className="search-container">
@@ -239,7 +351,35 @@ const Home = () => {
                     <AssignmentIcon fontSize="small" />
                   </div>
 
-                  <Stack direction="row" spacing={0.5} alignItems="center">
+                  <Stack direction="row" spacing={0.5} alignItems="center" flexWrap="wrap">
+                    {form.timing === 'pre' && (
+                      <Chip
+                        label="Pré-expérience"
+                        size="small"
+                        sx={{ height: '22px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                      />
+                    )}
+                    {form.timing === 'post-modality' && (
+                      <Chip
+                        label="Fin de modalité"
+                        size="small"
+                        sx={{ height: '22px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#f3e8ff', color: '#7e22ce' }}
+                      />
+                    )}
+                    {form.timing === 'trial' && (
+                      <Chip
+                        label="Par essai"
+                        size="small"
+                        sx={{ height: '22px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#fef3c7', color: '#b45309' }}
+                      />
+                    )}
+                    {form.timing === 'post' && (
+                      <Chip
+                        label="Bilan final"
+                        size="small"
+                        sx={{ height: '22px', fontSize: '0.7rem', fontWeight: 700, backgroundColor: '#dcfce7', color: '#15803d' }}
+                      />
+                    )}
                     {form.tag && (
                       <Chip
                         label={form.tag}
@@ -280,13 +420,68 @@ const Home = () => {
                     </div>
                   )}
 
-                  <div className="form-card-files">
-                    <div className="form-card-file-item">
-                      📄 {form.fields}
-                    </div>
-                    {form.param && (
+                  <div className="form-card-files" style={{ marginTop: '8px' }}>
+                    {participantData?.UserID ? (
+                      form.timing === 'pre' ? (
+                        <Chip
+                          label={`Questionnaire initial • Participant #${participantData.UserID}`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#e0f2fe',
+                            color: '#0369a1',
+                            fontWeight: 700,
+                            fontSize: '0.72rem',
+                            height: 24,
+                            maxWidth: '100%'
+                          }}
+                        />
+                      ) : form.timing === 'post' ? (
+                        <Chip
+                          label={`Bilan final • Participant #${participantData.UserID}`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#dcfce7',
+                            color: '#15803d',
+                            fontWeight: 700,
+                            fontSize: '0.72rem',
+                            height: 24,
+                            maxWidth: '100%'
+                          }}
+                        />
+                      ) : form.timing === 'post-modality' ? (
+                        <Chip
+                          label={`Évaluation de modalité (${Object.values(activeFactors)[0] || 'active'})`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#f3e8ff',
+                            color: '#7e22ce',
+                            fontWeight: 700,
+                            fontSize: '0.72rem',
+                            height: 24,
+                            maxWidth: '100%'
+                          }}
+                        />
+                      ) : (
+                        <Chip
+                          label={`Essai #${currentTrialIndex}${
+                            Object.values(activeFactors).length > 0
+                              ? ` (${Object.values(activeFactors).join(' • ')})`
+                              : ''
+                          }`}
+                          size="small"
+                          sx={{
+                            backgroundColor: '#eff6ff',
+                            color: '#1d4ed8',
+                            fontWeight: 700,
+                            fontSize: '0.72rem',
+                            height: 24,
+                            maxWidth: '100%'
+                          }}
+                        />
+                      )
+                    ) : (
                       <div className="form-card-file-item">
-                        ⚙️ {formatParamName(form.param)}
+                        📋 {form.fields.replace('.json', '')}
                       </div>
                     )}
                   </div>
@@ -314,7 +509,9 @@ const Home = () => {
                     },
                   }}
                 >
-                  Lancer la passation
+                  {participantData?.UserID
+                    ? `Passer ce questionnaire (Essai ${currentTrialIndex})`
+                    : 'Lancer la passation'}
                 </Button>
               </div>
             </div>
