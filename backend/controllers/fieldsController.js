@@ -1,44 +1,39 @@
-const fs = require('fs');
 const path = require('path');
+const { readJson, listJsonFiles, safeJsonFileName } = require('../services/fileService');
 
-// Chemin vers le dossier contenant les formulaires et les paramètres
+// Chemin vers le dossier contenant les définitions de questions
 const fieldsDirectory = path.join(__dirname, '../fields');
 
 // Méthode pour obtenir la liste des formulaires
 exports.getFields = (req, res) => {
-  fs.readdir(fieldsDirectory, (err, files) => {
-    if (err) return res.status(500).send(err);
-    const jsonFiles = (files || []).filter((file) => path.extname(file) === '.json');
+  try {
     const fields = [];
-
-    jsonFiles.forEach((file) => {
+    listJsonFiles(fieldsDirectory).forEach((file) => {
       try {
-        const content = JSON.parse(fs.readFileSync(path.join(fieldsDirectory, file), 'utf8'));
-        fields.push({ ...content, file });
+        const content = readJson(path.join(fieldsDirectory, file), null);
+        if (content) fields.push({ ...content, file });
       } catch (error) {
         console.error(`Erreur de lecture du fichier fields ${file}:`, error);
       }
     });
-
     res.json(fields);
-  });
+  } catch (err) {
+    console.error('Erreur getFields:', err);
+    res.status(500).send('Erreur lors de la lecture des formulaires');
+  }
 };
 
 // Méthode pour obtenir un formulaire spécifique
 exports.getFieldsByName = (req, res) => {
-  let fieldsName = req.params.fieldsName;
-  if (!fieldsName.endsWith('.json')) {
-    fieldsName = `${fieldsName}.json`;
-  }
-  const fieldsPath = path.join(fieldsDirectory, fieldsName);
+  const fileName = safeJsonFileName(req.params.fieldsName);
+  if (!fileName) return res.status(400).send('Nom de formulaire invalide');
 
-  fs.readFile(fieldsPath, 'utf8', (err, data) => {
-    if (err) return res.status(404).send('Form not found');
-    try {
-      res.json(JSON.parse(data));
-    } catch (parseErr) {
-      console.error('Erreur de parsing:', parseErr);
-      res.status(500).send('Erreur lors de la lecture du formulaire');
-    }
-  });
+  try {
+    const content = readJson(path.join(fieldsDirectory, fileName), null);
+    if (!content) return res.status(404).send('Form not found');
+    res.json(content);
+  } catch (parseErr) {
+    console.error('Erreur de parsing:', parseErr);
+    res.status(500).send('Erreur lors de la lecture du formulaire');
+  }
 };

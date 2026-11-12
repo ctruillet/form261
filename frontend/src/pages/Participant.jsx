@@ -21,8 +21,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 
 // Icons
 import PersonIcon from '@mui/icons-material/Person';
@@ -39,7 +37,6 @@ import ClearIcon from '@mui/icons-material/Clear';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AssignmentIcon from '@mui/icons-material/Assignment';
 import ScienceIcon from '@mui/icons-material/Science';
 
 import { ParticipantContext } from '../context/ParticipantContext';
@@ -264,9 +261,20 @@ const getModalityColor = (str) => {
   };
 
   // Passer au sujet suivant (+1)
-  const handleNextSubject = () => {
+  const handleNextSubject = async () => {
+    if (submitting) return;
     const currentId = participantData?.UserID || newUserId || '0';
     const nextId = getNextUserId(currentId);
+
+    // Le sujet suivant existe déjà : reprendre sa session avec SON bloc enregistré
+    const existing = participantsList.find((p) => String(p.UserID || p.id) === nextId);
+    if (existing) {
+      handleActivateParticipant(existing);
+      return;
+    }
+
+    // Sinon l'enregistrer côté serveur (bloc équilibré) avant de l'activer : un sujet
+    // seulement local ne serait pas compté dans l'équilibrage des blocs.
     const nextBlock = protocolStats?.suggestedBlock || 'A1';
     const payload = {
       id: nextId,
@@ -275,15 +283,27 @@ const getModalityColor = (str) => {
       currentTrialIndex: 1
     };
 
-    updateParticipant(payload);
-    setNewUserId(getNextUserId(nextId));
-    setNewBlock(nextBlock);
+    setSubmitting(true);
+    try {
+      const response = await axios.post('/api/participants', payload);
+      const created = response.data || payload;
+      updateParticipant({ ...payload, Block: created.Block || nextBlock });
+      setNewUserId(getNextUserId(nextId));
+      setNewBlock('');
 
-    setPopup({
-      open: true,
-      message: `Passage au Sujet suivant : #${nextId} (Groupe ${nextBlock})`,
-      severity: 'success'
-    });
+      setPopup({
+        open: true,
+        message: `Passage au Sujet suivant : #${nextId} (Groupe ${created.Block || nextBlock})`,
+        severity: 'success'
+      });
+      await fetchData();
+    } catch (err) {
+      console.error('Erreur création du sujet suivant:', err);
+      const msg = err.response?.data?.message || 'Erreur lors de la création du sujet suivant.';
+      setPopup({ open: true, message: msg, severity: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Suppression d'un participant
@@ -294,7 +314,7 @@ const getModalityColor = (str) => {
     const targetId = String(target.UserID || target.id);
     setDeleting(true);
     try {
-      await axios.delete(`/api/participants/${targetId}`);
+      await axios.delete(`/api/participants/${encodeURIComponent(targetId)}`);
 
       if (String(participantData?.UserID) === targetId) {
         clearParticipant();
@@ -341,31 +361,40 @@ const getModalityColor = (str) => {
     return availableForms.filter((f) => f.timing === 'post');
   }, [availableForms]);
 
-  // Compter le nombre de réponses d'un participant pour un formulaire (et optionnellement un facteur donné)
-  const getParticipantResponsesCount = useCallback((formFields, factorKey, factorValue) => {
-    if (!participantData?.UserID || !allResponses || allResponses.length === 0) return 0;
-    let count = 0;
+  // Réponses du participant actif pour un formulaire (et optionnellement un facteur donné),
+  // dans l'ordre d'enregistrement (la plus récente en dernier)
+  const getParticipantResponses = useCallback((formFields, factorKey, factorValue) => {
+    if (!participantData?.UserID || !allResponses || allResponses.length === 0) return [];
+    const found = [];
     allResponses.forEach((fileItem) => {
-      if (!fileItem.content) return;
+      if (!Array.isArray(fileItem.content)) return;
       fileItem.content.forEach((resp) => {
-        if (resp.fieldsFile !== formFields) return;
+        if (!resp || resp.fieldsFile !== formFields) return;
         const uid = resp.parametersFields?.UserID;
         if (String(uid) !== String(participantData.UserID)) return;
         if (factorKey && factorValue !== undefined) {
           const respFactorVal = resp.parametersFields?.[factorKey];
           if (String(respFactorVal) !== String(factorValue)) return;
         }
-        count++;
+        found.push(resp);
       });
     });
-    return count;
+    return found;
   }, [participantData?.UserID, allResponses]);
 
-  // Lancer un formulaire avec ses paramètres spécifiques
-  const handleLaunchSpecificForm = (form, extraParams = {}) => {
+  const getParticipantResponsesCount = useCallback(
+    (formFields, factorKey, factorValue) => getParticipantResponses(formFields, factorKey, factorValue).length,
+    [getParticipantResponses]
+  );
+
+  // Lancer un formulaire avec ses paramètres spécifiques.
+  // Si `existingResponseId` est fourni, la réponse existante est ouverte en modification
+  // (au lieu de créer un doublon).
+  const handleLaunchSpecificForm = (form, extraParams = {}, existingResponseId = null) => {
     const query = new URLSearchParams();
     query.set('fields', form.fields || '');
     query.set('param', form.param || '');
+    if (existingResponseId) query.set('id', existingResponseId);
     if (participantData?.UserID) query.set('UserID', participantData.UserID);
     if (participantData?.Block) query.set('Block', participantData.Block);
 
@@ -378,9 +407,11 @@ const getModalityColor = (str) => {
     navigate(`/form?${query.toString()}`);
   };
 
-  // Lancer un formulaire directement pour l'essai courant
-  const handleLaunchForm = (form) => {
-    handleLaunchSpecificForm(form);
+  // Ouvrir un questionnaire unique par sujet (pré / post) : modification de la dernière réponse si elle existe
+  const handleFillOrEditForm = (form, extraParams = {}, factorKey, factorValue) => {
+    const previous = getParticipantResponses(form.fields, factorKey, factorValue);
+    const latest = previous[previous.length - 1];
+    handleLaunchSpecificForm(form, extraParams, latest?.id || null);
   };
 
   const isCurrentActive = (uid) => String(participantData?.UserID) === String(uid);
@@ -483,6 +514,7 @@ const getModalityColor = (str) => {
                   color="success"
                   startIcon={<SkipNextIcon />}
                   onClick={handleNextSubject}
+                  disabled={submitting}
                   sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '8px' }}
                 >
                   Sujet suivant (+1)
@@ -568,7 +600,7 @@ const getModalityColor = (str) => {
                         color="primary"
                         size="small"
                         startIcon={<PlayArrowIcon />}
-                        onClick={() => handleLaunchSpecificForm(f)}
+                        onClick={() => handleFillOrEditForm(f)}
                         sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '8px', minWidth: '120px' }}
                       >
                         {count > 0 ? "Modifier" : "Remplir"}
@@ -960,7 +992,7 @@ const getModalityColor = (str) => {
                         color="success"
                         size="small"
                         startIcon={<PlayArrowIcon />}
-                        onClick={() => handleLaunchSpecificForm(f)}
+                        onClick={() => handleFillOrEditForm(f)}
                         sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '8px', minWidth: '120px' }}
                       >
                         {count > 0 ? "Modifier" : "Remplir"}
@@ -1279,7 +1311,8 @@ const getModalityColor = (str) => {
                   onClick={() => {
                     const phase = evaluatingPhase;
                     setEvaluatingPhase(null);
-                    handleLaunchSpecificForm(form, { [phase.mainFactor]: phase.mainValue });
+                    // Déjà répondu pour cette modalité : rouvrir la réponse plutôt que créer un doublon
+                    handleFillOrEditForm(form, { [phase.mainFactor]: phase.mainValue }, phase.mainFactor, phase.mainValue);
                   }}
                   sx={{
                     p: 1.8,

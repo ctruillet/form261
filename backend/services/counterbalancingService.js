@@ -48,7 +48,7 @@ function generateWilliamsLatinSquare(conditions) {
   if (K === 1) return { A: [conditions[0]] };
 
   // Construire la première ligne selon la formule de Williams (0-indexé)
-  // [0, 1, K-1, 2, K-2, 3, K-3, ...]
+  // [0, K-1, 1, K-2, 2, K-3, ...]
   const firstRow = [];
   let left = 0;
   let right = K - 1;
@@ -228,11 +228,12 @@ function buildProtocol({ factors, method = 'williams', blockedFactorName = null 
   const conditions = generateCartesianConditions(factors);
   let blocks = {};
 
-  if (method === 'blocked') {
-    const activeBlockedFactor = (blockedFactorName && factors.some(f => f.name === blockedFactorName))
-      ? blockedFactorName
-      : factors[0]?.name;
+  // Facteur réellement bloqué : celui demandé s'il existe, sinon le premier facteur
+  const activeBlockedFactor = (blockedFactorName && factors.some(f => f.name === blockedFactorName))
+    ? blockedFactorName
+    : factors[0]?.name;
 
+  if (method === 'blocked') {
     blocks = generateBlockedLatinSquare({
       factors,
       blockedFactorName: activeBlockedFactor,
@@ -250,7 +251,7 @@ function buildProtocol({ factors, method = 'williams', blockedFactorName = null 
     conditionsCount: conditions.length,
     conditions,
     counterbalancingMethod: method,
-    blockedFactorName: method === 'blocked' ? (blockedFactorName || factors[0]?.name) : null,
+    blockedFactorName: method === 'blocked' ? (activeBlockedFactor || null) : null,
     blocksCount: Object.keys(blocks).length,
     blocks
   };

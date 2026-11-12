@@ -9,7 +9,7 @@ const ChoiceField = ({
   label,
   value,
   onChange,
-  options,
+  options = [],
   otherChoice,
   placeholder,
   required,
@@ -20,12 +20,20 @@ const ChoiceField = ({
   const [isOtherSelected, setIsOtherSelected] = useState(false);
   const [otherValue, setOtherValue] = useState("");
 
+  // Synchronise l'état « Autre » avec la valeur reçue (chargement d'une réponse existante, remise à zéro...).
+  // Une valeur vide ne désélectionne pas « Autre » : l'utilisateur vient peut-être de cocher la case
+  // et n'a pas encore saisi son texte.
   useEffect(() => {
-    if (!options.includes(value) && value !== "") {
+    const hasValue = value !== undefined && value !== null && value !== "";
+    if (hasValue && !options.includes(value)) {
       setIsOtherSelected(true);
-      setOtherValue(value);
-    } else {
+      setOtherValue(String(value));
+    } else if (hasValue) {
       setIsOtherSelected(false);
+      setOtherValue("");
+    } else if (value === undefined || value === null) {
+      setIsOtherSelected(false);
+      setOtherValue("");
     }
   }, [value, options]);
 
@@ -50,7 +58,10 @@ const ChoiceField = ({
   };
 
   const handleOnClickOnOther = () => {
+    if (isDisabled || isOtherSelected) return;
     setIsOtherSelected(true);
+    // Une option prédéfinie était peut-être cochée : la réponse devient le texte libre
+    onChange({ target: { name: label, value: otherValue } });
   }
 
 
@@ -63,7 +74,7 @@ const ChoiceField = ({
       <RadioGroup
         aria-label={label}
         name={label}
-        value={isOtherSelected ? "other" : value}
+        value={isOtherSelected ? "other" : (value ?? "")}
         onChange={handleOptionChange}
       >
         {options.map((opt, index) => (

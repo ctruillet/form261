@@ -70,8 +70,12 @@ const ParticipantAnswers = () => {
 
             const reversedContent = [...participantContent].reverse();
 
-            const parameterKeys = Object.keys(reversedContent[0].parametersFields || {});
-            const fieldKeys = Object.keys(reversedContent[0].fieldsFields || {});
+            // Colonnes = union des clés de toutes les réponses du participant
+            const collectKeys = (prop) => [
+              ...new Set(reversedContent.flatMap((resp) => Object.keys(resp?.[prop] || {}))),
+            ];
+            const parameterKeys = collectKeys("parametersFields");
+            const fieldKeys = collectKeys("fieldsFields");
             const requiredHeaders = [...parameterKeys, ...fieldKeys, "id", "fieldsFile", "paramFile"];
 
             const flatResponses = reversedContent.map((resp) => flattenJSON(resp));
@@ -110,14 +114,14 @@ const ParticipantAnswers = () => {
   const handleEdit = () => {
     if (!selectedRow) return;
     navigate(
-      `/form?fields=${selectedRow.fieldsFile}&param=${selectedRow.paramFile}&id=${selectedRow.id}`
+      `/form?fields=${encodeURIComponent(selectedRow.fieldsFile || "")}&param=${encodeURIComponent(selectedRow.paramFile || "")}&id=${encodeURIComponent(selectedRow.id)}`
     );
   };
 
   const confirmDelete = async () => {
     if (!selectedRow) return;
     try {
-      await axios.delete(`/api/data/responses/id=${selectedRow.id}`);
+      await axios.delete(`/api/data/responses/id=${encodeURIComponent(selectedRow.id)}`);
       setResponses((prevResponses) => {
         return prevResponses
           .map((file) => {

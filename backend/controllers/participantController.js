@@ -131,10 +131,11 @@ exports.createParticipant = (req, res) => {
     }
 
     const newParticipant = {
-      id: userId,
-      UserID: userId,
       currentTrialIndex: 1,
       ...data,
+      // Toujours après ...data : identifiant normalisé (chaîne, sans espaces superflus)
+      id: userId,
+      UserID: userId,
       Block: defaultBlock || 'A',
     };
 
@@ -167,6 +168,12 @@ exports.updateParticipant = (req, res) => {
 
     const oldParticipant = participants[index];
     const oldUserId = String(oldParticipant.UserID || oldParticipant.id);
+
+    // Refuser un renommage vers un identifiant déjà utilisé par un autre participant
+    // (sinon deux sujets partageraient le même UserID et leurs réponses seraient mélangées)
+    if (newUserId !== oldUserId && participants.some((p) => String(p.UserID || p.id) === newUserId)) {
+      return res.status(409).json({ message: `Le participant #${newUserId} existe déjà` });
+    }
 
     participants[index] = {
       ...oldParticipant,

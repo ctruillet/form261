@@ -6,6 +6,50 @@ const protocolFilePath = path.join(__dirname, '../protocol.json');
 const participantsFilePath = path.join(__dirname, '../participants.json');
 const parametersFolderPath = path.join(__dirname, '../parameters');
 
+// N'écrit le fichier que si son contenu change réellement : syncParameterFiles est
+// appelé à chaque lecture du protocole, inutile de réécrire le disque à chaque GET.
+const writeIfChanged = (filePath, content, encoding = 'utf8') => {
+  try {
+    if (fs.readFileSync(filePath, encoding) === content) return;
+  } catch (e) {
+    // Fichier absent ou illisible : on (ré)écrit
+  }
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, content, encoding);
+};
+
+// Noms réservés : ils servent déjà de clés dans les essais et les paramètres
+const RESERVED_FACTOR_NAMES = ['userid', 'block', 'trialorder', 'macroblock', 'subtrial', 'id'];
+
+// Nettoie les facteurs reçus du client. Retourne { factors } ou { error }.
+const sanitizeFactors = (rawFactors) => {
+  if (!Array.isArray(rawFactors) || rawFactors.length === 0) {
+    return { error: 'Au moins un facteur expérimental est requis' };
+  }
+
+  const seen = new Set();
+  const factors = [];
+  for (const raw of rawFactors) {
+    const name = String(raw?.name ?? '').trim();
+    if (!name) return { error: 'Chaque facteur doit avoir un nom' };
+
+    const key = name.toLowerCase();
+    if (RESERVED_FACTOR_NAMES.includes(key)) {
+      return { error: `Le nom de facteur "${name}" est réservé` };
+    }
+    if (seen.has(key)) return { error: `Le facteur "${name}" est défini plusieurs fois` };
+    seen.add(key);
+
+    const values = [...new Set(
+      (Array.isArray(raw.values) ? raw.values : []).map((v) => String(v ?? '').trim()).filter(Boolean)
+    )];
+    if (values.length === 0) return { error: `Le facteur "${name}" n'a aucune modalité définie` };
+
+    factors.push({ ...raw, name, values });
+  }
+  return { factors };
+};
+
 const syncParameterFiles = (protocol) => {
   if (!protocol || !protocol.factors || !protocol.blocks) return;
   try {
@@ -59,7 +103,7 @@ const syncParameterFiles = (protocol) => {
       fields: paramFields
     };
 
-    fs.writeFileSync(
+    writeIfChanged(
       path.join(parametersFolderPath, 'Active_Protocol.json'),
       JSON.stringify(activeParamConfig, null, 2),
       'utf8'
@@ -101,7 +145,7 @@ const syncParameterFiles = (protocol) => {
         ]
       };
 
-      fs.writeFileSync(
+      writeIfChanged(
         path.join(parametersFolderPath, 'UserID_TI_Block.json'),
         JSON.stringify(modalityParamConfig, null, 2),
         'utf8'
@@ -134,7 +178,7 @@ const syncParameterFiles = (protocol) => {
       ]
     };
 
-    fs.writeFileSync(
+    writeIfChanged(
       path.join(parametersFolderPath, 'UserID_Block.json'),
       JSON.stringify(generalParamConfig, null, 2),
       'utf8'
@@ -182,6 +226,9 @@ const ensureProtocolFileExists = () => {
 exports.getProtocol = (req, res) => {
   try {
     const protocol = ensureProtocolFileExists();
+    if (!protocol) {
+      return res.status(500).json({ message: 'Le fichier protocol.json est illisible (JSON invalide)' });
+    }
     res.json(protocol);
   } catch (error) {
     console.error('Erreur getProtocol:', error);
@@ -192,10 +239,11 @@ exports.getProtocol = (req, res) => {
 // Mettre à jour les facteurs et recalculer les blocs
 exports.updateProtocol = (req, res) => {
   try {
-    const { name, factors, counterbalancingMethod, blockedFactorName } = req.body;
+    const { name, counterbalancingMethod, blockedFactorName } = req.body || {};
 
-    if (!factors || !Array.isArray(factors) || factors.length === 0) {
-      return res.status(400).json({ message: 'Au moins un facteur expérimental est requis' });
+    const { factors, error } = sanitizeFactors(req.body?.factors);
+    if (error) {
+      return res.status(400).json({ message: error });
     }
 
     const newProtocol = buildProtocol({
@@ -222,7 +270,7 @@ exports.updateProtocol = (req, res) => {
 exports.getProtocolStats = (req, res) => {
   try {
     const protocol = ensureProtocolFileExists();
-    const blocks = protocol.blocks || {};
+    const blocks = protocol?.blocks || {};
     const blockKeys = Object.keys(blocks);
 
     let participants = [];

@@ -33,9 +33,17 @@ const SortableItem = ({ id, index, option }) => {
   );
 };
 
-const RankingField = ({ label, options = [], value, onChange, required }) => {
-  const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5);
+// Mélange non biaisé (Fisher-Yates) : l'ordre initial ne doit pas influencer le classement
+const shuffleArray = (array) => {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
 
+const RankingField = ({ label, options = [], value, onChange, required }) => {
   const [rankedOptions, setRankedOptions] = useState(() => {
     if (value && Array.isArray(value) && value.length > 0) {
       return [...value];
@@ -43,15 +51,16 @@ const RankingField = ({ label, options = [], value, onChange, required }) => {
     return shuffleArray(options);
   });
 
-  // Notifier le parent de l'ordre initial s'il n'est pas encore défini
+  const hasValue = Array.isArray(value) && value.length > 0;
+
+  // Tant que le parent n'a pas d'ordre enregistré (montage, remise à zéro du formulaire),
+  // lui communiquer l'ordre affiché : sinon un classement non modifié serait envoyé vide.
   useEffect(() => {
-    if (!value || (Array.isArray(value) && value.length === 0)) {
-      if (onChange && rankedOptions.length > 0) {
-        onChange({ label, rankings: rankedOptions });
-      }
+    if (!hasValue && onChange && rankedOptions.length > 0) {
+      onChange({ label, rankings: rankedOptions });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hasValue, rankedOptions]);
 
   useEffect(() => {
     if (value && Array.isArray(value) && value.length > 0) {

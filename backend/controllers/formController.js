@@ -1,9 +1,18 @@
 const fs = require("fs");
 const path = require("path");
+const { readJson, writeJson, listJsonFiles } = require("../services/fileService");
 
 // Chemin vers le fichier contenant les formulaires et les paramètres
 const formsData = path.join(__dirname, "../forms.json");
 const fieldsDirectory = path.join(__dirname, "../fields");
+const answersDirectory = path.join(__dirname, "../answers");
+
+const readForms = () => {
+  const forms = readJson(formsData, []);
+  return Array.isArray(forms) ? forms : [];
+};
+
+const writeForms = (forms) => writeJson(formsData, forms, 4);
 
 // Fonction utilitaire pour enrichir un formulaire avec sa description et son tag
 const enrichForm = (form) => {
@@ -11,13 +20,10 @@ const enrichForm = (form) => {
   let desc = form.description || "";
   if (!desc && form.fields) {
     try {
-      const fieldsPath = path.join(fieldsDirectory, form.fields);
-      if (fs.existsSync(fieldsPath)) {
-        const fieldsData = JSON.parse(fs.readFileSync(fieldsPath, "utf8"));
-        desc = fieldsData.description || "";
-      }
+      const fieldsContent = readJson(path.join(fieldsDirectory, path.basename(form.fields)), null);
+      desc = fieldsContent?.description || "";
     } catch (e) {
-      // ignorer
+      // Fichier de questions illisible : on garde une description vide
     }
   }
   return {
@@ -28,184 +34,166 @@ const enrichForm = (form) => {
   };
 };
 
+// Fichier de paramètres associé par défaut à chaque jalon expérimental
+const paramFileForTiming = (timing) => {
+  if (timing === 'pre' || timing === 'post') return 'UserID_Block.json';
+  if (timing === 'post-modality') return 'UserID_TI_Block.json';
+  if (timing === 'trial') return 'Active_Protocol.json';
+  if (timing === 'free') return '';
+  return undefined;
+};
+
+// Nettoie la définition d'une question avant de l'écrire dans backend/fields/
+const cleanField = (field = {}) => {
+  const type = field.type || "text";
+  const cleaned = {
+    label: field.label || "Sans titre",
+    sublabel: field.sublabel || "",
+    type,
+    required: Boolean(field.required),
+  };
+
+  if (type === "range") {
+    const toNumber = (value, fallback) => {
+      const n = Number(value);
+      return value === undefined || value === null || value === "" || Number.isNaN(n) ? fallback : n;
+    };
+    cleaned.min = toNumber(field.min, 0);
+    cleaned.max = toNumber(field.max, 100);
+    cleaned.step = toNumber(field.step, 1) > 0 ? toNumber(field.step, 1) : 1;
+    cleaned.labelMin = field.labelMin || "";
+    cleaned.labelMax = field.labelMax || "";
+  } else if (type === "choice" || type === "drop-down" || type === "ranking") {
+    const options = Array.isArray(field.options)
+      ? field.options.map((o) => String(o ?? "").trim()).filter(Boolean)
+      : [];
+    cleaned.options = [...new Set(options)]; // des options en double casseraient le classement
+    if (type === "choice") {
+      cleaned.otherChoice = Boolean(field.otherChoice);
+    }
+  } else if (type === "textAutosize") {
+    cleaned.minRows = Number(field.minRows) > 0 ? Number(field.minRows) : 3;
+  } else if (type === "image") {
+    // Conserver les propriétés d'affichage des images lors d'une modification
+    if (field.src) cleaned.src = field.src;
+    if (field.size) cleaned.size = field.size;
+    if (field.align) cleaned.align = field.align;
+  }
+
+  if (field.placeholder) {
+    cleaned.placeholder = field.placeholder;
+  }
+
+  return cleaned;
+};
+
+// Valide le corps d'une requête de création / mise à jour. Retourne un message d'erreur ou null.
+const validateFormPayload = ({ name, fields }) => {
+  if (!name || !String(name).trim()) {
+    return "Le nom du formulaire est obligatoire";
+  }
+  if (!Array.isArray(fields) || fields.length === 0) {
+    return "Le formulaire doit contenir au moins un champ";
+  }
+  return null;
+};
+
+// Envoie le formulaire trouvé par `predicate`, ou une 404
+const sendForm = (res, predicate, notFoundMessage) => {
+  try {
+    const formDetails = readForms().find(predicate);
+    if (!formDetails) {
+      return res.status(404).send(notFoundMessage);
+    }
+    res.json(enrichForm(formDetails));
+  } catch (err) {
+    console.error("Erreur de lecture de forms.json :", err);
+    res.status(500).send("Erreur lors de l'analyse des données");
+  }
+};
+
 // Méthode pour obtenir la liste des formulaires
 exports.getForms = (req, res) => {
-	fs.readFile(formsData, "utf8", (err, data) => {
-		if (err) return res.status(404).send("Form not found");
-		try {
-			const forms = JSON.parse(data);
-			const enrichedForms = forms.map(enrichForm);
-			res.json(enrichedForms);
-		} catch (e) {
-			res.status(500).send("Erreur lors de l'analyse des données");
-		}
-	});
+  try {
+    res.json(readForms().map(enrichForm));
+  } catch (e) {
+    console.error("Erreur de lecture de forms.json :", e);
+    res.status(500).send("Erreur lors de l'analyse des données");
+  }
 };
 
 // Méthode pour obtenir un formulaire spécifique
 exports.getFormByName = (req, res) => {
-	const formName = req.params.formName;
-
-	fs.readFile(formsData, "utf8", (err, data) => {
-		if (err)
-			return res
-				.status(500)
-				.send("Erreur lors de la lecture du fichier de formulaires");
-
-		try {
-			const formData = JSON.parse(data);
-			const formDetails = formData.find((form) => form.name === formName);
-
-			if (!formDetails) {
-				return res.status(404).send(`Formulaire ${formName} non trouvé`);
-			}
-
-			res.json(enrichForm(formDetails));
-		} catch (err) {
-			return res.status(500).send("Erreur lors de l'analyse des données");
-		}
-	});
+  const formName = req.params.formName;
+  sendForm(res, (form) => form.name === formName, `Formulaire ${formName} non trouvé`);
 };
 
 // Méthode pour obtenir le nom d'un formulaire à partir de son field et param
 exports.getFormByFieldsAndParam = (req, res) => {
-  const fieldsName = req.params.fieldsName;
-  const paramName = req.params.paramName;
-
-	fs.readFile(formsData, "utf8", (err, data) => {
-		if (err)
-			return res.status(500).send("Erreur lors de la lecture du fichier de formulaires");
-
-		try {
-			const formData = JSON.parse(data);
-			const formDetails = formData.find((form) => form.fields === fieldsName && form.param === paramName);
-
-			if (!formDetails) {
-				return res.status(404).send(`Formulaire (${fieldsName} ${paramName}) non trouvé`);
-			}
-
-			res.json(enrichForm(formDetails));
-		} catch (err) {
-			return res.status(500).send("Erreur lors de l'analyse des données");
-		}
-	});
+  const { fieldsName, paramName } = req.params;
+  sendForm(
+    res,
+    (form) => form.fields === fieldsName && form.param === paramName,
+    `Formulaire (${fieldsName} ${paramName}) non trouvé`
+  );
 };
 
 // Méthode pour obtenir le nom d'un formulaire à partir de son id
 exports.getFormByID = (req, res) => {
   const formID = req.params.formID;
-
-	fs.readFile(formsData, "utf8", (err, data) => {
-		if (err)
-			return res.status(500).send("Erreur lors de la lecture du fichier de formulaires");
-
-		try {
-			const formData = JSON.parse(data);
-			const formDetails = formData.find((form) => String(form.id) === String(formID));
-
-			if (!formDetails) {
-				return res.status(404).send(`Formulaire ${formID} non trouvé`);
-			}
-
-			res.json(enrichForm(formDetails));
-		} catch (err) {
-			return res.status(500).send("Erreur lors de l'analyse des données");
-		}
-	});
+  sendForm(res, (form) => String(form.id) === String(formID), `Formulaire ${formID} non trouvé`);
 };
 
 // Méthode pour créer un nouveau formulaire (fields + enregistrement dans forms.json)
 exports.createForm = (req, res) => {
-  const { name, description, fileName, paramFile, fields, tag } = req.body;
+  const { name, description, fileName, paramFile, fields, tag } = req.body || {};
 
-  if (!name || !name.trim()) {
-    return res.status(400).json({ message: "Le nom du formulaire est obligatoire" });
-  }
-
-  if (!Array.isArray(fields) || fields.length === 0) {
-    return res.status(400).json({ message: "Le formulaire doit contenir au moins un champ" });
+  const validationError = validateFormPayload({ name, fields });
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
   }
 
   // Nettoyer et formater le nom de fichier
-  const rawBase = (fileName || name)
+  const rawBase = String(fileName || name)
     .trim()
     .replace(/\.json$/i, "");
 
-  let targetFileName = `${rawBase
+  const slug = rawBase
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // Enlever les accents
+    .replace(/[̀-ͯ]/g, "") // Enlever les accents
     .replace(/[^a-zA-Z0-9_-]/g, "_")
-    .replace(/_+/g, "_")}.json`;
+    .replace(/_+/g, "_");
 
+  if (!slug.replace(/_/g, "")) {
+    return res.status(400).json({ message: "Le nom de fichier du formulaire est invalide" });
+  }
+
+  const targetFileName = `${slug}.json`;
   const fieldsFilePath = path.join(fieldsDirectory, targetFileName);
 
   // Structure du fichier dans backend/fields/
   const fieldsContent = {
     title: name.trim(),
     description: (description || "").trim(),
-    fields: fields.map((field) => {
-      const cleaned = {
-        label: field.label || "Sans titre",
-        sublabel: field.sublabel || "",
-        type: field.type || "text",
-        required: Boolean(field.required),
-      };
-
-      if (field.type === "range") {
-        cleaned.min = field.min !== undefined ? Number(field.min) : 0;
-        cleaned.max = field.max !== undefined ? Number(field.max) : 100;
-        cleaned.step = field.step !== undefined ? Number(field.step) : 1;
-        cleaned.labelMin = field.labelMin || "";
-        cleaned.labelMax = field.labelMax || "";
-      } else if (field.type === "choice" || field.type === "drop-down" || field.type === "ranking") {
-        cleaned.options = Array.isArray(field.options) ? field.options.filter(Boolean) : [];
-        if (field.type === "choice") {
-          cleaned.otherChoice = Boolean(field.otherChoice);
-        }
-      } else if (field.type === "textAutosize") {
-        cleaned.minRows = field.minRows ? Number(field.minRows) : 3;
-      }
-
-      if (field.placeholder) {
-        cleaned.placeholder = field.placeholder;
-      }
-
-      return cleaned;
-    }),
+    fields: fields.map(cleanField),
   };
 
   try {
-    if (!fs.existsSync(fieldsDirectory)) {
-      fs.mkdirSync(fieldsDirectory, { recursive: true });
-    }
+    const forms = readForms();
 
-    // 1. Écrire le fichier dans backend/fields/
-    fs.writeFileSync(fieldsFilePath, JSON.stringify(fieldsContent, null, 2), "utf8");
-
-    // 2. Mettre à jour forms.json
-    let forms = [];
-    if (fs.existsSync(formsData)) {
-      try {
-        forms = JSON.parse(fs.readFileSync(formsData, "utf8") || "[]");
-      } catch (e) {
-        forms = [];
-      }
-    }
-
-    // Calcul du nouvel ID unique
-    const newId =
-      forms.length > 0
-        ? Math.max(...forms.map((f) => (Number(f.id) !== undefined && !isNaN(Number(f.id)) ? Number(f.id) : 0))) + 1
-        : 0;
+    // Calcul du nouvel ID unique. On tient aussi compte des fichiers de réponses
+    // existants : réutiliser l'ID d'un formulaire supprimé ferait hériter le
+    // nouveau formulaire des anciennes réponses (answers/<id>.json).
+    const usedIds = [
+      ...forms.map((f) => Number(f.id)),
+      ...listJsonFiles(answersDirectory).map((f) => Number(path.basename(f, ".json"))),
+    ].filter((n) => Number.isInteger(n) && n >= 0);
+    const newId = usedIds.length > 0 ? Math.max(...usedIds) + 1 : 0;
 
     const resolvedTiming = req.body.timing || 'post-modality';
     let resolvedParam = paramFile;
     if (!resolvedParam || resolvedParam === 'auto') {
-      if (resolvedTiming === 'pre' || resolvedTiming === 'post') resolvedParam = 'UserID_Block.json';
-      else if (resolvedTiming === 'post-modality') resolvedParam = 'UserID_TI_Block.json';
-      else if (resolvedTiming === 'trial') resolvedParam = 'Active_Protocol.json';
-      else if (resolvedTiming === 'free') resolvedParam = '';
-      else resolvedParam = 'UserID_Block.json';
+      resolvedParam = paramFileForTiming(resolvedTiming) ?? 'UserID_Block.json';
     } else if (resolvedParam === 'none') {
       resolvedParam = '';
     }
@@ -229,7 +217,9 @@ exports.createForm = (req, res) => {
       forms.push(newFormEntry);
     }
 
-    fs.writeFileSync(formsData, JSON.stringify(forms, null, 4), "utf8");
+    // 1. Écrire le fichier dans backend/fields/  2. Mettre à jour forms.json
+    writeJson(fieldsFilePath, fieldsContent);
+    writeForms(forms);
 
     res.status(201).json({
       message: "Formulaire créé avec succès",
@@ -244,14 +234,11 @@ exports.createForm = (req, res) => {
 // Méthode pour mettre à jour un formulaire existant
 exports.updateForm = (req, res) => {
   const formID = req.params.formID;
-  const { name, description, paramFile, fields, tag } = req.body;
+  const { name, description, paramFile, fields, tag, timing } = req.body || {};
 
-  if (!name || !name.trim()) {
-    return res.status(400).json({ message: "Le nom du formulaire est obligatoire" });
-  }
-
-  if (!Array.isArray(fields) || fields.length === 0) {
-    return res.status(400).json({ message: "Le formulaire doit contenir au moins un champ" });
+  const validationError = validateFormPayload({ name, fields });
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
   }
 
   try {
@@ -259,7 +246,7 @@ exports.updateForm = (req, res) => {
       return res.status(404).json({ message: "Fichier forms.json introuvable" });
     }
 
-    const forms = JSON.parse(fs.readFileSync(formsData, "utf8") || "[]");
+    const forms = readForms();
     const formIndex = forms.findIndex((f) => String(f.id) === String(formID));
 
     if (formIndex === -1) {
@@ -267,48 +254,15 @@ exports.updateForm = (req, res) => {
     }
 
     const currentForm = forms[formIndex];
-    const fieldsFileName = currentForm.fields;
-    const fieldsFilePath = path.join(fieldsDirectory, fieldsFileName);
+    const fieldsFilePath = path.join(fieldsDirectory, path.basename(currentForm.fields));
 
-    // Formatter les champs
     const fieldsContent = {
       title: name.trim(),
       description: (description || "").trim(),
-      fields: fields.map((field) => {
-        const cleaned = {
-          label: field.label || "Sans titre",
-          sublabel: field.sublabel || "",
-          type: field.type || "text",
-          required: Boolean(field.required),
-        };
-
-        if (field.type === "range") {
-          cleaned.min = field.min !== undefined ? Number(field.min) : 0;
-          cleaned.max = field.max !== undefined ? Number(field.max) : 100;
-          cleaned.step = field.step !== undefined ? Number(field.step) : 1;
-          cleaned.labelMin = field.labelMin || "";
-          cleaned.labelMax = field.labelMax || "";
-        } else if (field.type === "choice" || field.type === "drop-down" || field.type === "ranking") {
-          cleaned.options = Array.isArray(field.options) ? field.options.filter(Boolean) : [];
-          if (field.type === "choice") {
-            cleaned.otherChoice = Boolean(field.otherChoice);
-          }
-        } else if (field.type === "textAutosize") {
-          cleaned.minRows = field.minRows ? Number(field.minRows) : 3;
-        }
-
-        if (field.placeholder) {
-          cleaned.placeholder = field.placeholder;
-        }
-
-        return cleaned;
-      }),
+      fields: fields.map(cleanField),
     };
 
-    // Écrire les champs mis à jour dans backend/fields/
-    fs.writeFileSync(fieldsFilePath, JSON.stringify(fieldsContent, null, 2), "utf8");
-
-    // Mettre à jour forms.json
+    // Mettre à jour l'entrée de forms.json
     currentForm.name = name.trim();
     if (tag !== undefined) {
       currentForm.tag = (tag || "").trim();
@@ -318,30 +272,24 @@ exports.updateForm = (req, res) => {
     }
     if (paramFile !== undefined) {
       if (paramFile === 'auto') {
-        const t = req.body.timing || currentForm.timing;
-        if (t === 'pre' || t === 'post') currentForm.param = 'UserID_Block.json';
-        else if (t === 'post-modality') currentForm.param = 'UserID_TI_Block.json';
-        else if (t === 'trial') currentForm.param = 'Active_Protocol.json';
-        else if (t === 'free') currentForm.param = '';
-        else currentForm.param = 'UserID_Block.json';
+        currentForm.param = paramFileForTiming(timing || currentForm.timing) ?? 'UserID_Block.json';
       } else if (paramFile === 'none') {
         currentForm.param = '';
       } else {
         currentForm.param = paramFile;
       }
-    } else if (req.body.timing !== undefined) {
-      const t = req.body.timing;
-      if (t === 'pre' || t === 'post') currentForm.param = 'UserID_Block.json';
-      else if (t === 'post-modality') currentForm.param = 'UserID_TI_Block.json';
-      else if (t === 'trial') currentForm.param = 'Active_Protocol.json';
-      else if (t === 'free') currentForm.param = '';
+    } else if (timing !== undefined) {
+      const timingParam = paramFileForTiming(timing);
+      if (timingParam !== undefined) currentForm.param = timingParam;
     }
-    if (req.body.timing !== undefined) {
-      currentForm.timing = req.body.timing;
+    if (timing !== undefined) {
+      currentForm.timing = timing;
     }
     forms[formIndex] = currentForm;
 
-    fs.writeFileSync(formsData, JSON.stringify(forms, null, 4), "utf8");
+    // Écrire les champs mis à jour dans backend/fields/ puis forms.json
+    writeJson(fieldsFilePath, fieldsContent);
+    writeForms(forms);
 
     res.json({
       message: "Formulaire mis à jour avec succès",
@@ -362,7 +310,7 @@ exports.deleteForm = (req, res) => {
       return res.status(404).json({ message: "Fichier forms.json introuvable" });
     }
 
-    const forms = JSON.parse(fs.readFileSync(formsData, "utf8") || "[]");
+    const forms = readForms();
     const formToDelete = forms.find((f) => String(f.id) === String(formID));
 
     if (!formToDelete) {
@@ -371,12 +319,12 @@ exports.deleteForm = (req, res) => {
 
     // Filtrer pour retirer le formulaire
     const updatedForms = forms.filter((f) => String(f.id) !== String(formID));
-    fs.writeFileSync(formsData, JSON.stringify(updatedForms, null, 4), "utf8");
+    writeForms(updatedForms);
 
     // Vérifier si un autre formulaire utilise encore ce même fichier fields
     const stillUsed = updatedForms.some((f) => f.fields === formToDelete.fields);
     if (!stillUsed && formToDelete.fields) {
-      const filePath = path.join(fieldsDirectory, formToDelete.fields);
+      const filePath = path.join(fieldsDirectory, path.basename(formToDelete.fields));
       if (fs.existsSync(filePath)) {
         try {
           fs.unlinkSync(filePath);
@@ -386,6 +334,7 @@ exports.deleteForm = (req, res) => {
       }
     }
 
+    // Les réponses déjà collectées (answers/<id>.json) sont volontairement conservées.
     res.json({
       message: "Formulaire supprimé avec succès",
       deletedId: formID,
@@ -395,4 +344,3 @@ exports.deleteForm = (req, res) => {
     res.status(500).json({ message: "Erreur lors de la suppression du formulaire" });
   }
 };
-

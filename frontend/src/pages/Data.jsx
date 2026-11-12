@@ -49,6 +49,16 @@ const PALETTE = [
   '#6366f1', // Indigo
 ];
 
+// Convertit une réponse en nombre, ou null si elle n'est pas strictement numérique.
+// (parseFloat acceptait "3 fois par semaine" ou les classements, ce qui créait de faux graphiques.)
+const toNumeric = (value) => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim().replace(',', '.');
+  if (!/^-?\d+(\.\d+)?$/.test(trimmed)) return null;
+  return Number(trimmed);
+};
+
 // Nettoyer les clés de paramètres pour un affichage lisible
 const cleanParamName = (rawKey) => {
   if (!rawKey || rawKey === 'Global') return 'Tous les participants (Global)';
@@ -210,7 +220,7 @@ const Data = () => {
       const factorSet = new Set();
       items.forEach((it) => {
         Object.entries(it.fieldsFields || {}).forEach(([fKey, fVal]) => {
-          if (fVal !== '' && fVal !== null && fVal !== undefined && !isNaN(parseFloat(fVal))) {
+          if (toNumeric(fVal) !== null) {
             factorSet.add(fKey);
           }
         });
@@ -224,7 +234,10 @@ const Data = () => {
         const params = { ...(it.parametersFields || {}) };
         delete params.UserID;
         delete params.id;
+        // Le numéro d'essai n'est pas une condition expérimentale : le conserver
+        // créerait un groupe par essai au lieu d'un groupe par condition.
         delete params.trialOrder;
+        delete params.TrialOrder;
 
         // FUSION DES GROUPES DE CONTREBALANCEMENT :
         // Le bloc (A1, A2...) sert uniquement à neutraliser l'ordre de passation.
@@ -257,9 +270,8 @@ const Data = () => {
           .map(([rawParamKey, paramItems], idx) => {
           const values = [];
           paramItems.forEach((it) => {
-            const raw = it.fieldsFields?.[factor];
-            const v = parseFloat(raw);
-            if (!isNaN(v)) values.push(v);
+            const v = toNumeric(it.fieldsFields?.[factor]);
+            if (v !== null) values.push(v);
           });
 
           const desc = getDescriptives(values);
@@ -316,7 +328,8 @@ const Data = () => {
   }, [processedData]);
 
   // Formulaire actuellement sélectionné
-  const currentForm = processedData[selectedFormIndex] || processedData[0];
+  const safeFormIndex = selectedFormIndex < processedData.length ? selectedFormIndex : 0;
+  const currentForm = processedData[safeFormIndex];
 
   // Facteurs filtrés selon le switch "différences significatives"
   const displayedFactors = useMemo(() => {
@@ -458,7 +471,7 @@ const Data = () => {
       <Paper elevation={1} sx={{ mb: 3, borderRadius: 2, overflow: 'hidden' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, backgroundColor: '#f8fafc' }}>
           <Tabs
-            value={selectedFormIndex}
+            value={safeFormIndex}
             onChange={(_, val) => setSelectedFormIndex(val)}
             variant="scrollable"
             scrollButtons="auto"

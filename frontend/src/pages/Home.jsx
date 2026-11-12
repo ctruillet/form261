@@ -27,11 +27,6 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import { ParticipantContext } from '../context/ParticipantContext';
 import '../styles/Home.css';
 
-const formatParamName = (paramFile) => {
-  if (!paramFile) return '';
-  return paramFile.replace('.json', '').replace(/_/g, ' • ');
-};
-
 const Home = () => {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +34,6 @@ const Home = () => {
   const {
     participantData,
     currentTrialIndex,
-    currentTrial,
     activeTrials,
     activeFactors = {},
     nextTrial
@@ -63,7 +57,7 @@ const Home = () => {
   }, []);
 
   const handleFormSelect = (fields, param) => {
-    navigate(`/form?fields=${encodeURIComponent(fields)}&param=${encodeURIComponent(param)}`);
+    navigate(`/form?fields=${encodeURIComponent(fields || '')}&param=${encodeURIComponent(param || '')}`);
   };
 
   const filteredForms = useMemo(() => {
@@ -211,7 +205,7 @@ const Home = () => {
                   sx={{ height: 22, fontWeight: 700, backgroundColor: '#dbeafe', color: '#1e40af' }}
                 />
                 <Chip
-                  label={`Essai ${currentTrialIndex} / ${activeTrials.length || 8}`}
+                  label={activeTrials.length > 0 ? `Essai ${currentTrialIndex} / ${activeTrials.length}` : `Essai ${currentTrialIndex}`}
                   size="small"
                   color="primary"
                   sx={{ height: 22, fontWeight: 800 }}
@@ -226,7 +220,7 @@ const Home = () => {
           </Box>
 
           <Stack direction="row" spacing={1}>
-            {currentTrialIndex < (activeTrials.length || 8) && (
+            {currentTrialIndex < activeTrials.length && (
               <Button
                 size="small"
                 variant="outlined"
@@ -481,7 +475,7 @@ const Home = () => {
                       )
                     ) : (
                       <div className="form-card-file-item">
-                        📋 {form.fields.replace('.json', '')}
+                        📋 {(form.fields || '').replace('.json', '')}
                       </div>
                     )}
                   </div>

@@ -7,6 +7,11 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 export default [
   { ignores: ['dist'] },
   {
+    // Fichiers de configuration exécutés par Node (accès à process.env)
+    files: ['vite.config.js', 'eslint.config.js'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
@@ -30,7 +35,13 @@ export default [
       ...reactHooks.configs.recommended.rules,
       'react/jsx-no-target-blank': 'off',
       'react/prop-types': 'off',
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^React|^_' }],
+      // Texte d'interface en français : les apostrophes dans le JSX sont légitimes
+      'react/no-unescaped-entities': 'off',
+      'no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^React|^_',
+        caughtErrorsIgnorePattern: '^_',
+      }],
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },

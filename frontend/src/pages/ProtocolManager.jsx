@@ -236,7 +236,9 @@ export default function ProtocolManager() {
         if (statsRes.data?.suggestedBlock) {
           setSelectedInspectorBlock(statsRes.data.suggestedBlock);
         }
-      } catch (e) {}
+      } catch (statsErr) {
+        console.error('Erreur chargement des statistiques du protocole:', statsErr);
+      }
 
       // Si macro-blocs présents, basculer sur synthetic par défaut, sinon detailed
       const firstB = response.data?.blocks ? Object.keys(response.data.blocks)[0] : null;
@@ -253,7 +255,11 @@ export default function ProtocolManager() {
       });
     } catch (err) {
       console.error('Erreur sauvegarde protocole:', err);
-      setPopup({ open: true, message: 'Erreur lors de la sauvegarde du protocole.', severity: 'error' });
+      setPopup({
+        open: true,
+        message: err.response?.data?.message || 'Erreur lors de la sauvegarde du protocole.',
+        severity: 'error'
+      });
     } finally {
       setSaving(false);
     }

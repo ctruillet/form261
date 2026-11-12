@@ -33,6 +33,12 @@ npm run install:all
 - **Application Web (Frontend)** : [http://localhost:8888](http://localhost:8888)
 - **API REST (Backend)** : [http://localhost:5000](http://localhost:5000)
 
+Pour utiliser un autre port côté API, définir `PORT` pour le backend et `API_URL` pour le frontend :
+```bash
+PORT=5055 node backend/server.js
+API_URL=http://localhost:5055 npm run dev --prefix frontend
+```
+
 ---
 
 ## 🛠️ Commandes utiles

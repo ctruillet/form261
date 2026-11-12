@@ -359,6 +359,50 @@ const CreateForm = () => {
       }
     }
 
+    // Les réponses sont enregistrées par intitulé : deux questions de même intitulé s'écraseraient
+    const seenLabels = new Map();
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i].type === 'information' || fields[i].type === 'image') continue; // pas de réponse enregistrée
+      const key = fields[i].label.trim().toLowerCase();
+      if (seenLabels.has(key)) {
+        setPopup({
+          open: true,
+          message: `Les questions #${seenLabels.get(key) + 1} et #${i + 1} ont le même intitulé « ${fields[i].label.trim()} ». Chaque intitulé doit être unique.`,
+          severity: 'error',
+        });
+        return;
+      }
+      seenLabels.set(key, i);
+    }
+
+    for (let i = 0; i < fields.length; i++) {
+      const f = fields[i];
+      if (f.type === 'range') {
+        const min = Number(f.min ?? 1);
+        const max = Number(f.max ?? 7);
+        const step = Number(f.step ?? 1);
+        if (Number.isNaN(min) || Number.isNaN(max) || min >= max || !(step > 0)) {
+          setPopup({
+            open: true,
+            message: `Question #${i + 1} : l'échelle est invalide (le minimum doit être inférieur au maximum et le pas strictement positif).`,
+            severity: 'error',
+          });
+          return;
+        }
+      }
+      if (['choice', 'drop-down', 'ranking'].includes(f.type)) {
+        const options = (f.options || []).map((o) => String(o || '').trim()).filter(Boolean);
+        if (options.length === 0 || new Set(options).size !== options.length) {
+          setPopup({
+            open: true,
+            message: `Question #${i + 1} : les options doivent être renseignées et toutes différentes.`,
+            severity: 'error',
+          });
+          return;
+        }
+      }
+    }
+
     setIsSaving(true);
 
     try {
@@ -505,7 +549,7 @@ const CreateForm = () => {
                 variant="outlined"
                 endIcon={<ArrowForwardIcon />}
                 onClick={() =>
-                  navigate(`/form?fields=${createdFormInfo.fields}&param=${createdFormInfo.param}`)
+                  navigate(`/form?fields=${encodeURIComponent(createdFormInfo.fields || '')}&param=${encodeURIComponent(createdFormInfo.param || '')}`)
                 }
               >
                 Tester ce formulaire

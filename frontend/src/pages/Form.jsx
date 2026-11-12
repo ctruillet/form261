@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
+import React, { useContext, useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Alert from '@mui/material/Alert';
@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -27,6 +28,13 @@ import TextAutosizeField from "../components/fields/TextAutosizeField";
 import { ParticipantContext } from '../context/ParticipantContext';
 
 import "../styles/Form.css";
+
+// Clés d'URL réservées à la navigation (toutes les autres sont des valeurs pré-remplies)
+const RESERVED_QUERY_KEYS = ["fields", "param", "id"];
+
+// Un paramètre absent peut arriver sous forme de chaîne ("undefined", "none"...) dans l'URL
+const normalizeParam = (param) =>
+  !param || ["undefined", "null", "none"].includes(param) ? null : param;
 
 const Form = () => {
   const {
@@ -55,135 +63,163 @@ const Form = () => {
 
   const [formTiming, setFormTiming] = useState("trial");
   const [dataID, setDataID] = useState(undefined);
-  const urlValuesRef = React.useRef({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  // true quand on modifie une réponse existante ouverte via ?id=... : ses paramètres
+  // (UserID, Block, facteurs) ne doivent alors jamais être remplacés par ceux du participant actif.
+  const [editingExisting, setEditingExisting] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const urlValuesRef = useRef({});
 
-  const fetchParameterFields = useCallback(async (param, urlValues = {}) => {
-    try {
-      const response = await axios.get(`/api/parameters/${param}`);
-      const fields = response.data.fields || [];
-      setParameterFields(fields);
+  // Contexte participant lu au moment du chargement, sans relancer le chargement à chaque changement
+  const contextRef = useRef({});
+  contextRef.current = { participantData, activeFactors, currentTrialIndex };
 
-      const initialFormData = {};
-      fields.forEach((field) => {
-        const k = field.label;
-        if (urlValues[k] !== undefined) {
-          initialFormData[k] = urlValues[k];
-        } else if (k === 'UserID') {
-          initialFormData[k] = participantData?.UserID || "";
-        } else if (k === 'Block') {
-          initialFormData[k] = participantData?.Block || "";
-        } else if (k === 'TrialOrder') {
-          initialFormData[k] = currentTrialIndex || "";
-        } else if (activeFactors && activeFactors[k] !== undefined) {
-          initialFormData[k] = activeFactors[k];
-        } else {
-          initialFormData[k] = participantData?.[k] || "";
-        }
-      });
-      setFormData((prevData) => ({
-        ...initialFormData,
-        ...prevData,
-      }));
-    } catch (error) {
-      console.error("Erreur lors de la récupération des données du paramètre :", error);
-    }
-  }, [participantData, currentTrialIndex, activeFactors]);
-
+  // Chargement du formulaire, de ses paramètres et (en modification) de la réponse existante
   useEffect(() => {
+    let cancelled = false;
     const queryParams = new URLSearchParams(location.search);
     const fieldsName = queryParams.get("fields");
-    const param = queryParams.get("param");
+    const param = normalizeParam(queryParams.get("param"));
     const id = queryParams.get("id");
 
     const urlValues = {};
     queryParams.forEach((value, key) => {
-      if (key !== "fields" && key !== "param" && key !== "id") {
+      if (!RESERVED_QUERY_KEYS.includes(key)) {
         urlValues[key] = value;
       }
     });
     urlValuesRef.current = urlValues;
 
-    if (fieldsName) {
-      const fetchForm = async () => {
-        try {
-          const response = await axios.get(`/api/fields/${fieldsName}`);
-          const fields = response.data.fields || [];
-          setFieldsFields(fields);
-          setFormDescription(response.data.description || "");
+    const load = async () => {
+      setLoading(true);
+      setLoadError("");
+      setErrors({});
 
-          const initialFormData = {};
-          fields.forEach((field) => {
-            if (field.type === "range") {
-              const defaultRange = Math.round(((field.min ?? 0) + (field.max ?? 100)) / 2);
-              initialFormData[field.label] = urlValues[field.label] !== undefined
-                ? Number(urlValues[field.label])
-                : defaultRange;
-            } else {
-              initialFormData[field.label] =
-                urlValues[field.label] ||
-                participantData?.[field.label] ||
-                "";
-            }
-          });
-          setFormData((prev) => ({
-            ...initialFormData,
-            ...prev,
-          }));
-        } catch (error) {
-          console.error("Erreur lors de la récupération du field :", error);
+      if (!fieldsName) {
+        setLoadError("Aucun formulaire n'a été sélectionné.");
+        setLoading(false);
+        return;
+      }
+
+      let fields = [];
+      let description = "";
+      try {
+        const response = await axios.get(`/api/fields/${encodeURIComponent(fieldsName)}`);
+        fields = response.data.fields || [];
+        description = response.data.description || "";
+      } catch (error) {
+        console.error("Erreur lors de la récupération du field :", error);
+        if (!cancelled) {
+          setLoadError(`Impossible de charger le formulaire « ${fieldsName} ».`);
+          setLoading(false);
         }
+        return;
+      }
 
+      let paramFields = [];
+      if (param) {
         try {
-          if (param) {
-            const response = await axios.get(`/api/forms/fields=${fieldsName}&param=${param}`);
-            setFormTitle(response.data.name || "");
-            setFormID(response.data.id);
-            setFormTiming(response.data.timing || 'trial');
-          } else {
-            const response = await axios.get(`/api/forms`);
-            const matched = (response.data || []).find((f) => f.fields === fieldsName);
-            if (matched) {
-              setFormTitle(matched.name || "");
-              setFormID(matched.id);
-              setFormTiming(matched.timing || 'trial');
-            }
-          }
+          const response = await axios.get(`/api/parameters/${encodeURIComponent(param)}`);
+          paramFields = response.data.fields || [];
         } catch (error) {
-          console.error("Erreur lors de la récupération du form :", error);
+          console.error("Erreur lors de la récupération des données du paramètre :", error);
         }
-      };
+      }
 
-      fetchForm();
-    }
+      let formMeta = null;
+      try {
+        const response = await axios.get(`/api/forms`);
+        const allForms = response.data || [];
+        formMeta =
+          allForms.find((f) => f.fields === fieldsName && (f.param || "") === (param || "")) ||
+          allForms.find((f) => f.fields === fieldsName) ||
+          null;
+      } catch (error) {
+        console.error("Erreur lors de la récupération du form :", error);
+      }
 
-    if (param) {
-      setSelectedParameter(param);
-      fetchParameterFields(param, urlValues);
-    }
-
-    if (id) {
-      const fetchExistingData = async () => {
+      let existing = null;
+      if (id) {
         try {
-          const response = await axios.get(`/api/data/responses/id=${id}`);
-          const data = response.data;
-          setDataID(data.id);
-          setFormID(data.formID);
-
-          let initialFormData = { ...(data.fieldsFields || {}) };
-          initialFormData = { ...initialFormData, ...(data.parametersFields || {}) };
-
-          setFormData(initialFormData);
+          const response = await axios.get(`/api/data/responses/id=${encodeURIComponent(id)}`);
+          existing = response.data;
         } catch (error) {
           console.error("Erreur lors de la récupération des données existantes :", error);
+          if (!cancelled) {
+            setLoadError("La réponse à modifier est introuvable (elle a peut-être été supprimée).");
+            setLoading(false);
+          }
+          return;
         }
-      };
-      fetchExistingData();
-    }
-  }, [location.search, fetchParameterFields, participantData]);
+      }
+
+      if (cancelled) return;
+
+      const { participantData: pData, activeFactors: factors, currentTrialIndex: trialIndex } = contextRef.current;
+
+      // Valeurs initiales des paramètres expérimentaux
+      const initialFormData = {};
+      paramFields.forEach((field) => {
+        const k = field.label;
+        if (urlValues[k] !== undefined) {
+          initialFormData[k] = urlValues[k];
+        } else if (k === 'UserID') {
+          initialFormData[k] = pData?.UserID || "";
+        } else if (k === 'Block') {
+          initialFormData[k] = pData?.Block || "";
+        } else if (k === 'TrialOrder') {
+          initialFormData[k] = trialIndex || "";
+        } else if (factors && factors[k] !== undefined) {
+          initialFormData[k] = factors[k];
+        } else {
+          initialFormData[k] = pData?.[k] || "";
+        }
+      });
+
+      // Valeurs initiales des questions
+      fields.forEach((field) => {
+        if (field.type === "range") {
+          const defaultRange = Math.round(((field.min ?? 0) + (field.max ?? 100)) / 2);
+          initialFormData[field.label] = urlValues[field.label] !== undefined
+            ? Number(urlValues[field.label])
+            : defaultRange;
+        } else if (field.type !== "information" && field.type !== "image") {
+          initialFormData[field.label] =
+            urlValues[field.label] ||
+            pData?.[field.label] ||
+            "";
+        }
+      });
+
+      // En modification : les valeurs enregistrées priment sur tout le reste
+      if (existing) {
+        Object.assign(initialFormData, existing.fieldsFields || {}, existing.parametersFields || {});
+      }
+
+      setFieldsFields(fields);
+      setFormDescription(description);
+      setSelectedParameter(param);
+      setParameterFields(paramFields);
+      setFormTitle(formMeta?.name || existing?.name || "");
+      setFormID(existing?.formID ?? formMeta?.id);
+      setFormTiming(formMeta?.timing || 'trial');
+      setDataID(existing ? existing.id : undefined);
+      setEditingExisting(Boolean(existing));
+      setFormData(initialFormData);
+      setLoading(false);
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [location.search, reloadKey]);
 
   // Synchronisation sélective UNIQUEMENT avec les paramètres autorisés du formulaire
   useEffect(() => {
-    if (parameterFields.length === 0) return;
+    if (parameterFields.length === 0 || editingExisting) return;
     const allowedKeys = parameterFields.map((f) => f.label);
 
     setFormData((prev) => {
@@ -206,7 +242,13 @@ const Form = () => {
       }
       return updated;
     });
-  }, [participantData, activeFactors, currentTrialIndex, parameterFields]);
+  }, [participantData, activeFactors, currentTrialIndex, parameterFields, editingExisting]);
+
+  // Libellés des champs obligatoires (questions + paramètres)
+  const requiredLabels = useMemo(
+    () => new Set([...parameterFields, ...fieldsFields].filter((f) => f.required).map((f) => f.label)),
+    [parameterFields, fieldsFields]
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -215,9 +257,11 @@ const Form = () => {
       [name]: value,
     }));
 
+    // Seuls les champs obligatoires peuvent être en erreur lorsqu'ils sont vides
+    const isEmpty = value === "" || value === null || value === undefined;
     setErrors((prev) => ({
       ...prev,
-      [name]: value !== "" ? "" : `${name} est requis`,
+      [name]: isEmpty && requiredLabels.has(name) ? `${name} est requis` : "",
     }));
   };
 
@@ -280,34 +324,41 @@ const Form = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return; // évite les doublons en cas de double-clic
 
     const queryParams = new URLSearchParams(location.search);
     const fieldsName = queryParams.get("fields");
-    const param = queryParams.get("param");
+    const param = normalizeParam(queryParams.get("param"));
 
     if (!validateForm()) {
       handlePopupOpen("Veuillez remplir tous les champs requis", "error");
       return;
     }
 
+    // Sans identifiant de formulaire, les réponses seraient rangées dans le fichier d'un autre questionnaire
+    if (formID === undefined || formID === null) {
+      handlePopupOpen("Ce formulaire n'est pas enregistré dans la liste des formulaires : envoi impossible.", "error");
+      return;
+    }
+
     const completeFormData = {
       name: formTitle,
-      formID: formID !== undefined ? formID : 0,
+      formID,
       fieldsFile: fieldsName,
-      paramFile: param,
+      paramFile: param || "",
       parametersFields: {},
       fieldsFields: {},
     };
 
     fieldsFields.forEach((field) => {
+      if (field.type === "information" || field.type === "image") return; // champs d'affichage, sans réponse
       completeFormData.fieldsFields[field.label] = formData[field.label];
     });
 
-    completeFormData.parametersFields = {};
     parameterFields.forEach((field) => {
       const k = field.label;
       let val = formData[k];
-      if (val === undefined || val === '') {
+      if ((val === undefined || val === '') && !editingExisting) {
         if (urlValuesRef.current?.[k] !== undefined) val = urlValuesRef.current[k];
         else if (k === 'UserID' && participantData?.UserID) val = participantData.UserID;
         else if (k === 'Block' && participantData?.Block) val = participantData.Block;
@@ -316,9 +367,10 @@ const Form = () => {
         else if (participantData?.[k] !== undefined) val = participantData[k];
         else val = '';
       }
-      completeFormData.parametersFields[k] = val;
+      completeFormData.parametersFields[k] = val ?? '';
     });
 
+    setSubmitting(true);
     try {
       if (dataID) {
         completeFormData.id = dataID;
@@ -334,8 +386,35 @@ const Form = () => {
       }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement :", error);
-      handlePopupOpen("Erreur lors de l'envoi des données", "error");
+      handlePopupOpen(error.response?.data?.message || "Erreur lors de l'envoi des données", "error");
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  // Passer à l'essai suivant : nouvelle saisie vierge, avec les conditions du nouvel essai
+  const goToNextTrial = () => {
+    const upcoming = activeTrials.find((t) => t.trialOrder === currentTrialIndex + 1);
+    const query = new URLSearchParams(location.search);
+    query.delete("id");
+
+    // Si l'essai et ses facteurs figuraient dans l'URL, ils doivent suivre le nouvel essai
+    // (sinon la réponse suivante serait enregistrée avec les conditions de l'essai précédent).
+    if (upcoming) {
+      Object.entries(upcoming).forEach(([key, value]) => {
+        if (key === "trialOrder") {
+          if (query.has("TrialOrder")) query.set("TrialOrder", String(value));
+        } else if (key !== "macroBlock" && key !== "subTrial" && query.has(key)) {
+          query.set(key, String(value));
+        }
+      });
+    }
+
+    nextTrial();
+    setPostSubmitDialog(false);
+    setReloadKey((k) => k + 1);
+    navigate(`/form?${query.toString()}`, { replace: true });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const renderField = (field) => {
@@ -552,6 +631,7 @@ const Form = () => {
             color="secondary"
             endIcon={<SendIcon />}
             onClick={handleSubmit}
+            disabled={submitting || loading}
             sx={{ height: '42px', fontWeight: 700, textTransform: 'none', borderRadius: '8px' }}
           >
             Enregistrer les modifications
@@ -559,17 +639,35 @@ const Form = () => {
         )}
       </div>
       <div className="fields-container">
-        <form onSubmit={handleSubmit}>
-          {fieldsFields.map(renderField)}
-          <Button
-            variant="contained"
-            endIcon={<SendIcon />}
-            type="submit"
-            color={dataID === undefined ? "primary" : "secondary"}
+        {loadError ? (
+          <Alert
+            severity="error"
+            action={
+              <Button color="inherit" size="small" onClick={() => navigate('/')}>
+                Retour aux formulaires
+              </Button>
+            }
           >
-            {dataID === undefined ? "Soumettre" : "Modifier"}
-          </Button>
-        </form>
+            {loadError}
+          </Alert>
+        ) : loading && fieldsFields.length === 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <form onSubmit={handleSubmit} noValidate>
+            {fieldsFields.map(renderField)}
+            <Button
+              variant="contained"
+              endIcon={<SendIcon />}
+              type="submit"
+              disabled={submitting || loading}
+              color={dataID === undefined ? "primary" : "secondary"}
+            >
+              {submitting ? "Envoi..." : dataID === undefined ? "Soumettre" : "Modifier"}
+            </Button>
+          </form>
+        )}
       </div>
 
       {/* Dialogue post-soumission contextuel */}
@@ -632,13 +730,7 @@ const Form = () => {
               variant="contained"
               color="primary"
               startIcon={<SkipNextIcon />}
-              onClick={() => {
-                nextTrial();
-                setPostSubmitDialog(false);
-                setDataID(undefined);
-                setFormData({});
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onClick={goToNextTrial}
               sx={{ textTransform: 'none', fontWeight: 700 }}
             >
               Essai suivant ({currentTrialIndex + 1})

@@ -18,7 +18,7 @@ function logGamma(z) {
   }
 
   const w = z - 1;
-  const base = w + 5.242187565691;
+  const base = w + 5.2421875;
   let sum = 1.0;
   for (let i = 0; i < c.length; i++) {
     sum += c[i] / (w + i + 1);
@@ -114,9 +114,13 @@ export function getDescriptives(values) {
 
   return {
     n,
+    // Valeurs arrondies : pour l'affichage uniquement
     mean: Number(mean.toFixed(2)),
     variance: Number(variance.toFixed(2)),
     stdDev: Number(stdDev.toFixed(2)),
+    // Valeurs exactes : à utiliser dans les calculs de tests statistiques
+    rawMean: mean,
+    rawVariance: variance,
     min: Math.min(...valid),
     max: Math.max(...valid),
   };
@@ -129,12 +133,16 @@ export function welchTTest(group1, group2) {
 
   if (d1.n < 2 || d2.n < 2) return null;
 
-  const meanDiff = d1.mean - d2.mean;
-  const se1 = d1.variance / d1.n;
-  const se2 = d2.variance / d2.n;
+  // Calculs sur les valeurs exactes (les arrondis à 2 décimales faussaient t et p,
+  // surtout pour les petites variances)
+  const meanDiff = d1.rawMean - d2.rawMean;
+  const se1 = d1.rawVariance / d1.n;
+  const se2 = d2.rawVariance / d2.n;
   const seDiff = Math.sqrt(se1 + se2);
 
   if (seDiff === 0) {
+    // Variance nulle dans les deux groupes : le test n'est pas calculable.
+    // On le signale comme non significatif plutôt que de diviser par zéro.
     return {
       t: 0,
       df: d1.n + d2.n - 2,
@@ -142,7 +150,7 @@ export function welchTTest(group1, group2) {
       isSignificant: false,
       stars: 'ns',
       pFormatted: '1.000',
-      meanDiff: 0,
+      meanDiff: Number(meanDiff.toFixed(2)),
       d1,
       d2,
     };

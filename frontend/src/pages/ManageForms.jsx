@@ -246,7 +246,7 @@ const ManageForms = () => {
                     <Tooltip title="Tester / Répondre">
                       <IconButton
                         color="success"
-                        onClick={() => navigate(`/form?fields=${form.fields}&param=${form.param}`)}
+                        onClick={() => navigate(`/form?fields=${encodeURIComponent(form.fields || '')}&param=${encodeURIComponent(form.param || '')}`)}
                         sx={{ mr: 1 }}
                       >
                         <PlayArrowIcon />

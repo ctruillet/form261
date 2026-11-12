@@ -1,11 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const xlsx = require('xlsx');
-const axios = require('axios'); // Pour effectuer les requêtes HTTP
 const { v4: uuidv4 } = require('uuid'); // Utilisé pour générer des IDs uniques
+const { readJson, writeJson, listJsonFiles } = require('../services/fileService');
 
-// Chemin vers le fichier où les données sont stockées
-// const dataFilePath = path.join(__dirname, '../data.json');
+// Dossier où les réponses sont stockées (un fichier <formID>.json par formulaire)
 const answersFolderPath = path.join(__dirname, '../answers/');
 
 // Fonction pour aplatir un objet JSON
@@ -41,322 +40,175 @@ const ensureAnswersFolderExists = () => {
   }
 };
 
+// Un formID sert de nom de fichier : on n'accepte que des identifiants simples
+// (pas de séparateur de chemin, pas de "..").
+const isValidFormID = (formID) =>
+  formID !== undefined && formID !== null && /^[A-Za-z0-9_-]+$/.test(String(formID));
+
+const getAnswersFilePath = (formID) => path.join(answersFolderPath, `${formID}.json`);
+
+// Lecture / écriture synchrones : Node étant mono-thread, chaque cycle
+// lecture-modification-écriture est ainsi atomique vis-à-vis des autres requêtes
+// (deux soumissions simultanées ne peuvent plus s'écraser mutuellement).
+const readAnswers = (formID) => {
+  const content = readJson(getAnswersFilePath(formID), []);
+  return Array.isArray(content) ? content : [];
+};
+
+const writeAnswers = (formID, answers) => {
+  ensureAnswersFolderExists();
+  writeJson(getAnswersFilePath(formID), answers);
+};
+
+// Recherche une réponse par son ID dans tous les fichiers de réponses
+const findResponseLocation = (id) => {
+  for (const file of listJsonFiles(answersFolderPath)) {
+    const formID = path.basename(file, '.json');
+    let answers;
+    try {
+      answers = readAnswers(formID);
+    } catch (err) {
+      console.error(`Erreur de lecture du fichier ${file}:`, err);
+      continue;
+    }
+    const index = answers.findIndex((response) => response && response.id === id);
+    if (index !== -1) return { formID, answers, index };
+  }
+  return null;
+};
+
 // Enregistrer les données soumises via un formulaire
 exports.registerData = (req, res) => {
-  ensureAnswersFolderExists();
-  const data = { ...req.body, id: uuidv4() }; // Ajoute un ID unique à chaque nouvelle réponse
-  const answersFilePath = path.join(answersFolderPath, `${data.formID}.json`);
+  const body = req.body || {};
+  if (!isValidFormID(body.formID)) {
+    return res.status(400).json({ message: 'Identifiant de formulaire (formID) manquant ou invalide' });
+  }
 
-  fs.readFile(answersFilePath, 'utf8', (err, fileData) => {
-    let jsonData = [];
+  try {
+    const data = { ...body, id: uuidv4(), createdAt: new Date().toISOString() };
+    const answers = readAnswers(body.formID);
+    answers.push(data);
+    writeAnswers(body.formID, answers);
+    res.status(200).json({ message: 'Données enregistrées avec succès', id: data.id });
+  } catch (err) {
+    console.error('Erreur registerData:', err);
+    res.status(500).json({ message: "Erreur lors de l'enregistrement des données" });
+  }
+};
 
-    // Si le fichier n'existe pas, initialise jsonData comme un tableau vide
-    if (err) {
-      if (err.code === 'ENOENT') {
-        console.log(`Fichier ${data.formID}.json non trouvé, création d'un nouveau fichier.`);
-      } else {
-        console.error(err);
-        return res.status(500).json({ message: 'Erreur de lecture du fichier' });
-      }
-    } else {
-      // Si le fichier existe, parse son contenu
-      try {
-        jsonData = JSON.parse(fileData || '[]');
-      } catch (parseError) {
-        console.error('Erreur de parsing du fichier:', parseError);
-        return res.status(500).json({ message: 'Erreur de parsing du fichier' });
-      }
+// Fusionne une mise à jour dans une réponse existante (l'ID n'est jamais modifiable)
+const applyResponseUpdate = (formID, id, updatedData, res) => {
+  if (!isValidFormID(formID)) {
+    return res.status(400).json({ message: 'Identifiant de formulaire (formID) manquant ou invalide' });
+  }
+
+  try {
+    const answers = readAnswers(formID);
+    const index = answers.findIndex((item) => item && item.id === id);
+    if (index === -1) {
+      return res.status(404).json({ message: 'Réponse non trouvée' });
     }
 
-    // Ajoute les nouvelles données au tableau
-    jsonData.push(data);
-
-    // Écrit les données mises à jour dans le fichier
-    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Erreur lors de l\'écriture du fichier' });
-      }
-      res.status(200).json({ message: 'Données enregistrées avec succès', id: data.id });
-    });
-  });
+    answers[index] = {
+      ...answers[index],
+      ...updatedData,
+      id,
+      formID: answers[index].formID,
+      updatedAt: new Date().toISOString(),
+    };
+    writeAnswers(formID, answers);
+    res.status(200).json({ message: 'Données modifiées avec succès', id });
+  } catch (err) {
+    console.error('Erreur de mise à jour de la réponse:', err);
+    res.status(500).json({ message: 'Erreur lors de la mise à jour de la réponse' });
+  }
 };
 
 // Modifier une réponse via le formulaire
 exports.modifyData = (req, res) => {
-  ensureAnswersFolderExists();
-  const data = req.body;
-  const id = data.id;
-  const answersFilePath = path.join(answersFolderPath, `${data.formID}.json`);
-
-  fs.readFile(answersFilePath, 'utf8', (err, fileData) => {
-    let jsonData = [];
-
-    // Si le fichier n'existe pas, initialise jsonData comme un tableau vide
-    if (err) {
-      if (err.code === 'ENOENT') {
-        console.log(`Fichier ${data.formID}.json non trouvé.`);
-        return res.status(404).json({ message: 'Fichier de formulaire non trouvé' });
-      } else {
-        console.error(err);
-        return res.status(500).json({ message: 'Erreur de lecture du fichier' });
-      }
-    } else {
-      // Si le fichier existe, parse son contenu
-      try {
-        jsonData = JSON.parse(fileData || '[]');
-      } catch (parseError) {
-        console.error('Erreur de parsing du fichier:', parseError);
-        return res.status(500).json({ message: 'Erreur de parsing du fichier' });
-      }
-    }
-
-    // Cherche la réponse à modifier par son ID
-    const index = jsonData.findIndex((item) => item.id === id);
-
-    if (index === -1) {
-      // Si la réponse n'est pas trouvée, retourne une erreur
-      return res.status(404).json({ message: 'Réponse non trouvée' });
-    }
-
-    // Met à jour les données de la réponse
-    jsonData[index] = { ...jsonData[index], ...data };
-
-    // Écrit les données mises à jour dans le fichier
-    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (writeErr) => {
-      if (writeErr) {
-        console.error(writeErr);
-        return res.status(500).json({ message: 'Erreur lors de l\'écriture du fichier' });
-      }
-
-      res.status(200).json({ message: 'Données modifiées avec succès', id });
-    });
-  });
+  const data = req.body || {};
+  if (!data.id) {
+    return res.status(400).json({ message: 'Identifiant de réponse (id) manquant' });
+  }
+  applyResponseUpdate(data.formID, data.id, data, res);
 };
 
+// Mettre à jour une réponse
+exports.updateResponse = (req, res) => {
+  applyResponseUpdate(req.params.formID, req.params.id, req.body || {}, res);
+};
 
 // Récupérer toutes les réponses
 exports.getAllResponses = (req, res) => {
-  ensureAnswersFolderExists();
-  fs.readdir(answersFolderPath, (err, files) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Erreur de lecture du dossier de réponses' });
-    }
-
-    const jsonFiles = (files || []).filter(file => path.extname(file) === '.json');
-    if (jsonFiles.length === 0) {
-      return res.status(200).json([]);
-    }
-
+  try {
     const allResponses = [];
-    jsonFiles.forEach((file) => {
-      const filePath = path.join(answersFolderPath, file);
+    listJsonFiles(answersFolderPath).forEach((file) => {
       try {
-        const data = fs.readFileSync(filePath, 'utf8');
-        const jsonData = JSON.parse(data || '[]');
-        allResponses.push({ file: file, content: jsonData });
+        const content = readJson(path.join(answersFolderPath, file), []);
+        allResponses.push({ file, content: Array.isArray(content) ? content : [] });
       } catch (error) {
         console.error(`Erreur de lecture du fichier ${file}:`, error);
       }
     });
-
     res.status(200).json(allResponses);
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur de lecture du dossier de réponses' });
+  }
 };
 
 // Récuperer les réponses d'un formulaire spécifique
 exports.getResponsesByFormID = (req, res) => {
-  ensureAnswersFolderExists();
   const formID = req.params.formID;
-  const answersFilePath = path.join(answersFolderPath, `${formID}.json`);
+  if (!isValidFormID(formID)) {
+    return res.status(400).json({ message: 'Identifiant de formulaire invalide' });
+  }
 
-  fs.readFile(answersFilePath, 'utf8', (err, data) => {
-    if (err) {
-      if (err.code === 'ENOENT') {
-        // Un formulaire sans réponses retourne un tableau vide au lieu d'une erreur 500
-        return res.status(200).json([]);
-      }
-      console.error(`Erreur de lecture du fichier ${answersFilePath}:`, err);
-      return res.status(500).json({ message: `Erreur de lecture du fichier ${formID}.json de réponses` });
-    }
-
-    try {
-      const jsonData = JSON.parse(data || '[]');
-      return res.status(200).json(jsonData);
-    } catch (parseError) {
-      console.error('Erreur de parsing du fichier:', parseError);
-      return res.status(500).json({ message: 'Erreur de parsing du fichier de réponses' });
-    }
-  });
+  try {
+    // Un formulaire sans réponses retourne un tableau vide
+    res.status(200).json(readAnswers(formID));
+  } catch (err) {
+    console.error(`Erreur de lecture des réponses du formulaire ${formID}:`, err);
+    res.status(500).json({ message: `Erreur de lecture du fichier ${formID}.json de réponses` });
+  }
 };
 
-// Récupérer une réponse d'un formulaire spécifique
+// Récupérer une réponse par son ID
 exports.getResponseByID = (req, res) => {
   const id = req.params.id;
-
-  fs.readdir(answersFolderPath, (err, files) => {
-    if (err) {
-      console.error('Erreur de lecture du répertoire:', err);
-      return res.status(500).json({ message: 'Erreur de lecture du répertoire des réponses' });
+  try {
+    const found = findResponseLocation(id);
+    if (!found) {
+      return res.status(404).json({ message: `Réponse avec l'ID ${id} non trouvée` });
     }
-
-    let foundResponse = null;  // Variable pour stocker la réponse trouvée
-
-    // Utiliser une promesse pour s'assurer que nous lisons tous les fichiers avant de répondre
-    let filePromises = files.map((file) => {
-      return new Promise((resolve, reject) => {
-        if (path.extname(file) === '.json') {  // Vérifier si c'est un fichier .json
-          const answersFilePath = path.join(answersFolderPath, file);  // Créer le chemin complet du fichier
-
-          fs.readFile(answersFilePath, 'utf8', (err, data) => {
-            if (err) {
-              console.error(`Erreur de lecture du fichier ${answersFilePath}:`, err);
-              reject(`Erreur de lecture du fichier ${file} de réponses`);
-            }
-
-            try {
-              let jsonData = JSON.parse(data || '[]');
-              const response = jsonData.find((response) => response.id === id); // Trouver la réponse par ID
-
-              if (response) {
-                foundResponse = response;  // Stocker la réponse trouvée
-              }
-              resolve();
-            } catch (parseError) {
-              console.error('Erreur de parsing du fichier:', parseError);
-              reject('Erreur de parsing du fichier de réponses');
-            }
-          });
-        } else {
-          resolve();  // Si ce n'est pas un fichier JSON, on continue
-        }
-      });
-    });
-
-    // Une fois que toutes les promesses sont résolues, on renvoie la réponse
-    Promise.all(filePromises)
-      .then(() => {
-        if (foundResponse) {
-          console.log(foundResponse);
-          return res.status(200).json(foundResponse); // Retourner la réponse trouvée
-        } else {
-          return res.status(404).json({ message: `Réponse avec l'ID ${id} non trouvée` });
-        }
-      })
-      .catch((error) => {
-        console.error('Erreur:', error);
-        return res.status(500).json({ message: 'Erreur de traitement des fichiers de réponses' });
-      });
-  });
+    res.status(200).json(found.answers[found.index]);
+  } catch (err) {
+    console.error('Erreur getResponseByID:', err);
+    res.status(500).json({ message: 'Erreur de traitement des fichiers de réponses' });
+  }
 };
 
+// Supprimer une réponse par son ID
 exports.deleteResponseByID = (req, res) => {
   const id = req.params.id;
-
-  fs.readdir(answersFolderPath, (err, files) => {
-    if (err) {
-      console.error("Erreur de lecture du répertoire :", err);
-      return res.status(500).json({ message: "Erreur de lecture du répertoire des réponses" });
+  try {
+    const found = findResponseLocation(id);
+    if (!found) {
+      return res.status(404).json({ message: `Réponse avec l'ID ${id} non trouvée` });
     }
-
-    let filePromises = files.map((file) => {
-      return new Promise((resolve, reject) => {
-        if (path.extname(file) === ".json") {
-          const answersFilePath = path.join(answersFolderPath, file);
-
-          fs.readFile(answersFilePath, "utf8", (err, data) => {
-            if (err) {
-              console.error(`Erreur de lecture du fichier ${answersFilePath} :`, err);
-              return reject(`Erreur de lecture du fichier ${file} de réponses`);
-            }
-
-            try {
-              let jsonData = JSON.parse(data || "[]");
-              const initialLength = jsonData.length;
-
-              // Filtrer les réponses pour supprimer celle avec l'ID correspondant
-              jsonData = jsonData.filter((response) => response.id !== id);
-
-              if (jsonData.length < initialLength) {
-                // Si une réponse a été supprimée, écrire le fichier mis à jour
-                fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (writeErr) => {
-                  if (writeErr) {
-                    console.error(`Erreur d'écriture dans le fichier ${answersFilePath} :`, writeErr);
-                    return reject(`Erreur d'écriture dans le fichier ${file}`);
-                  }
-                  console.log(`Réponse avec l'ID ${id} supprimée du fichier ${file}`);
-                  resolve(true); // Indique qu'une suppression a été effectuée
-                });
-              } else {
-                resolve(false); // Aucun élément supprimé dans ce fichier
-              }
-            } catch (parseError) {
-              console.error("Erreur de parsing du fichier :", parseError);
-              reject("Erreur de parsing du fichier de réponses");
-            }
-          });
-        } else {
-          resolve(false); // Ignorer les fichiers non-JSON
-        }
-      });
-    });
-
-    Promise.all(filePromises)
-      .then((results) => {
-        const isDeleted = results.some((result) => result); // Vérifie si au moins une suppression a eu lieu
-        if (isDeleted) {
-          return res.status(200).json({ message: `Réponse avec l'ID ${id} supprimée avec succès` });
-        } else {
-          return res.status(404).json({ message: `Réponse avec l'ID ${id} non trouvée` });
-        }
-      })
-      .catch((error) => {
-        console.error("Erreur :", error);
-        return res.status(500).json({ message: "Erreur de traitement des fichiers de réponses" });
-      });
-  });
-};
-
-
-// Mettre à jour une réponse
-exports.updateResponse = (req, res) => {
-  const id = req.params.id;
-  const formID = req.params.formID;
-  const answersFilePath = path.join(answersFolderPath, `${formID}.json`);
-
-  const updatedData = req.body;
-
-  fs.readFile(answersFilePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ message: 'Erreur de lecture des réponses' });
-    }
-
-    let jsonData = JSON.parse(data || '[]');
-    const responseIndex = jsonData.findIndex((response) => response.id === id);
-
-    if (responseIndex === -1) {
-      return res.status(404).json({ message: 'Réponse non trouvée' });
-    }
-
-    jsonData[responseIndex] = { ...jsonData[responseIndex], ...updatedData };
-
-    fs.writeFile(answersFilePath, JSON.stringify(jsonData, null, 2), (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Erreur lors de la mise à jour de la réponse' });
-      }
-      res.status(200).json({ message: 'Réponse mise à jour avec succès' });
-    });
-  });
+    found.answers.splice(found.index, 1);
+    writeAnswers(found.formID, found.answers);
+    res.status(200).json({ message: `Réponse avec l'ID ${id} supprimée avec succès` });
+  } catch (err) {
+    console.error('Erreur deleteResponseByID:', err);
+    res.status(500).json({ message: 'Erreur de traitement des fichiers de réponses' });
+  }
 };
 
 
 
 exports.exportResponsesToExcel = (req, res) => {
   ensureAnswersFolderExists();
-  const outputFilePath = path.join(__dirname, 'exported_responses.xlsx');
 
   // Lis les fichiers dans le dossier des réponses
   fs.readdir(answersFolderPath, (err, files) => {
@@ -415,20 +267,11 @@ exports.exportResponsesToExcel = (req, res) => {
     }
 
     try {
-      // Écrit le classeur Excel dans un fichier
-      xlsx.writeFile(workbook, outputFilePath);
-
-      // Télécharge le fichier Excel
-      res.download(outputFilePath, 'exported_responses.xlsx', (downloadErr) => {
-        if (downloadErr) {
-          console.error('Erreur lors du téléchargement du fichier:', downloadErr);
-          if (!res.headersSent) {
-            res.status(500).json({ message: 'Erreur lors du téléchargement du fichier Excel' });
-          }
-        } else {
-          console.log('Fichier Excel téléchargé avec succès');
-        }
-      });
+      // Génère le classeur en mémoire (aucun fichier temporaire écrit dans le dépôt)
+      const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename="exported_responses.xlsx"');
+      res.status(200).send(buffer);
     } catch (writeErr) {
       console.error('Erreur lors de l\'écriture du fichier Excel:', writeErr);
       if (!res.headersSent) {
@@ -486,8 +329,7 @@ exports.exportTidyCSV = (req, res) => {
         const l = k.toLowerCase();
         if (l.includes('user') || l.includes('partic')) return 1;
         if (l === 'block') return 2;
-        if (l === 'trialorder' || l === 'order' || l.includes('essai')) return 3;
-        return 4;
+        if (l === 'trialorder' || l === 'order' || l.includes('essai')) return 3;        return 4;
       };
       const pA = getPriority(a);
       const pB = getPriority(b);
