@@ -5,15 +5,12 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogActions from '@mui/material/DialogActions';
+import Paper from '@mui/material/Paper';
 import SendIcon from '@mui/icons-material/Send';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 
@@ -26,6 +23,7 @@ import InformationField from "../components/fields/InformationField";
 import ImageField from "../components/fields/ImageField";
 import TextAutosizeField from "../components/fields/TextAutosizeField";
 import { ParticipantContext } from '../context/ParticipantContext';
+import { buildSessionSteps, buildStepUrl, findCurrentStep } from '../utils/sessionSteps';
 
 import "../styles/Form.css";
 
@@ -43,6 +41,8 @@ const Form = () => {
     currentTrialIndex,
     activeTrials,
     nextTrial,
+    protocol,
+    loadingProtocol,
   } = useContext(ParticipantContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,7 +59,11 @@ const Form = () => {
     severity: "info",
     open: false,
   });
-  const [postSubmitDialog, setPostSubmitDialog] = useState(false);
+  // Écran de fin affiché après l'envoi : { next, remaining } (next = questionnaire suivant de la même étape)
+  const [completion, setCompletion] = useState(null);
+  // Position du questionnaire dans son étape : { key, group, position, total }
+  const [stepInfo, setStepInfo] = useState(null);
+  const sessionStepsRef = useRef([]);
 
   const [formTiming, setFormTiming] = useState("trial");
   const [dataID, setDataID] = useState(undefined);
@@ -74,10 +78,12 @@ const Form = () => {
 
   // Contexte participant lu au moment du chargement, sans relancer le chargement à chaque changement
   const contextRef = useRef({});
-  contextRef.current = { participantData, activeFactors, currentTrialIndex };
+  contextRef.current = { participantData, activeFactors, currentTrialIndex, activeTrials, protocol };
 
   // Chargement du formulaire, de ses paramètres et (en modification) de la réponse existante
   useEffect(() => {
+    // Attendre le protocole : il détermine les conditions de l'essai et l'enchaînement des questionnaires
+    if (loadingProtocol) return undefined;
     let cancelled = false;
     const queryParams = new URLSearchParams(location.search);
     const fieldsName = queryParams.get("fields");
@@ -129,9 +135,10 @@ const Form = () => {
       }
 
       let formMeta = null;
+      let allForms = [];
       try {
         const response = await axios.get(`/api/forms`);
-        const allForms = response.data || [];
+        allForms = response.data || [];
         formMeta =
           allForms.find((f) => f.fields === fieldsName && (f.param || "") === (param || "")) ||
           allForms.find((f) => f.fields === fieldsName) ||
@@ -152,6 +159,17 @@ const Form = () => {
             setLoading(false);
           }
           return;
+        }
+      }
+
+      // En session : réponses déjà données, pour situer ce questionnaire dans le déroulé
+      let sessionResponses = null;
+      if (contextRef.current.participantData?.UserID) {
+        try {
+          const response = await axios.get('/api/data/responses');
+          sessionResponses = response.data || [];
+        } catch (error) {
+          console.error("Erreur lors de la récupération du déroulé de la session :", error);
         }
       }
 
@@ -198,6 +216,32 @@ const Form = () => {
         Object.assign(initialFormData, existing.fieldsFields || {}, existing.parametersFields || {});
       }
 
+      // Situer le questionnaire dans son étape (« Questionnaire 2 sur 5 ») et préparer l'enchaînement
+      let currentStepInfo = null;
+      sessionStepsRef.current = [];
+      if (sessionResponses && pData?.UserID) {
+        const { steps } = buildSessionSteps({
+          forms: allForms,
+          trials: contextRef.current.activeTrials,
+          blockedFactorName: contextRef.current.protocol?.blockedFactorName,
+          responses: sessionResponses,
+          userId: pData.UserID,
+        });
+        sessionStepsRef.current = steps;
+        const current = findCurrentStep(steps, fieldsName, initialFormData);
+        if (current) {
+          const groupSteps = steps.filter((s) => s.group === current.group);
+          currentStepInfo = {
+            key: current.key,
+            group: current.group,
+            position: groupSteps.indexOf(current) + 1,
+            total: groupSteps.length,
+          };
+        }
+      }
+
+      setStepInfo(currentStepInfo);
+      setCompletion(null);
       setFieldsFields(fields);
       setFormDescription(description);
       setSelectedParameter(param);
@@ -215,7 +259,26 @@ const Form = () => {
     return () => {
       cancelled = true;
     };
-  }, [location.search, reloadKey]);
+  }, [location.search, reloadKey, loadingProtocol]);
+
+  // Après un envoi réussi : afficher l'écran de fin, avec le questionnaire suivant de la même étape s'il y en a un
+  const showCompletion = (savedId) => {
+    let next = null;
+    let remaining = 0;
+    if (stepInfo) {
+      const steps = sessionStepsRef.current;
+      const current = steps.find((s) => s.key === stepInfo.key);
+      if (current) {
+        current.done = true;
+        current.responseId = savedId;
+      }
+      const pending = steps.filter((s) => s.group === stepInfo.group && !s.done);
+      next = pending[0] || null;
+      remaining = pending.length;
+    }
+    setCompletion({ next, remaining });
+    window.scrollTo({ top: 0 });
+  };
 
   // Synchronisation sélective UNIQUEMENT avec les paramètres autorisés du formulaire
   useEffect(() => {
@@ -375,14 +438,11 @@ const Form = () => {
       if (dataID) {
         completeFormData.id = dataID;
         await axios.put(`/api/data/modifyData`, completeFormData);
-        handlePopupOpen("Données modifiées avec succès", "success");
+        showCompletion(dataID);
       } else {
         const response = await axios.post("/api/data/registerData", completeFormData);
         setDataID(response.data.id);
-        handlePopupOpen("Données enregistrées avec succès !", "success");
-        if (participantData?.UserID) {
-          setPostSubmitDialog(true);
-        }
+        showCompletion(response.data.id);
       }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement :", error);
@@ -411,7 +471,7 @@ const Form = () => {
     }
 
     nextTrial();
-    setPostSubmitDialog(false);
+    setCompletion(null);
     setReloadKey((k) => k + 1);
     navigate(`/form?${query.toString()}`, { replace: true });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -539,205 +599,207 @@ const Form = () => {
   const hasTrialOrderInParam = parameterFields.some((f) => f.label === 'TrialOrder');
   const factorFieldsInParam = parameterFields.filter((f) => !['UserID', 'Block', 'TrialOrder'].includes(f.label));
 
+
+  const hasActiveParticipant = Boolean(participantData?.UserID);
+
+  // Rappel discret du contexte (utile à l'expérimentateur, sans encombrer le participant)
+  const contextSummary = [];
+  if (hasActiveParticipant) {
+    if (parameterFields.some((f) => f.label === 'UserID')) {
+      contextSummary.push(`Participant ${formData.UserID || participantData.UserID}`);
+    }
+    factorFieldsInParam.forEach((f) => {
+      const val = formData[f.label] || urlValuesRef.current?.[f.label] || activeFactors?.[f.label];
+      if (val !== undefined && val !== '') contextSummary.push(String(val));
+    });
+    if (hasTrialOrderInParam && activeTrials.length > 0) {
+      contextSummary.push(`Essai ${formData.TrialOrder || currentTrialIndex}/${activeTrials.length}`);
+    }
+  }
+
+  const handleBack = () => {
+    if (hasActiveParticipant) navigate('/session');
+    else if (window.history.length > 1) navigate(-1);
+    else navigate('/session');
+  };
+
+  // Saisir une nouvelle réponse au même questionnaire (hors session de passation)
+  const startNewResponse = () => {
+    const query = new URLSearchParams(location.search);
+    query.delete("id");
+    setReloadKey((k) => k + 1);
+    navigate(`/form?${query.toString()}`, { replace: true });
+  };
+
   return (
     <div className="fields-page">
-      {/* Barre des Variables Expérimentales */}
-      <div className="navbar" style={{ padding: '12px 20px', minHeight: 'auto' }}>
-        {participantData?.UserID ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', flexWrap: 'wrap', gap: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-              {parameterFields.some((f) => f.label === 'UserID') && (
-                <Chip
-                  label={`Participant #${formData.UserID || participantData.UserID}`}
-                  color="primary"
-                  size="small"
-                  sx={{ fontWeight: 800, height: 26, fontSize: '0.78rem' }}
-                />
-              )}
-              {parameterFields.some((f) => f.label === 'Block') && (
-                <Chip
-                  label={`Bloc : ${formData.Block || participantData.Block}`}
-                  size="small"
-                  sx={{ fontWeight: 700, backgroundColor: '#f1f5f9', height: 26, fontSize: '0.78rem' }}
-                />
-              )}
-              {hasTrialOrderInParam && activeTrials.length > 0 && (
-                <Chip
-                  label={`Essai ${formData.TrialOrder || currentTrialIndex} / ${activeTrials.length}`}
-                  size="small"
-                  color="secondary"
-                  sx={{ fontWeight: 700, height: 26, fontSize: '0.78rem' }}
-                />
-              )}
-              {factorFieldsInParam.map((f) => {
-                const val = formData[f.label] || urlValuesRef.current?.[f.label] || activeFactors?.[f.label];
-                if (val === undefined || val === '') return null;
-                return (
-                  <Chip
-                    key={f.label}
-                    label={`${f.label}: ${val}`}
-                    size="small"
-                    sx={{ fontWeight: 700, backgroundColor: '#eff6ff', color: '#1d4ed8', height: 26, fontSize: '0.78rem' }}
-                  />
-                );
-              })}
-
-              {/* Jalon contextuel */}
-              {formTiming === 'pre' && (
-                <Chip
-                  label="📋 Questionnaire initial (Pré-expérience)"
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontWeight: 700, borderColor: '#38bdf8', color: '#0284c7', height: 26, fontSize: '0.74rem' }}
-                />
-              )}
-              {formTiming === 'post-modality' && (
-                <Chip
-                  label="🔬 Évaluation de modalité"
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontWeight: 700, borderColor: '#a78bfa', color: '#7c3aed', height: 26, fontSize: '0.74rem' }}
-                />
-              )}
-              {formTiming === 'post' && (
-                <Chip
-                  label="🏆 Bilan final (Post-expérience)"
-                  size="small"
-                  variant="outlined"
-                  sx={{ fontWeight: 700, borderColor: '#34d399', color: '#059669', height: 26, fontSize: '0.74rem' }}
-                />
-              )}
-            </Box>
-
-            <Typography variant="caption" sx={{ color: '#94a3b8', fontStyle: 'italic' }}>
-              Variables expérimentales de ce questionnaire
-            </Typography>
-          </Box>
-        ) : (
-          <div className="parameter-fields">
-            {selectedParameter && <>{parameterFields.map(renderField)}</>}
-          </div>
-        )}
+      {/* Barre minimale : retour + rappel du contexte */}
+      <div className="form-topbar">
+        <Button
+          size="small"
+          startIcon={<ArrowBackIcon fontSize="small" />}
+          onClick={handleBack}
+          sx={{ textTransform: 'none', color: '#64748b', fontWeight: 600 }}
+        >
+          {hasActiveParticipant ? 'Session' : 'Retour'}
+        </Button>
+        <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+          {contextSummary.join(' · ')}
+        </Typography>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '16px' }}>
-        <div>
-          <h1 style={{ margin: 0 }}>{formTitle}</h1>
-          {fieldsDescription && <p style={{ margin: '8px 0 0 0', color: '#64748b' }}>{fieldsDescription}</p>}
-        </div>
-        {dataID !== undefined && (
-          <Button
-            variant="contained"
-            color="secondary"
-            endIcon={<SendIcon />}
-            onClick={handleSubmit}
-            disabled={submitting || loading}
-            sx={{ height: '42px', fontWeight: 700, textTransform: 'none', borderRadius: '8px' }}
-          >
-            Enregistrer les modifications
-          </Button>
-        )}
-      </div>
-      <div className="fields-container">
-        {loadError ? (
-          <Alert
-            severity="error"
-            action={
-              <Button color="inherit" size="small" onClick={() => navigate('/')}>
-                Retour aux formulaires
+      {completion ? (
+        /* Écran de fin : une seule action proposée */
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 6,
+            p: { xs: 3, sm: 5 },
+            textAlign: 'center',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <CheckCircleOutlineIcon sx={{ fontSize: 64, color: '#10b981' }} />
+          <Typography variant="h5" fontWeight={800} color="#0f172a" sx={{ mt: 1 }}>
+            Merci, vos réponses sont enregistrées.
+          </Typography>
+
+          {completion.next ? (
+            <>
+              <Typography color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+                {completion.remaining > 1
+                  ? `Il reste ${completion.remaining} questionnaires pour cette étape.`
+                  : 'Il reste un dernier questionnaire pour cette étape.'}
+              </Typography>
+              <Button
+                variant="contained"
+                size="large"
+                endIcon={<ArrowForwardIcon />}
+                onClick={() => navigate(buildStepUrl(completion.next, participantData))}
+                sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '10px', px: 4, py: 1.4 }}
+              >
+                Questionnaire suivant
               </Button>
-            }
-          >
-            {loadError}
-          </Alert>
-        ) : loading && fieldsFields.length === 0 ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <form onSubmit={handleSubmit} noValidate>
-            {fieldsFields.map(renderField)}
-            <Button
-              variant="contained"
-              endIcon={<SendIcon />}
-              type="submit"
-              disabled={submitting || loading}
-              color={dataID === undefined ? "primary" : "secondary"}
-            >
-              {submitting ? "Envoi..." : dataID === undefined ? "Soumettre" : "Modifier"}
-            </Button>
-          </form>
-        )}
-      </div>
-
-      {/* Dialogue post-soumission contextuel */}
-      <Dialog open={postSubmitDialog} onClose={() => setPostSubmitDialog(false)}>
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#059669', fontWeight: 700 }}>
-          <CheckCircleOutlineIcon /> Réponses enregistrées !
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {formTiming === 'pre' ? (
-              <>
-                Le <strong>Questionnaire initial</strong> pour le <strong>Participant #{participantData?.UserID}</strong> a été validé avec succès.
-                <br /><br />
-                Vous pouvez maintenant passer au <strong>déroulement du protocole expérimental</strong>.
-              </>
-            ) : formTiming === 'post-modality' ? (
-              <>
-                L'évaluation de la modalité pour le <strong>Participant #{participantData?.UserID}</strong> a été enregistrée avec succès.
-                <br /><br />
-                Vous pouvez poursuivre les étapes du protocole expérimental.
-              </>
-            ) : formTiming === 'post' ? (
-              <>
-                🎉 Le questionnaire de bilan pour le <strong>Participant #{participantData?.UserID}</strong> a été enregistré avec succès !
-                <br /><br />
-                Toutes les étapes pour ce participant sont désormais complétées.
-              </>
-            ) : (
-              <>
-                Les réponses de l'<strong>Essai #{formData.TrialOrder || currentTrialIndex}</strong> pour le <strong>Participant #{participantData?.UserID}</strong> ont été enregistrées avec succès.
-                {currentTrialIndex < (activeTrials.length || 0) ? (
-                  <>
-                    <br /><br />
-                    Souhaitez-vous passer directement à l'<strong>Essai suivant ({currentTrialIndex + 1}/{activeTrials.length})</strong> du protocole ?
-                  </>
-                ) : (
-                  <>
-                    <br /><br />
-                    🎉 C'était le dernier essai de la séquence de contrebalancement pour ce participant !
-                  </>
+            </>
+          ) : hasActiveParticipant ? (
+            <>
+              <Typography color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+                Cette étape est terminée. Vous pouvez prévenir l&apos;expérimentateur.
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => navigate('/session')}
+                  sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '10px', px: 4, py: 1.4 }}
+                >
+                  Retour à la session
+                </Button>
+                {formTiming === 'trial' && currentTrialIndex < activeTrials.length && (
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<SkipNextIcon />}
+                    onClick={goToNextTrial}
+                    sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '10px' }}
+                  >
+                    Essai suivant ({currentTrialIndex + 1})
+                  </Button>
                 )}
-              </>
-            )}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setPostSubmitDialog(false)} color="inherit" sx={{ textTransform: 'none' }}>
-            Rester sur ce formulaire
-          </Button>
-          <Button
-            onClick={() => { setPostSubmitDialog(false); navigate('/participant'); }}
-            variant={formTiming === 'trial' ? 'outlined' : 'contained'}
-            color="primary"
-            sx={{ textTransform: 'none', fontWeight: 700 }}
-          >
-            {formTiming === 'pre' ? "Aller au protocole (Essai 1)" : "Retourner à la session"}
-          </Button>
-          {formTiming === 'trial' && currentTrialIndex < (activeTrials.length || 0) && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<SkipNextIcon />}
-              onClick={goToNextTrial}
-              sx={{ textTransform: 'none', fontWeight: 700 }}
-            >
-              Essai suivant ({currentTrialIndex + 1})
-            </Button>
+              </Box>
+            </>
+          ) : (
+            <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mt: 3 }}>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={startNewResponse}
+                sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '10px', px: 4 }}
+              >
+                Nouvelle réponse
+              </Button>
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={handleBack}
+                sx={{ textTransform: 'none', fontWeight: 700, borderRadius: '10px' }}
+              >
+                Retour
+              </Button>
+            </Box>
           )}
-        </DialogActions>
-      </Dialog>
+
+          <Box sx={{ mt: 3 }}>
+            <Button
+              size="small"
+              color="inherit"
+              onClick={() => setCompletion(null)}
+              sx={{ textTransform: 'none', color: '#94a3b8' }}
+            >
+              Modifier mes réponses
+            </Button>
+          </Box>
+        </Paper>
+      ) : (
+        <>
+          {/* Sans session active, les paramètres (UserID, bloc...) se saisissent à la main */}
+          {!hasActiveParticipant && selectedParameter && parameterFields.length > 0 && (
+            <div className="parameter-fields form-parameter-fields">
+              {parameterFields.map(renderField)}
+            </div>
+          )}
+
+          <div className="form-heading">
+            {stepInfo && stepInfo.total > 1 && (
+              <Typography variant="overline" sx={{ color: '#2563eb', fontWeight: 800, letterSpacing: '1px' }}>
+                Questionnaire {stepInfo.position} sur {stepInfo.total}
+              </Typography>
+            )}
+            <h1 style={{ margin: 0 }}>{formTitle}</h1>
+            {fieldsDescription && <p style={{ margin: '8px 0 0 0', color: '#64748b' }}>{fieldsDescription}</p>}
+          </div>
+
+          <div className="fields-container">
+            {loadError ? (
+              <Alert
+                severity="error"
+                action={
+                  <Button color="inherit" size="small" onClick={handleBack}>
+                    Retour
+                  </Button>
+                }
+              >
+                {loadError}
+              </Alert>
+            ) : loading && fieldsFields.length === 0 ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate>
+                {fieldsFields.map(renderField)}
+                <Button
+                  variant="contained"
+                  size="large"
+                  fullWidth
+                  endIcon={<SendIcon />}
+                  type="submit"
+                  disabled={submitting || loading}
+                  sx={{ mt: 2, py: 1.4, textTransform: 'none', fontWeight: 700, fontSize: '1rem', borderRadius: '10px' }}
+                >
+                  {submitting
+                    ? "Envoi..."
+                    : dataID === undefined
+                    ? "Valider mes réponses"
+                    : "Enregistrer les modifications"}
+                </Button>
+              </form>
+            )}
+          </div>
+        </>
+      )}
 
       <Snackbar
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}

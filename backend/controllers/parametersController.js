@@ -1,39 +1,30 @@
-const path = require('path');
-const { readJson, listJsonFiles, safeJsonFileName } = require('../services/fileService');
+const { buildParameterConfigs } = require('../services/protocolService');
 
-// Chemin vers le dossier contenant les paramètres
-const parametersPath = path.join(__dirname, '../parameters');
+// Les paramètres (UserID, Block, facteurs...) sont déduits du protocole actif.
 
-// Méthode pour obtenir la liste des paramètres
+// Liste des jeux de paramètres
 exports.getParameters = (req, res) => {
   try {
-    const parameters = [];
-    listJsonFiles(parametersPath).forEach((file) => {
-      try {
-        const content = readJson(path.join(parametersPath, file), null);
-        if (content) parameters.push({ ...content, file });
-      } catch (error) {
-        console.error(`Erreur de lecture du fichier paramètre ${file}:`, error);
-      }
-    });
-    res.json(parameters);
+    const configs = buildParameterConfigs();
+    res.json(Object.entries(configs).map(([file, config]) => ({ ...config, file })));
   } catch (err) {
     console.error('Erreur getParameters:', err);
     res.status(500).send('Erreur lors de la lecture des paramètres');
   }
 };
 
-// Méthode pour obtenir un paramètre spécifique
+// Un jeu de paramètres, par nom (avec ou sans .json)
 exports.getParameterByName = (req, res) => {
-  const fileName = safeJsonFileName(req.params.parameterName);
-  if (!fileName) return res.status(400).send('Nom de paramètre invalide');
-
   try {
-    const content = readJson(path.join(parametersPath, fileName), null);
-    if (!content) return res.status(404).send('Parameter not found');
-    res.json(content);
-  } catch (parseErr) {
-    console.error('Erreur de parsing:', parseErr);
+    const raw = String(req.params.parameterName || '');
+    const name = raw.toLowerCase().endsWith('.json') ? raw : `${raw}.json`;
+    const configs = buildParameterConfigs();
+    if (!Object.prototype.hasOwnProperty.call(configs, name)) {
+      return res.status(404).send('Parameter not found');
+    }
+    res.json(configs[name]);
+  } catch (err) {
+    console.error('Erreur getParameterByName:', err);
     res.status(500).send('Erreur lors de la lecture du paramètre');
   }
 };

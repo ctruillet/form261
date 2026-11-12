@@ -349,8 +349,8 @@ const Data = () => {
   if (processedData.length === 0) {
     return (
       <Box sx={{ maxWidth: '1000px', margin: '0 auto', p: 3 }}>
-        <Typography variant="h4" fontWeight={700} gutterBottom>
-          Graphiques & Statistiques
+        <Typography variant="h4" fontWeight={800} color="#0f172a" gutterBottom>
+          Résultats
         </Typography>
         <Alert severity="info" sx={{ mt: 3 }}>
           Aucune donnée numérique enregistrée pour le moment. Remplissez des formulaires ou générez un jeu de données pour visualiser les statistiques.
@@ -363,14 +363,9 @@ const Data = () => {
     <Box sx={{ maxWidth: '1200px', margin: '0 auto', p: 2 }}>
       {/* En-tête */}
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={800} color="#0f172a" gutterBottom>
-            Graphiques & Tests Statistiques
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Visualisation simplifiée des moyennes par condition et détection automatique des différences statistiquement significatives (ANOVA / Test t).
-          </Typography>
-        </Box>
+        <Typography variant="h4" fontWeight={800} color="#0f172a">
+          Résultats
+        </Typography>
         <Stack direction="row" spacing={1.5} sx={{ flexWrap: 'wrap' }}>
           <Button
             variant="outlined"

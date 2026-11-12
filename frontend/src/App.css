@@ -57,6 +57,16 @@ body {
   overflow-x: auto;
 }
 
+/* Saisie d'un questionnaire : pas de menu, contenu centré et étroit pour une lecture confortable */
+.main-content-focus {
+  padding: 24px 20px 48px;
+}
+
+.main-content-focus .fields-page {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
 /* Scrollbar moderne et épurée */
 ::-webkit-scrollbar {
   width: 7px;

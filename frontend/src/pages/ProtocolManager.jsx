@@ -405,10 +405,10 @@ export default function ProtocolManager() {
             variant="outlined"
             size="small"
             startIcon={<PersonIcon />}
-            onClick={() => navigate('/participant')}
+            onClick={() => navigate('/session')}
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '8px' }}
           >
-            Session & Sujets
+            Session
           </Button>
 
           <Button

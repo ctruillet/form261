@@ -21,7 +21,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import HomeIcon from '@mui/icons-material/Home';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
@@ -200,7 +199,7 @@ const CreateForm = () => {
     const loadFormToEdit = async () => {
       setIsLoadingData(true);
       try {
-        const formRes = await axios.get(`/api/forms/id=${id}`);
+        const formRes = await axios.get(`/api/forms/${id}`);
         const formData = formRes.data;
         if (!formData) return;
 
@@ -503,10 +502,10 @@ const CreateForm = () => {
             variant="outlined"
             size="medium"
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/manage-forms')}
+            onClick={() => navigate('/forms')}
             sx={{ textTransform: 'none', fontWeight: 600, borderRadius: '8px' }}
           >
-            Gestion des formulaires
+            Questionnaires
           </Button>
 
           <Button
@@ -558,17 +557,9 @@ const CreateForm = () => {
                 color="inherit"
                 size="small"
                 startIcon={<FormatListBulletedIcon />}
-                onClick={() => navigate('/manage-forms')}
+                onClick={() => navigate('/forms')}
               >
-                Gestion
-              </Button>
-              <Button
-                color="inherit"
-                size="small"
-                startIcon={<HomeIcon />}
-                onClick={() => navigate('/')}
-              >
-                Accueil
+                Questionnaires
               </Button>
             </Stack>
           }

@@ -1,262 +1,161 @@
-const fs = require('fs');
 const path = require('path');
+const { readJson, writeJson } = require('../services/fileService');
+const { readAllAnswers, writeAnswers } = require('../services/answersService');
+const { loadProtocol } = require('../services/protocolService');
 
 const participantsFilePath = path.join(__dirname, '../participants.json');
-const answersFolderPath = path.join(__dirname, '../answers/');
 
-const ensureParticipantsFileExists = () => {
-  if (!fs.existsSync(participantsFilePath)) {
-    fs.writeFileSync(participantsFilePath, JSON.stringify([], null, 2), 'utf8');
-  }
+const idOf = (p) => String(p.UserID || p.id);
+
+const readParticipants = () => {
+  const participants = readJson(participantsFilePath, []);
+  return Array.isArray(participants) ? participants : [];
 };
 
-const getAnswersFiles = () => {
-  if (!fs.existsSync(answersFolderPath)) return [];
-  try {
-    const files = fs.readdirSync(answersFolderPath);
-    return (files || []).filter((f) => path.extname(f) === '.json');
-  } catch (e) {
-    return [];
-  }
-};
+const writeParticipants = (participants) => writeJson(participantsFilePath, participants);
 
-// Récupérer tous les participants avec leurs statistiques de complétion
-exports.getParticipants = (req, res) => {
-  ensureParticipantsFileExists();
-
-  try {
-    const rawData = fs.readFileSync(participantsFilePath, 'utf8');
-    const participants = JSON.parse(rawData || '[]');
-
-    // Charger les réponses pour compter les formulaires complétés
-    const answerFiles = getAnswersFiles();
-    const statsMap = {};
-
-    answerFiles.forEach((file) => {
-      try {
-        const fileContent = JSON.parse(fs.readFileSync(path.join(answersFolderPath, file), 'utf8') || '[]');
-        if (Array.isArray(fileContent)) {
-          fileContent.forEach((resp) => {
-            const uid = resp.parametersFields?.UserID;
-            if (!uid) return;
-            const uidStr = String(uid);
-            if (!statsMap[uidStr]) {
-              statsMap[uidStr] = { formCount: 0, forms: new Set(), blocks: new Set(), techniques: new Set() };
-            }
-            statsMap[uidStr].formCount += 1;
-            if (resp.name) statsMap[uidStr].forms.add(resp.name);
-            if (resp.parametersFields?.Block) statsMap[uidStr].blocks.add(resp.parametersFields.Block);
-            if (resp.parametersFields?.Technique) statsMap[uidStr].techniques.add(resp.parametersFields.Technique);
-          });
-        }
-      } catch (e) {
-        // Ignorer les erreurs ponctuelles de lecture de fichier
+// Applique `transform` aux réponses d'un sujet dans tous les questionnaires.
+// `transform(response)` retourne la réponse modifiée, ou null pour la supprimer.
+const updateAnswersOf = (userId, transform) => {
+  readAllAnswers().forEach(({ formID, content }) => {
+    let changed = false;
+    const updated = [];
+    content.forEach((resp) => {
+      if (String(resp.parametersFields?.UserID) !== userId) {
+        updated.push(resp);
+        return;
       }
+      changed = true;
+      const next = transform(resp);
+      if (next) updated.push(next);
+    });
+    if (changed) writeAnswers(formID, updated);
+  });
+};
+
+// Bloc le moins rempli (équilibrage du contrebalancement)
+const pickBalancedBlock = (participants) => {
+  const blockKeys = Object.keys(loadProtocol().blocks || {});
+  if (blockKeys.length === 0) return 'A';
+  const counts = Object.fromEntries(blockKeys.map((k) => [k, 0]));
+  participants.forEach((p) => {
+    if (p.Block && counts[p.Block] !== undefined) counts[p.Block] += 1;
+  });
+  return blockKeys.reduce((best, k) => (counts[k] < counts[best] ? k : best), blockKeys[0]);
+};
+
+// Liste des participants, avec leur nombre de réponses
+exports.getParticipants = (req, res) => {
+  try {
+    const counts = {};
+    readAllAnswers().forEach(({ content }) => {
+      content.forEach((resp) => {
+        const uid = resp.parametersFields?.UserID;
+        if (uid !== undefined && uid !== null && uid !== '') {
+          counts[String(uid)] = (counts[String(uid)] || 0) + 1;
+        }
+      });
     });
 
-    const enriched = participants.map((p) => {
-      const uidStr = String(p.UserID || p.id);
-      const stats = statsMap[uidStr] || { formCount: 0, forms: new Set(), blocks: new Set(), techniques: new Set() };
-      return {
-        ...p,
-        id: uidStr,
-        UserID: uidStr,
-        formCount: stats.formCount,
-        forms: Array.from(stats.forms),
-        blocks: Array.from(stats.blocks),
-        techniques: Array.from(stats.techniques),
-      };
-    });
+    const participants = readParticipants()
+      .map((p) => ({ ...p, id: idOf(p), UserID: idOf(p), formCount: counts[idOf(p)] || 0 }))
+      .sort((a, b) => a.UserID.localeCompare(b.UserID, undefined, { numeric: true }));
 
-    // Trier naturellement par UserID (1, 2, ... 10)
-    enriched.sort((a, b) => {
-      const numA = parseInt(a.UserID, 10);
-      const numB = parseInt(b.UserID, 10);
-      if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-      return String(a.UserID).localeCompare(String(b.UserID));
-    });
-
-    res.json(enriched);
+    res.json(participants);
   } catch (err) {
     console.error('Erreur getParticipants:', err);
     res.status(500).json({ message: 'Erreur lors de la lecture des participants' });
   }
 };
 
-// Créer un nouveau participant
+// Créer un participant (bloc équilibré automatiquement s'il n'est pas fourni)
 exports.createParticipant = (req, res) => {
-  ensureParticipantsFileExists();
-
   const data = req.body || {};
   const userId = String(data.UserID || data.id || '').trim();
-
   if (!userId) {
     return res.status(400).json({ message: 'Identifiant UserID requis' });
   }
 
   try {
-    const rawData = fs.readFileSync(participantsFilePath, 'utf8');
-    const participants = JSON.parse(rawData || '[]');
-
-    const exists = participants.some((p) => String(p.UserID || p.id) === userId);
-    if (exists) {
+    const participants = readParticipants();
+    if (participants.some((p) => idOf(p) === userId)) {
       return res.status(409).json({ message: `Le participant #${userId} existe déjà` });
-    }
-
-    const protocolFilePath = path.join(__dirname, '../protocol.json');
-    let defaultBlock = data.Block;
-    if (!defaultBlock) {
-      try {
-        if (fs.existsSync(protocolFilePath)) {
-          const protocol = JSON.parse(fs.readFileSync(protocolFilePath, 'utf8') || '{}');
-          const blockKeys = Object.keys(protocol.blocks || {});
-          if (blockKeys.length > 0) {
-            const counts = {};
-            blockKeys.forEach(k => { counts[k] = 0; });
-            participants.forEach(p => {
-              if (p.Block && counts[p.Block] !== undefined) counts[p.Block]++;
-            });
-            let minCount = Infinity;
-            blockKeys.forEach(k => {
-              if (counts[k] < minCount) {
-                minCount = counts[k];
-                defaultBlock = k;
-              }
-            });
-          }
-        }
-      } catch (e) {
-        defaultBlock = 'A';
-      }
     }
 
     const newParticipant = {
       currentTrialIndex: 1,
       ...data,
-      // Toujours après ...data : identifiant normalisé (chaîne, sans espaces superflus)
       id: userId,
       UserID: userId,
-      Block: defaultBlock || 'A',
+      Block: data.Block || pickBalancedBlock(participants),
     };
 
     participants.push(newParticipant);
-    fs.writeFileSync(participantsFilePath, JSON.stringify(participants, null, 2), 'utf8');
-
+    writeParticipants(participants);
     res.status(201).json(newParticipant);
   } catch (err) {
     console.error('Erreur createParticipant:', err);
-    res.status(500).json({ message: "Erreur lors de la création du participant" });
+    res.status(500).json({ message: 'Erreur lors de la création du participant' });
   }
 };
 
-// Modifier un participant existant
+// Modifier un participant (un changement d'identifiant ou de bloc est répercuté sur ses réponses)
 exports.updateParticipant = (req, res) => {
-  ensureParticipantsFileExists();
-
   const targetId = String(req.params.id).trim();
   const updatedData = req.body || {};
   const newUserId = String(updatedData.UserID || targetId).trim();
 
   try {
-    const rawData = fs.readFileSync(participantsFilePath, 'utf8');
-    let participants = JSON.parse(rawData || '[]');
-
-    const index = participants.findIndex((p) => String(p.UserID || p.id) === targetId);
+    const participants = readParticipants();
+    const index = participants.findIndex((p) => idOf(p) === targetId);
     if (index === -1) {
       return res.status(404).json({ message: `Participant #${targetId} introuvable` });
     }
 
-    const oldParticipant = participants[index];
-    const oldUserId = String(oldParticipant.UserID || oldParticipant.id);
-
-    // Refuser un renommage vers un identifiant déjà utilisé par un autre participant
-    // (sinon deux sujets partageraient le même UserID et leurs réponses seraient mélangées)
-    if (newUserId !== oldUserId && participants.some((p) => String(p.UserID || p.id) === newUserId)) {
+    const previous = participants[index];
+    const hasIdChanged = newUserId !== targetId;
+    if (hasIdChanged && participants.some((p) => idOf(p) === newUserId)) {
       return res.status(409).json({ message: `Le participant #${newUserId} existe déjà` });
     }
 
-    participants[index] = {
-      ...oldParticipant,
-      ...updatedData,
-      id: newUserId,
-      UserID: newUserId,
-    };
+    participants[index] = { ...previous, ...updatedData, id: newUserId, UserID: newUserId };
+    writeParticipants(participants);
 
-    fs.writeFileSync(participantsFilePath, JSON.stringify(participants, null, 2), 'utf8');
-
-    // Si le UserID a changé ou si le Block a changé, répercuter en cascade sur les réponses
-    const hasIdChanged = oldUserId !== newUserId;
-    const hasBlockChanged = updatedData.Block && updatedData.Block !== oldParticipant.Block;
-
+    const hasBlockChanged = Boolean(updatedData.Block) && updatedData.Block !== previous.Block;
     if (hasIdChanged || hasBlockChanged) {
-      const answerFiles = getAnswersFiles();
-      answerFiles.forEach((file) => {
-        const filePath = path.join(answersFolderPath, file);
-        try {
-          const content = JSON.parse(fs.readFileSync(filePath, 'utf8') || '[]');
-          let modified = false;
-
-          content.forEach((resp) => {
-            if (resp.parametersFields && String(resp.parametersFields.UserID) === oldUserId) {
-              if (hasIdChanged) resp.parametersFields.UserID = newUserId;
-              if (hasBlockChanged) resp.parametersFields.Block = updatedData.Block;
-              modified = true;
-            }
-          });
-
-          if (modified) {
-            fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf8');
-          }
-        } catch (e) {
-          console.error(`Erreur mise à jour cascade réponses ${file}:`, e);
-        }
-      });
+      updateAnswersOf(targetId, (resp) => ({
+        ...resp,
+        parametersFields: {
+          ...resp.parametersFields,
+          UserID: newUserId,
+          ...(hasBlockChanged ? { Block: updatedData.Block } : {}),
+        },
+      }));
     }
 
     res.json(participants[index]);
   } catch (err) {
     console.error('Erreur updateParticipant:', err);
-    res.status(500).json({ message: "Erreur lors de la mise à jour du participant" });
+    res.status(500).json({ message: 'Erreur lors de la mise à jour du participant' });
   }
 };
 
-// Supprimer un participant
+// Supprimer un participant et toutes ses réponses
 exports.deleteParticipant = (req, res) => {
-  ensureParticipantsFileExists();
-
   const targetId = String(req.params.id).trim();
 
   try {
-    const rawData = fs.readFileSync(participantsFilePath, 'utf8');
-    let participants = JSON.parse(rawData || '[]');
-
-    const initialLength = participants.length;
-    participants = participants.filter((p) => String(p.UserID || p.id) !== targetId);
-
-    if (participants.length === initialLength) {
+    const participants = readParticipants();
+    const remaining = participants.filter((p) => idOf(p) !== targetId);
+    if (remaining.length === participants.length) {
       return res.status(404).json({ message: `Participant #${targetId} introuvable` });
     }
 
-    fs.writeFileSync(participantsFilePath, JSON.stringify(participants, null, 2), 'utf8');
-
-    // Supprimer également les réponses associées à ce participant dans answers/
-    const answerFiles = getAnswersFiles();
-    answerFiles.forEach((file) => {
-      const filePath = path.join(answersFolderPath, file);
-      try {
-        const content = JSON.parse(fs.readFileSync(filePath, 'utf8') || '[]');
-        const filtered = content.filter((resp) => !resp.parametersFields || String(resp.parametersFields.UserID) !== targetId);
-        if (filtered.length !== content.length) {
-          fs.writeFileSync(filePath, JSON.stringify(filtered, null, 2), 'utf8');
-        }
-      } catch (e) {
-        console.error(`Erreur suppression cascade réponses ${file}:`, e);
-      }
-    });
-
+    writeParticipants(remaining);
+    updateAnswersOf(targetId, () => null);
     res.json({ message: `Participant #${targetId} supprimé avec succès` });
   } catch (err) {
     console.error('Erreur deleteParticipant:', err);
-    res.status(500).json({ message: "Erreur lors de la suppression du participant" });
+    res.status(500).json({ message: 'Erreur lors de la suppression du participant' });
   }
 };

@@ -1,22 +1,8 @@
-const fs = require('fs');
 const path = require('path');
-const { buildProtocol } = require('../services/counterbalancingService');
+const { readJson } = require('../services/fileService');
+const { loadProtocol, saveProtocolDefinition } = require('../services/protocolService');
 
-const protocolFilePath = path.join(__dirname, '../protocol.json');
 const participantsFilePath = path.join(__dirname, '../participants.json');
-const parametersFolderPath = path.join(__dirname, '../parameters');
-
-// N'écrit le fichier que si son contenu change réellement : syncParameterFiles est
-// appelé à chaque lecture du protocole, inutile de réécrire le disque à chaque GET.
-const writeIfChanged = (filePath, content, encoding = 'utf8') => {
-  try {
-    if (fs.readFileSync(filePath, encoding) === content) return;
-  } catch (e) {
-    // Fichier absent ou illisible : on (ré)écrit
-  }
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, content, encoding);
-};
 
 // Noms réservés : ils servent déjà de clés dans les essais et les paramètres
 const RESERVED_FACTOR_NAMES = ['userid', 'block', 'trialorder', 'macroblock', 'subtrial', 'id'];
@@ -45,198 +31,22 @@ const sanitizeFactors = (rawFactors) => {
     )];
     if (values.length === 0) return { error: `Le facteur "${name}" n'a aucune modalité définie` };
 
-    factors.push({ ...raw, name, values });
+    factors.push({ name, values });
   }
   return { factors };
 };
 
-const syncParameterFiles = (protocol) => {
-  if (!protocol || !protocol.factors || !protocol.blocks) return;
-  try {
-    const factors = protocol.factors;
-    const blockNames = Object.keys(protocol.blocks);
-    const blockedFactorName = protocol.blockedFactorName;
-    const blockedFactor = factors.find(f => f.name === blockedFactorName) || factors[0];
-
-    // 1. Active_Protocol.json (Trial parameters: UserID + TrialOrder + All factors + Block)
-    const paramFields = [
-      {
-        label: 'UserID',
-        sublabel: 'UserID unique du participant',
-        type: 'text',
-        placeholder: 'UserID',
-        required: true,
-        category: 'parameter'
-      },
-      {
-        label: 'TrialOrder',
-        sublabel: "Numéro d'ordre de l'essai",
-        type: 'text',
-        placeholder: 'TrialOrder',
-        required: false,
-        category: 'parameter'
-      },
-      ...factors.map(f => ({
-        label: f.name,
-        sublabel: `Facteur : ${f.name}`,
-        type: 'drop-down',
-        placeholder: f.name,
-        options: f.values,
-        required: true,
-        category: 'parameter'
-      })),
-      {
-        label: 'Block',
-        sublabel: 'Bloc de contrebalancement',
-        type: 'drop-down',
-        placeholder: 'Block',
-        options: blockNames,
-        required: true,
-        category: 'parameter'
-      }
-    ];
-
-    const activeParamConfig = {
-      title: "Paramètres d'Essai (Protocole Actif)",
-      name: 'Active_Protocol',
-      description: `Essais : UserID, TrialOrder, ${factors.map(f => f.name).join(', ')}, Block`,
-      fields: paramFields
-    };
-
-    writeIfChanged(
-      path.join(parametersFolderPath, 'Active_Protocol.json'),
-      JSON.stringify(activeParamConfig, null, 2),
-      'utf8'
-    );
-
-    // 2. UserID_TI_Block.json (UserID + Blocked Factor + Block)
-    if (blockedFactor) {
-      const modalityParamConfig = {
-        title: `Paramètres de Modalité (${blockedFactor.name})`,
-        name: 'UserID TI Block',
-        description: `Modalité : UserID, ${blockedFactor.name} et Block`,
-        fields: [
-          {
-            label: 'UserID',
-            sublabel: 'UserID unique',
-            type: 'text',
-            placeholder: 'UserID',
-            required: true,
-            category: 'parameter'
-          },
-          {
-            label: blockedFactor.name,
-            sublabel: `Modalité : ${blockedFactor.name}`,
-            type: 'drop-down',
-            placeholder: blockedFactor.name,
-            options: blockedFactor.values,
-            required: true,
-            category: 'parameter'
-          },
-          {
-            label: 'Block',
-            sublabel: "Bloc de l'expérience",
-            type: 'drop-down',
-            placeholder: 'Block',
-            options: blockNames,
-            required: true,
-            category: 'parameter'
-          }
-        ]
-      };
-
-      writeIfChanged(
-        path.join(parametersFolderPath, 'UserID_TI_Block.json'),
-        JSON.stringify(modalityParamConfig, null, 2),
-        'utf8'
-      );
-    }
-
-    // 3. UserID_Block.json (UserID + Block)
-    const generalParamConfig = {
-      title: 'Paramètres de Session',
-      name: 'UserID Block',
-      description: 'Session : UserID et Block',
-      fields: [
-        {
-          label: 'UserID',
-          sublabel: 'UserID unique',
-          type: 'text',
-          placeholder: 'UserID',
-          required: true,
-          category: 'parameter'
-        },
-        {
-          label: 'Block',
-          sublabel: "Bloc de l'expérience",
-          type: 'drop-down',
-          placeholder: 'Block',
-          options: blockNames,
-          required: true,
-          category: 'parameter'
-        }
-      ]
-    };
-
-    writeIfChanged(
-      path.join(parametersFolderPath, 'UserID_Block.json'),
-      JSON.stringify(generalParamConfig, null, 2),
-      'utf8'
-    );
-  } catch (paramSyncErr) {
-    console.error('Erreur synchronisation paramètre:', paramSyncErr);
-  }
-};
-
-const ensureProtocolFileExists = () => {
-  if (!fs.existsSync(protocolFilePath)) {
-    const defaultProtocol = buildProtocol({
-      factors: [
-        {
-          name: 'Technique',
-          type: 'within',
-          values: ['vMirrorAR', 'BalloonProbeAR', 'ConeProbeAR', 'ARPortal']
-        },
-        {
-          name: 'Tache',
-          type: 'within',
-          values: ['T1', 'T2']
-        }
-      ],
-      method: 'blocked',
-      blockedFactorName: 'Technique'
-    });
-    defaultProtocol.name = 'Protocole Expérimental';
-    fs.writeFileSync(protocolFilePath, JSON.stringify(defaultProtocol, null, 2), 'utf8');
-    syncParameterFiles(defaultProtocol);
-    return defaultProtocol;
-  }
-  try {
-    const data = fs.readFileSync(protocolFilePath, 'utf8');
-    const parsed = JSON.parse(data || '{}');
-    syncParameterFiles(parsed);
-    return parsed;
-  } catch (e) {
-    console.error('Erreur lecture protocol.json:', e);
-    return null;
-  }
-};
-
-// Récupérer la configuration du protocole actif
+// Récupérer le protocole actif (facteurs, conditions et blocs calculés)
 exports.getProtocol = (req, res) => {
   try {
-    const protocol = ensureProtocolFileExists();
-    if (!protocol) {
-      return res.status(500).json({ message: 'Le fichier protocol.json est illisible (JSON invalide)' });
-    }
-    res.json(protocol);
+    res.json(loadProtocol());
   } catch (error) {
     console.error('Erreur getProtocol:', error);
     res.status(500).json({ message: 'Erreur lors de la récupération du protocole' });
   }
 };
 
-// Mettre à jour les facteurs et recalculer les blocs
+// Mettre à jour la définition du protocole
 exports.updateProtocol = (req, res) => {
   try {
     const { name, counterbalancingMethod, blockedFactorName } = req.body || {};
@@ -246,87 +56,44 @@ exports.updateProtocol = (req, res) => {
       return res.status(400).json({ message: error });
     }
 
-    const newProtocol = buildProtocol({
-      factors,
-      method: counterbalancingMethod || 'blocked',
-      blockedFactorName: blockedFactorName || null
-    });
-    newProtocol.name = name || 'Protocole Expérimental';
-
-    // Sauvegarder dans protocol.json
-    fs.writeFileSync(protocolFilePath, JSON.stringify(newProtocol, null, 2), 'utf8');
-
-    // Mettre à jour en miroir tous les fichiers de paramètres
-    syncParameterFiles(newProtocol);
-
-    res.json(newProtocol);
+    res.json(saveProtocolDefinition({ name, factors, counterbalancingMethod, blockedFactorName }));
   } catch (error) {
     console.error('Erreur updateProtocol:', error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour du protocole' });
   }
 };
 
-// Récupérer les statistiques d'équilibrage des Blocs et le prochain bloc suggéré
+// Répartition des sujets par bloc et prochain bloc conseillé (le moins rempli)
 exports.getProtocolStats = (req, res) => {
   try {
-    const protocol = ensureProtocolFileExists();
-    const blocks = protocol?.blocks || {};
-    const blockKeys = Object.keys(blocks);
+    const blockKeys = Object.keys(loadProtocol().blocks || {});
+    const participants = readJson(participantsFilePath, []);
 
-    let participants = [];
-    if (fs.existsSync(participantsFilePath)) {
-      try {
-        participants = JSON.parse(fs.readFileSync(participantsFilePath, 'utf8') || '[]');
-      } catch (e) {
-        participants = [];
-      }
-    }
-
-    // Compter les participants par bloc
-    const counts = {};
-    blockKeys.forEach(k => {
-      counts[k] = 0;
+    const distribution = Object.fromEntries(blockKeys.map((k) => [k, 0]));
+    participants.forEach((p) => {
+      if (p.Block && distribution[p.Block] !== undefined) distribution[p.Block] += 1;
     });
 
-    participants.forEach(p => {
-      const b = p.Block;
-      if (b && counts[b] !== undefined) {
-        counts[b] += 1;
-      }
-    });
-
-    // Fusion des groupes de contrebalancement (ex: A1 et A2 -> Groupe A)
-    const groupCounts = {};
-    blockKeys.forEach(k => {
-      const groupRoot = k.replace(/[0-9]+$/, '') || k;
-      if (!groupCounts[groupRoot]) {
-        groupCounts[groupRoot] = {
-          group: groupRoot,
-          count: 0,
-          blocks: []
-        };
-      }
-      groupCounts[groupRoot].count += (counts[k] || 0);
-      groupCounts[groupRoot].blocks.push(k);
-    });
-
-    // Trouver le bloc le moins représenté (Load Balancing)
-    let minCount = Infinity;
     let suggestedBlock = blockKeys[0] || 'A';
+    blockKeys.forEach((k) => {
+      if (distribution[k] < distribution[suggestedBlock]) suggestedBlock = k;
+    });
 
-    blockKeys.forEach(k => {
-      if (counts[k] < minCount) {
-        minCount = counts[k];
-        suggestedBlock = k;
-      }
+    // Regroupement par famille de blocs (A1 et A2 -> groupe A), pour la matrice du protocole
+    const groupDistribution = {};
+    blockKeys.forEach((k) => {
+      const group = k.replace(/[0-9]+$/, '') || k;
+      if (!groupDistribution[group]) groupDistribution[group] = { group, count: 0, blocks: [] };
+      groupDistribution[group].count += distribution[k];
+      groupDistribution[group].blocks.push(k);
     });
 
     res.json({
       blocks: blockKeys,
-      distribution: counts,
-      groupDistribution: groupCounts,
+      distribution,
+      groupDistribution,
       suggestedBlock,
-      totalParticipants: participants.length
+      totalParticipants: participants.length,
     });
   } catch (error) {
     console.error('Erreur getProtocolStats:', error);

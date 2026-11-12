@@ -41,6 +41,33 @@ API_URL=http://localhost:5055 npm run dev --prefix frontend
 
 ---
 
+## 🧭 Utilisation
+
+L'application a deux modes, selon qu'une session est en cours ou non :
+
+- **Mode admin** (aucune session, avec le menu) :
+  - **Sessions** — démarrer ou reprendre la session d'un sujet.
+  - **Questionnaires** — créer, modifier, tester, supprimer les questionnaires.
+  - **Protocole** — facteurs, modalités et contrebalancement.
+  - **Réponses** — les réponses de tous les sujets, par questionnaire.
+  - **Résultats** — graphiques, tests statistiques et exports (Excel, CSV, JSON).
+- **Mode participant** (session active, sans menu) : seuls le déroulé de la session et les
+  questionnaires sont accessibles. La carte « Prochaine étape » indique l'unique action à faire ;
+  les questionnaires d'une même étape s'enchaînent automatiquement.
+  « Terminer la session » ramène au mode admin.
+
+## 🗄️ Données (dossier `backend/`)
+
+| Fichier | Contenu |
+|---|---|
+| `protocol.json` | Définition du protocole uniquement (nom, facteurs, méthode). Les blocs et les paramètres en sont déduits à la lecture. |
+| `forms.json` | Liste des questionnaires (nom, fichier de questions, moment de passation). |
+| `fields/<nom>.json` | Questions d'un questionnaire. |
+| `participants.json` | Sujets, bloc attribué, essai courant. |
+| `answers/<id>.json` | Réponses d'un questionnaire : une réponse par ligne, sans les champs déductibles de `forms.json`. |
+
+---
+
 ## 🛠️ Commandes utiles
 
 | Commande | Description |

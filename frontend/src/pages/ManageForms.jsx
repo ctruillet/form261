@@ -27,7 +27,6 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import DescriptionIcon from '@mui/icons-material/Description';
 
 const ManageForms = () => {
   const navigate = useNavigate();
@@ -110,25 +109,20 @@ const ManageForms = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: '1100px', margin: '0 auto', p: 3 }}>
+    <Box sx={{ maxWidth: '1000px', margin: '0 auto' }}>
       {/* En-tête */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700} gutterBottom>
-            Gestion des Formulaires
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Consultez, modifiez, testez ou supprimez les questionnaires de l&apos;expérimentation.
-          </Typography>
-        </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mb: 2.5 }}>
+        <Typography variant="h4" fontWeight={800} color="#0f172a">
+          Questionnaires
+        </Typography>
         <Button
           variant="contained"
           color="primary"
-          size="large"
           startIcon={<AddCircleOutlineIcon />}
-          onClick={() => navigate('/create-form')}
+          onClick={() => navigate('/forms/new')}
+          sx={{ textTransform: 'none', fontWeight: 700 }}
         >
-          Nouveau Formulaire
+          Nouveau questionnaire
         </Button>
       </Box>
 
@@ -145,7 +139,7 @@ const ManageForms = () => {
           <Button
             variant="contained"
             startIcon={<AddCircleOutlineIcon />}
-            onClick={() => navigate('/create-form')}
+            onClick={() => navigate('/forms/new')}
             sx={{ mt: 2 }}
           >
             Créer un premier formulaire
@@ -153,15 +147,13 @@ const ManageForms = () => {
         </Paper>
       ) : (
         <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-          <Table aria-label="Tableau des formulaires">
+          <Table size="small" aria-label="Tableau des questionnaires">
             <TableHead sx={{ backgroundColor: '#f5f7fa' }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 700, width: '80px' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Nom du Questionnaire</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Questionnaire</TableCell>
                 <TableCell sx={{ fontWeight: 700 }}>Moment de passation</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Fichier Questions</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Facteurs sauvegardés</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700, minWidth: '180px' }}>Actions</TableCell>
+                <TableCell sx={{ fontWeight: 700 }}>Enregistré avec</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 700, minWidth: '140px' }} />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -171,9 +163,6 @@ const ManageForms = () => {
                   hover
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                  <TableCell>
-                    <Chip label={`#${form.id}`} size="small" variant="outlined" color="primary" />
-                  </TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                       <span>{form.name}</span>
@@ -202,14 +191,6 @@ const ManageForms = () => {
                     {form.timing === 'free' && (
                       <Chip label="Libre / Autonome" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', backgroundColor: '#f1f5f9', color: '#475569' }} />
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      icon={<DescriptionIcon fontSize="small" />}
-                      label={form.fields}
-                      size="small"
-                      sx={{ backgroundColor: '#e3f2fd', color: '#1565c0' }}
-                    />
                   </TableCell>
                   <TableCell>
                     {(() => {
@@ -255,7 +236,7 @@ const ManageForms = () => {
                     <Tooltip title="Modifier le formulaire">
                       <IconButton
                         color="primary"
-                        onClick={() => navigate(`/edit-form/${form.id}`)}
+                        onClick={() => navigate(`/forms/${form.id}`)}
                         sx={{ mr: 1 }}
                       >
                         <EditIcon />

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import SpeedDial from '@mui/material/SpeedDial';
@@ -42,6 +42,8 @@ const Answers = () => {
   const [speedDialPosition, setSpeedDialPosition] = useState({ top: 0, left: 0 });
   const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedUser = searchParams.get("user") || "";
 
   useEffect(() => {
     const fetchResponses = async () => {
@@ -51,9 +53,15 @@ const Answers = () => {
 
         // Traitement des données
         const processedData = data.map((file) => {
-          if (!file || !Array.isArray(file.content) || file.content.length === 0) return null;
+          if (!file || !Array.isArray(file.content)) return null;
 
-          const reversedContent = [...file.content].reverse(); // Afficher les réponses les plus récentes en premier
+          // Filtre optionnel par sujet (?user=P01)
+          const content = file.content.filter(
+            (resp) => resp && (!selectedUser || String(resp.parametersFields?.UserID) === selectedUser)
+          );
+          if (content.length === 0) return null;
+
+          const reversedContent = [...content].reverse(); // Afficher les réponses les plus récentes en premier
 
           // Colonnes = union des clés de toutes les réponses (un formulaire modifié après coup
           // n'a pas les mêmes questions dans ses anciennes et nouvelles réponses)
@@ -89,8 +97,9 @@ const Answers = () => {
       }
     };
 
+    setSelectedRow(null);
     fetchResponses();
-  }, []);
+  }, [selectedUser]);
 
   const handleEdit = () => {
     if (!selectedRow) return;
@@ -135,7 +144,14 @@ const Answers = () => {
 
   return (
     <div className="answers-container">
-      <h2>Réponses des formulaires</h2>
+      <h2>
+        {selectedUser ? `Réponses du sujet #${selectedUser}` : "Réponses des formulaires"}
+        {selectedUser && (
+          <Button size="small" onClick={() => setSearchParams({}, { replace: true })} sx={{ ml: 2, textTransform: "none" }}>
+            Voir tous les sujets
+          </Button>
+        )}
+      </h2>
 
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', margin: '40px' }}>

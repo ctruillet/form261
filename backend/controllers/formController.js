@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { readJson, writeJson, listJsonFiles } = require("../services/fileService");
+const { isValidFormID, readAnswers, writeAnswers } = require("../services/answersService");
 
 // Chemin vers le fichier contenant les formulaires et les paramètres
 const formsData = path.join(__dirname, "../forms.json");
@@ -122,23 +123,7 @@ exports.getForms = (req, res) => {
   }
 };
 
-// Méthode pour obtenir un formulaire spécifique
-exports.getFormByName = (req, res) => {
-  const formName = req.params.formName;
-  sendForm(res, (form) => form.name === formName, `Formulaire ${formName} non trouvé`);
-};
-
-// Méthode pour obtenir le nom d'un formulaire à partir de son field et param
-exports.getFormByFieldsAndParam = (req, res) => {
-  const { fieldsName, paramName } = req.params;
-  sendForm(
-    res,
-    (form) => form.fields === fieldsName && form.param === paramName,
-    `Formulaire (${fieldsName} ${paramName}) non trouvé`
-  );
-};
-
-// Méthode pour obtenir le nom d'un formulaire à partir de son id
+// Méthode pour obtenir un formulaire à partir de son id
 exports.getFormByID = (req, res) => {
   const formID = req.params.formID;
   sendForm(res, (form) => String(form.id) === String(formID), `Formulaire ${formID} non trouvé`);
@@ -317,9 +302,18 @@ exports.deleteForm = (req, res) => {
       return res.status(404).json({ message: `Formulaire avec l'identifiant ${formID} non trouvé` });
     }
 
+    // Les réponses déjà collectées sont conservées. Elles sont lues AVANT la suppression
+    // (avec le nom et les fichiers du questionnaire) puis réécrites APRÈS : ces informations,
+    // qui ne peuvent plus être déduites de forms.json, restent ainsi dans le fichier de réponses.
+    const collectedAnswers = isValidFormID(formID) ? readAnswers(formID) : [];
+
     // Filtrer pour retirer le formulaire
     const updatedForms = forms.filter((f) => String(f.id) !== String(formID));
     writeForms(updatedForms);
+
+    if (collectedAnswers.length > 0) {
+      writeAnswers(formID, collectedAnswers);
+    }
 
     // Vérifier si un autre formulaire utilise encore ce même fichier fields
     const stillUsed = updatedForms.some((f) => f.fields === formToDelete.fields);
@@ -334,7 +328,6 @@ exports.deleteForm = (req, res) => {
       }
     }
 
-    // Les réponses déjà collectées (answers/<id>.json) sont volontairement conservées.
     res.json({
       message: "Formulaire supprimé avec succès",
       deletedId: formID,
