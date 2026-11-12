@@ -28,6 +28,8 @@ import ArrowDropDownCircleIcon from '@mui/icons-material/ArrowDropDownCircle';
 import ShortTextIcon from '@mui/icons-material/ShortText';
 import NotesIcon from '@mui/icons-material/Notes';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import '../styles/FieldManager.css';
 
@@ -150,14 +152,24 @@ const FieldManager = ({
                   p: 2.5,
                   borderRadius: 2,
                   border: '1px solid #e0e0e0',
-                  borderLeft: '5px solid #1976d2',
-                  backgroundColor: '#ffffff',
+                  borderLeft: field.hidden ? '5px solid #ed6c02' : '5px solid #1976d2',
+                  backgroundColor: field.hidden ? '#fafafa' : '#ffffff',
+                  opacity: field.hidden ? 0.75 : 1,
                 }}
               >
                 {/* En-tête de la carte */}
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                     <Chip label={`Question ${index + 1}`} size="small" color="primary" variant="outlined" />
+                    {field.hidden && (
+                      <Chip
+                        icon={<VisibilityOffIcon />}
+                        label="Masquée"
+                        size="small"
+                        color="warning"
+                        title="Cette question n'est pas présentée aux participants. Les réponses déjà enregistrées sont conservées."
+                      />
+                    )}
                     <FormControl size="small" sx={{ minWidth: 220 }}>
                       <InputLabel id={`type-select-label-${index}`}>Type de champ</InputLabel>
                       <Select
@@ -195,6 +207,14 @@ const FieldManager = ({
                       onClick={() => onMoveField(index, index + 1)}
                     >
                       <ArrowDownwardIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      title={field.hidden ? 'Afficher cette question aux participants' : 'Masquer cette question aux participants'}
+                      color={field.hidden ? 'warning' : 'default'}
+                      onClick={() => onUpdateField(index, { ...field, hidden: !field.hidden })}
+                    >
+                      {field.hidden ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
                     </IconButton>
                     <IconButton
                       size="small"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Box from '@mui/material/Box';
@@ -67,6 +67,14 @@ const getModalityColor = (str) => {
   return COLOR_PALETTE[index];
 };
 
+// Empreinte de ce qui détermine les blocs : sert à savoir si l'affichage diffère du protocole enregistré
+const protocolSignature = (method, blockedFactorName, factors) =>
+  JSON.stringify([
+    method,
+    method === 'blocked' ? (blockedFactorName || factors?.[0]?.name || null) : null,
+    (factors || []).map((f) => [f.name, f.values || []])
+  ]);
+
 export default function ProtocolManager() {
   const navigate = useNavigate();
   const { reloadProtocol } = useContext(ParticipantContext);
@@ -87,6 +95,11 @@ export default function ProtocolManager() {
   const [matrixViewMode, setMatrixViewMode] = useState('detailed');
   const [selectedInspectorBlock, setSelectedInspectorBlock] = useState('');
 
+  // true quand la matrice affichée correspond à des modifications non enregistrées
+  const [dirty, setDirty] = useState(false);
+  const savedSignatureRef = useRef('');
+  const hadMacroRef = useRef(null);
+
   // 1. Charger le protocole actif depuis l'API
   const fetchProtocolData = async () => {
     setLoading(true);
@@ -103,6 +116,12 @@ export default function ProtocolManager() {
         setBlockedFactorName(data.blockedFactorName || (data.factors?.[0]?.name) || '');
         setFactors(data.factors || []);
         setGeneratedProtocol(data);
+        savedSignatureRef.current = protocolSignature(
+          data.counterbalancingMethod || 'williams',
+          data.blockedFactorName || data.factors?.[0]?.name || '',
+          data.factors || []
+        );
+        setDirty(false);
 
         // Si macro-blocs présents, activer la vue groupée
         const firstBlockKey = data.blocks ? Object.keys(data.blocks)[0] : null;
@@ -133,6 +152,45 @@ export default function ProtocolManager() {
   useEffect(() => {
     fetchProtocolData();
   }, []);
+
+  // MISE À JOUR EN DIRECT : la matrice de contrebalancement est recalculée (sans enregistrer)
+  // à chaque modification des facteurs, des modalités ou de la méthode.
+  useEffect(() => {
+    if (loading) return undefined;
+    let cancelled = false;
+
+    const timer = setTimeout(async () => {
+      try {
+        const response = await axios.post('/api/protocol/preview', {
+          name,
+          counterbalancingMethod: method,
+          blockedFactorName: method === 'blocked' ? (blockedFactorName || factors[0]?.name) : null,
+          factors
+        });
+        if (cancelled) return;
+
+        setGeneratedProtocol(response.data);
+        setDirty(protocolSignature(method, blockedFactorName, factors) !== savedSignatureRef.current);
+
+        // Adapter la vue si le plan gagne ou perd ses macro-blocs
+        const firstKey = response.data?.blocks ? Object.keys(response.data.blocks)[0] : null;
+        const hasMacro = Boolean(firstKey && response.data.blocks[firstKey]?.[0]?.macroBlock !== undefined);
+        if (hasMacro !== hadMacroRef.current) {
+          hadMacroRef.current = hasMacro;
+          setMatrixViewMode(hasMacro ? 'synthetic' : 'detailed');
+        }
+      } catch (err) {
+        // Saisie incomplète (ex. deux facteurs de même nom) : on garde la dernière matrice valide
+        console.warn('Aperçu du protocole indisponible:', err.response?.data?.message || err.message);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [factors, method, blockedFactorName, loading]);
 
   // Calcul dynamique du nombre de conditions
   const totalConditionsCount = useMemo(() => {
@@ -228,6 +286,8 @@ export default function ProtocolManager() {
 
       const response = await axios.post('/api/protocol', payload);
       setGeneratedProtocol(response.data);
+      savedSignatureRef.current = protocolSignature(method, blockedFactorName, factors);
+      setDirty(false);
       await reloadProtocol();
 
       try {
@@ -328,6 +388,8 @@ export default function ProtocolManager() {
 
   const blocksObj = generatedProtocol?.blocks || {};
   const blockKeys = Object.keys(blocksObj);
+  // Bloc inspecté : celui choisi s'il existe encore dans la matrice courante, sinon le premier
+  const inspectorBlock = blockKeys.includes(selectedInspectorBlock) ? selectedInspectorBlock : (blockKeys[0] || '');
 
   // Vérifier si le protocole généré comporte des macro-blocs
   const hasMacroBlocks = blockKeys.length > 0 && blocksObj[blockKeys[0]]?.[0]?.macroBlock !== undefined;
@@ -374,6 +436,12 @@ export default function ProtocolManager() {
 
   return (
     <Box sx={{ maxWidth: '1240px', margin: '0 auto', p: { xs: 2, md: 3 } }}>
+      {dirty && (
+        <Alert severity="warning" sx={{ mb: 2, borderRadius: '10px' }}>
+          Aperçu en direct : la matrice ci-dessous reflète vos modifications, qui ne sont pas encore enregistrées.
+          Cliquez sur « Enregistrer &amp; Générer » pour les appliquer aux sessions.
+        </Alert>
+      )}
       {/* ========================================================================= */}
       {/* EN-TÊTE PRINCIPAL                                                         */}
       {/* ========================================================================= */}
@@ -1086,7 +1154,7 @@ export default function ProtocolManager() {
                 <TextField
                   select
                   size="small"
-                  value={selectedInspectorBlock || blockKeys[0] || ''}
+                  value={inspectorBlock}
                   onChange={(e) => setSelectedInspectorBlock(e.target.value)}
                   sx={{ width: '180px' }}
                 >
@@ -1100,7 +1168,7 @@ export default function ProtocolManager() {
 
               {/* Parcours chronologique */}
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2 }}>
-                {(blocksObj[selectedInspectorBlock || blockKeys[0]] || []).map((trial, tIdx) => {
+                {(blocksObj[inspectorBlock] || []).map((trial, tIdx) => {
                   const factorEntries = Object.entries(trial).filter(
                     ([k]) => !['trialOrder', 'macroBlock', 'subTrial'].includes(k)
                   );

@@ -85,6 +85,11 @@ const cleanField = (field = {}) => {
     cleaned.placeholder = field.placeholder;
   }
 
+  // Question masquée : conservée dans le questionnaire mais non présentée aux participants
+  if (field.hidden) {
+    cleaned.hidden = true;
+  }
+
   return cleaned;
 };
 

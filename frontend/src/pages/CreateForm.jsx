@@ -173,6 +173,9 @@ const CreateForm = () => {
     return [];
   }, [selectedParamConfig, formTiming, selectedParamFile]);
 
+  // Questions masquées : conservées dans le questionnaire, non présentées aux participants
+  const hiddenCount = fields.filter((f) => f.hidden).length;
+
   const handleTimingChange = (newTiming) => {
     setFormTiming(newTiming);
     setSelectedParamFile(getRecommendedParamFile(newTiming));
@@ -492,7 +495,8 @@ const CreateForm = () => {
             {formTag && <Chip label={formTag} size="small" sx={{ backgroundColor: '#eff6ff', color: '#1d4ed8' }} />}
           </Box>
           <Typography variant="body2" color="text.secondary">
-            {fields.length} question{fields.length > 1 ? 's' : ''} • Jalon : {TIMING_LABELS[formTiming] || formTiming}
+            {fields.length} question{fields.length > 1 ? 's' : ''}
+            {hiddenCount > 0 ? ` (dont ${hiddenCount} masquée${hiddenCount > 1 ? 's' : ''})` : ''} • Jalon : {TIMING_LABELS[formTiming] || formTiming}
             {paramVariables.length > 0 && ` (${paramVariables.join(', ')})`}
           </Typography>
         </Box>
@@ -745,7 +749,7 @@ const CreateForm = () => {
                 </Typography>
               ) : (
                 <Stack spacing={3}>
-                  {fields.map((field, idx) => (
+                  {fields.filter((field) => !field.hidden).map((field, idx) => (
                     <Box key={idx} sx={{ p: 2, border: '1px solid #eef2f6', borderRadius: 1.5 }}>
                       {field.type === 'range' && (
                         <RangeField

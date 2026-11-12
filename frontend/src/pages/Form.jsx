@@ -75,6 +75,9 @@ const Form = () => {
   const [editingExisting, setEditingExisting] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
   const urlValuesRef = useRef({});
+  // Réponses déjà enregistrées (en modification) : celles des questions masquées ou
+  // supprimées depuis ne sont pas affichées, mais doivent être conservées à l'enregistrement.
+  const existingFieldsRef = useRef({});
 
   // Contexte participant lu au moment du chargement, sans relancer le chargement à chaque changement
   const contextRef = useRef({});
@@ -113,7 +116,8 @@ const Form = () => {
       let description = "";
       try {
         const response = await axios.get(`/api/fields/${encodeURIComponent(fieldsName)}`);
-        fields = response.data.fields || [];
+        // Les questions masquées dans l'éditeur ne sont pas présentées
+        fields = (response.data.fields || []).filter((field) => !field.hidden);
         description = response.data.description || "";
       } catch (error) {
         console.error("Erreur lors de la récupération du field :", error);
@@ -249,6 +253,7 @@ const Form = () => {
       setFormTitle(formMeta?.name || existing?.name || "");
       setFormID(existing?.formID ?? formMeta?.id);
       setFormTiming(formMeta?.timing || 'trial');
+      existingFieldsRef.current = existing?.fieldsFields || {};
       setDataID(existing ? existing.id : undefined);
       setEditingExisting(Boolean(existing));
       setFormData(initialFormData);
@@ -410,7 +415,7 @@ const Form = () => {
       fieldsFile: fieldsName,
       paramFile: param || "",
       parametersFields: {},
-      fieldsFields: {},
+      fieldsFields: { ...existingFieldsRef.current },
     };
 
     fieldsFields.forEach((field) => {

@@ -1,6 +1,6 @@
 const path = require('path');
 const { readJson } = require('../services/fileService');
-const { loadProtocol, saveProtocolDefinition } = require('../services/protocolService');
+const { loadProtocol, saveProtocolDefinition, expandProtocol } = require('../services/protocolService');
 
 const participantsFilePath = path.join(__dirname, '../participants.json');
 
@@ -60,6 +60,32 @@ exports.updateProtocol = (req, res) => {
   } catch (error) {
     console.error('Erreur updateProtocol:', error);
     res.status(500).json({ message: 'Erreur lors de la mise à jour du protocole' });
+  }
+};
+
+// Aperçu : calcule les blocs d'une définition en cours d'édition, SANS l'enregistrer.
+// Sert à mettre à jour la matrice de contrebalancement au fil des modifications.
+exports.previewProtocol = (req, res) => {
+  try {
+    const { name, counterbalancingMethod, blockedFactorName } = req.body || {};
+
+    // En cours de saisie, un facteur peut ne pas encore avoir de modalité : il est ignoré
+    const draft = (Array.isArray(req.body?.factors) ? req.body.factors : []).filter(
+      (f) => Array.isArray(f?.values) && f.values.some((v) => String(v ?? '').trim())
+    );
+    if (draft.length === 0) {
+      return res.json(expandProtocol({ name, factors: [], counterbalancingMethod, blockedFactorName }));
+    }
+
+    const { factors, error } = sanitizeFactors(draft);
+    if (error) {
+      return res.status(400).json({ message: error });
+    }
+
+    res.json(expandProtocol({ name, factors, counterbalancingMethod, blockedFactorName }));
+  } catch (error) {
+    console.error('Erreur previewProtocol:', error);
+    res.status(500).json({ message: "Erreur lors du calcul de l'aperçu du protocole" });
   }
 };
 

@@ -100,4 +100,4 @@ const buildParameterConfigs = (protocol = loadProtocol()) => {
   return configs;
 };
 
-module.exports = { loadProtocol, saveProtocolDefinition, buildParameterConfigs };
+module.exports = { loadProtocol, saveProtocolDefinition, expandProtocol, buildParameterConfigs };

@@ -44,7 +44,8 @@
         "Joystick",
         "GoTo",
         "IMU"
-      ]
+      ],
+      "hidden": true
     },
     {
       "label": "Commentaires et nuances",
